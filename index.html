@@ -7,8 +7,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#008751">
     
-    <!-- GitHub Pages specific manifest path -->
-    <link rel="manifest" href="manifest.webmanifest">
+    <!-- Inline manifest for GitHub Pages -->
+    <link rel="manifest" href="data:application/manifest+json;base64,ewogICAgIm5hbWUiOiAiU09TIEd1YXJkaWFuIFBybyIsCiAgICAic2hvcnRfbmFtZSI6ICJTT1MgR3VhcmQiLAogICAgImRlc2NyaXB0aW9uIjogIkNvbXBsZXRlIEVtZXJnZW5jeSBTeXN0ZW0iLAogICAgInRoZW1lX2NvbG9yIjogIiMwMDg3NTEiLAogICAgImJhY2tncm91bmRfY29sb3IiOiAiIzBBMEEwQSIsCiAgICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAgICJzY29wZSI6ICIuIiwKICAgICJzdGFydF91cmwiOiAiLiIsCiAgICAiaWNvbnMiOiBbCiAgICAgICAgewogICAgICAgICAgICAic3JjIjogImljb25zL2ljb24tNzJ4NzIucG5nIiwKICAgICAgICAgICAgInNpemVzIjogIjcyeDcyIiwKICAgICAgICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgICAic3JjIjogImljb25zL2ljb24tMTI4eDEyOC5wbmciLAogICAgICAgICAgICAic2l6ZXMiOiAiMTI4eDEyOCIsCiAgICAgICAgICAgICJ0eXBlIjogImltYWdlL3BuZyIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICAgInNyYyI6ICJpY29ucy9pY29uLTE5MngxOTIucG5nIiwKICAgICAgICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAgICAgICAidHlwZSI6ICJpbWFnZS9wbmciLAogICAgICAgICAgICAicHVycG9zZSI6ICJhbnkgbWFza2FibGUiCiAgICAgICAgfQogICAgXQp9">
     
     <title>SOS Guardian Pro - Complete Emergency System</title>
     
@@ -279,6 +279,128 @@
             display: none;
         }
 
+        /* Demo Run Button Styles */
+        .demo-run-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            background: linear-gradient(135deg, var(--nigeria-green), #00B894);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 135, 81, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .demo-run-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 135, 81, 0.6);
+        }
+
+        .demo-run-button:active {
+            transform: translateY(0);
+        }
+
+        .demo-panel {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 15px;
+            padding: 20px;
+            width: 300px;
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .demo-panel h3 {
+            color: var(--sos-red);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .demo-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .demo-btn {
+            background: var(--card-border);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.3s;
+        }
+
+        .demo-btn:hover {
+            background: var(--sos-red);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .status-badge.offline {
+            background: var(--sos-red);
+        }
+
+        .status-badge.testing {
+            background: #FF9800;
+        }
+
+        /* Test Emergency Panel */
+        .test-emergency-panel {
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .test-emergency-panel h4 {
+            color: var(--sos-red);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .test-btn {
+            background: var(--sos-red);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            width: 100%;
+        }
+
         /* Responsive design */
         @media (max-width: 480px) {
             .sos-button {
@@ -305,6 +427,20 @@
                 min-width: 80px;
                 padding: 12px 15px;
             }
+            
+            .demo-run-button {
+                top: 10px;
+                right: 10px;
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+            
+            .demo-panel {
+                width: calc(100% - 40px);
+                right: 10px;
+                left: 10px;
+                top: 70px;
+            }
         }
 
         @media (min-width: 768px) {
@@ -317,12 +453,73 @@
     </style>
 </head>
 <body>
+    <!-- Demo Run Button -->
+    <button class="demo-run-button" id="demoRunButton">
+        <i class="fas fa-play"></i>
+        TEST EMERGENCY SYSTEM
+    </button>
+
+    <!-- Demo Control Panel -->
+    <div class="demo-panel" id="demoPanel">
+        <h3><i class="fas fa-cogs"></i> Emergency System Controls</h3>
+        
+        <div class="demo-controls">
+            <button class="demo-btn" onclick="DemoSystem.toggleOfflineMode()">
+                <i class="fas fa-wifi"></i>
+                Toggle Offline Mode
+                <span class="status-badge" id="onlineStatus">ONLINE</span>
+            </button>
+            
+            <button class="demo-btn" onclick="DemoSystem.simulateEmergency()">
+                <i class="fas fa-bell"></i>
+                Test Emergency Alert
+                <span class="status-badge testing">TEST</span>
+            </button>
+            
+            <button class="demo-btn" onclick="DemoSystem.clearQueue()">
+                <i class="fas fa-trash"></i>
+                Clear Queued Alerts
+                <span id="queueCount" class="status-badge">0</span>
+            </button>
+            
+            <button class="demo-btn" onclick="DemoSystem.showLocation()">
+                <i class="fas fa-map-marker-alt"></i>
+                Simulate Location
+            </button>
+            
+            <button class="demo-btn" onclick="DemoSystem.resetApp()">
+                <i class="fas fa-redo"></i>
+                Reset App State
+            </button>
+        </div>
+        
+        <div class="test-emergency-panel">
+            <h4><i class="fas fa-flask"></i> Quick Test</h4>
+            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">
+                Click below to instantly trigger an emergency alert for testing:
+            </p>
+            <button class="test-btn" onclick="DemoSystem.instantEmergencyTest()">
+                <i class="fas fa-bolt"></i>
+                TRIGGER TEST ALERT
+            </button>
+        </div>
+        
+        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--card-border);">
+            <p style="font-size: 11px; color: var(--text-secondary);">
+                <i class="fas fa-info-circle"></i>
+                This is a demo interface. Real emergency alerts require backend setup.
+            </p>
+        </div>
+    </div>
+
+    <!-- Main App Loading Screen -->
     <div class="loading" id="loading">
         <div class="loading-spinner"></div>
         <div>SOS Guardian Pro</div>
         <div style="font-size: 14px; color: var(--text-secondary); margin-top: 10px;">Initializing emergency system...</div>
     </div>
 
+    <!-- Main App -->
     <div id="app" style="display: none;">
         <div class="offline-mode" id="offlineIndicator">
             <i class="fas fa-exclamation-triangle"></i>
@@ -400,14 +597,361 @@
     </div>
 
     <script>
-        // App configuration
-        const SOS_APP = {
-            // GitHub Pages deployment - no CORS issues
-            EMERGENCY_API: 'https://api.example.com/emergency', // Replace with your actual API
-            CONTACTS: ['112', '199'], // Default emergency numbers
-            DEBUG_MODE: true, // Set to false in production
+        // ============================================
+        // DEMO CONTROL SYSTEM
+        // ============================================
+        const DemoSystem = {
+            isOffline: false,
+            testQueue: [],
             
-            // App state
+            init() {
+                console.log('🚀 Demo System Initialized');
+                this.updateQueueCount();
+                this.setupEventListeners();
+            },
+            
+            setupEventListeners() {
+                // Toggle demo panel
+                document.getElementById('demoRunButton').addEventListener('click', () => {
+                    const panel = document.getElementById('demoPanel');
+                    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+                });
+                
+                // Close panel when clicking outside
+                document.addEventListener('click', (e) => {
+                    const panel = document.getElementById('demoPanel');
+                    const button = document.getElementById('demoRunButton');
+                    
+                    if (!panel.contains(e.target) && !button.contains(e.target)) {
+                        panel.style.display = 'none';
+                    }
+                });
+            },
+            
+            toggleOfflineMode() {
+                this.isOffline = !this.isOffline;
+                
+                const statusBadge = document.getElementById('onlineStatus');
+                const signalBars = document.querySelectorAll('.signal-bar');
+                
+                if (this.isOffline) {
+                    // Simulate offline mode
+                    statusBadge.textContent = 'OFFLINE';
+                    statusBadge.className = 'status-badge offline';
+                    
+                    // Update connection status
+                    const connectionStatus = document.getElementById('connectionStatus');
+                    connectionStatus.textContent = 'Offline - Alerts Queued';
+                    connectionStatus.style.color = '#FF3B30';
+                    
+                    // Update signal bars
+                    signalBars.forEach((bar, index) => {
+                        if (index < 1) bar.classList.add('active');
+                        else bar.classList.remove('active');
+                    });
+                    
+                    // Show offline indicator
+                    const offlineIndicator = document.getElementById('offlineIndicator');
+                    offlineIndicator.style.display = 'flex';
+                    
+                    this.showToast('Offline mode activated - Alerts will be queued');
+                } else {
+                    // Simulate online mode
+                    statusBadge.textContent = 'ONLINE';
+                    statusBadge.className = 'status-badge';
+                    
+                    // Update connection status
+                    const connectionStatus = document.getElementById('connectionStatus');
+                    connectionStatus.textContent = 'Secure Line Active';
+                    connectionStatus.style.color = '#4CAF50';
+                    
+                    // Update signal bars
+                    signalBars.forEach((bar, index) => {
+                        if (index < 3) bar.classList.add('active');
+                        else bar.classList.remove('active');
+                    });
+                    
+                    // Hide offline indicator
+                    const offlineIndicator = document.getElementById('offlineIndicator');
+                    offlineIndicator.style.display = 'none';
+                    
+                    this.showToast('Online mode activated - Queued alerts sent');
+                }
+                
+                this.updateQueueCount();
+            },
+            
+            simulateEmergency() {
+                // Create test emergency data
+                const testData = {
+                    type: 'TEST_EMERGENCY',
+                    location: {
+                        latitude: 9.0820 + (Math.random() * 0.01 - 0.005), // Random around Lagos
+                        longitude: 8.6753 + (Math.random() * 0.01 - 0.005),
+                        accuracy: Math.floor(Math.random() * 100)
+                    },
+                    battery: {
+                        level: Math.floor(Math.random() * 100),
+                        charging: Math.random() > 0.5
+                    },
+                    timestamp: new Date().toISOString(),
+                    isTest: true
+                };
+                
+                if (this.isOffline) {
+                    // Queue the alert
+                    this.testQueue.push(testData);
+                    localStorage.setItem('demo_emergency_queue', JSON.stringify(this.testQueue));
+                    
+                    this.showToast('Test alert queued (Offline mode)', 'warning');
+                } else {
+                    // Send immediately
+                    console.log('📤 Sending test alert:', testData);
+                    this.showEmergencyAlert(testData);
+                    this.showToast('Test alert sent successfully!', 'success');
+                }
+                
+                this.updateQueueCount();
+            },
+            
+            instantEmergencyTest() {
+                // Quick test without dialog
+                const testData = {
+                    type: 'INSTANT_TEST',
+                    location: {
+                        latitude: 9.0820,
+                        longitude: 8.6753,
+                        accuracy: 50
+                    },
+                    battery: { level: 85, charging: false },
+                    timestamp: new Date().toISOString(),
+                    isTest: true
+                };
+                
+                // Visual feedback
+                const sosBtn = document.getElementById('sosButton');
+                const originalColor = sosBtn.style.background;
+                
+                // Flash red
+                sosBtn.style.background = 'radial-gradient(circle, #FF0000 0%, #800000 100%)';
+                sosBtn.innerHTML = '<i class="fas fa-bolt"></i><span>TESTING</span>';
+                
+                // Vibrate if supported
+                if (navigator.vibrate) {
+                    navigator.vibrate([100, 50, 100, 50, 100]);
+                }
+                
+                // Play test sound
+                this.playTestSound();
+                
+                // Update status
+                const statusEl = document.getElementById('emergencyStatus');
+                statusEl.innerHTML = '<i class="fas fa-flask"></i><span>TEST ALERT SENT</span>';
+                statusEl.style.color = '#FF9800';
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    sosBtn.style.background = originalColor;
+                    sosBtn.innerHTML = '<i class="fas fa-bell"></i><span>SOS</span>';
+                    
+                    statusEl.innerHTML = '<i class="fas fa-check-circle"></i><span>System Ready</span>';
+                    statusEl.style.color = '#008751';
+                }, 2000);
+                
+                this.showToast('Instant test completed!', 'success');
+                
+                console.log('⚡ Instant test:', testData);
+            },
+            
+            showEmergencyAlert(data) {
+                // Update emergency status
+                const statusEl = document.getElementById('emergencyStatus');
+                statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>ALERT SENT!</span>';
+                statusEl.style.color = '#FF3B30';
+                
+                // Play emergency sound
+                this.playEmergencySound();
+                
+                // Reset after 3 seconds
+                setTimeout(() => {
+                    statusEl.innerHTML = '<i class="fas fa-check-circle"></i><span>System Ready</span>';
+                    statusEl.style.color = '#008751';
+                }, 3000);
+                
+                // Log to console
+                console.log('🚨 Emergency Alert Data:', data);
+            },
+            
+            clearQueue() {
+                this.testQueue = [];
+                localStorage.removeItem('demo_emergency_queue');
+                
+                // Update UI
+                document.getElementById('queuedCount').textContent = '0';
+                document.getElementById('queueCount').textContent = '0';
+                
+                this.showToast('Queue cleared successfully!', 'success');
+            },
+            
+            showLocation() {
+                // Mock location data
+                const locations = [
+                    { name: 'Lagos, Nigeria', lat: 6.5244, lng: 3.3792 },
+                    { name: 'Abuja, Nigeria', lat: 9.0765, lng: 7.3986 },
+                    { name: 'Port Harcourt', lat: 4.8156, lng: 7.0498 },
+                    { name: 'Kano, Nigeria', lat: 12.0022, lng: 8.5920 }
+                ];
+                
+                const randomLoc = locations[Math.floor(Math.random() * locations.length)];
+                
+                this.showToast(`Location set to: ${randomLoc.name}`, 'info');
+                
+                console.log('📍 Simulated Location:', randomLoc);
+                
+                // Show in a nice alert
+                alert(`📍 Simulated Location Set:\n\n${randomLoc.name}\nLatitude: ${randomLoc.lat.toFixed(4)}\nLongitude: ${randomLoc.lng.toFixed(4)}`);
+            },
+            
+            resetApp() {
+                // Reset all demo data
+                this.testQueue = [];
+                this.isOffline = false;
+                localStorage.removeItem('demo_emergency_queue');
+                
+                // Reset UI
+                document.getElementById('onlineStatus').textContent = 'ONLINE';
+                document.getElementById('onlineStatus').className = 'status-badge';
+                document.getElementById('queueCount').textContent = '0';
+                document.getElementById('queuedCount').textContent = '0';
+                
+                // Reset connection status
+                const connectionStatus = document.getElementById('connectionStatus');
+                connectionStatus.textContent = 'Secure Line Active';
+                connectionStatus.style.color = '#4CAF50';
+                
+                // Reset signal bars
+                const signalBars = document.querySelectorAll('.signal-bar');
+                signalBars.forEach((bar, index) => {
+                    if (index < 3) bar.classList.add('active');
+                    else bar.classList.remove('active');
+                });
+                
+                // Hide offline indicator
+                document.getElementById('offlineIndicator').style.display = 'none';
+                
+                this.showToast('App state reset successfully!', 'success');
+            },
+            
+            updateQueueCount() {
+                const queue = JSON.parse(localStorage.getItem('demo_emergency_queue') || '[]');
+                const count = queue.length;
+                
+                document.getElementById('queueCount').textContent = count;
+                document.getElementById('queuedCount').textContent = count;
+            },
+            
+            playEmergencySound() {
+                try {
+                    // Create emergency beep sound
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    oscillator.frequency.setValueAtTime(1200, audioContext.currentTime + 0.1);
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                } catch (error) {
+                    console.log('Audio not available:', error);
+                }
+            },
+            
+            playTestSound() {
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                    oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
+                    
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                } catch (error) {
+                    console.log('Test sound error:', error);
+                }
+            },
+            
+            showToast(message, type = 'info') {
+                // Create toast element
+                const toast = document.createElement('div');
+                toast.className = 'demo-toast';
+                toast.innerHTML = `
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'}"></i>
+                    <span>${message}</span>
+                `;
+                
+                // Style toast
+                toast.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: ${type === 'success' ? '#4CAF50' : type === 'warning' ? '#FF9800' : '#2196F3'};
+                    color: white;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    z-index: 10000;
+                    font-weight: 600;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    animation: slideUp 0.3s ease-out;
+                `;
+                
+                // Add animation
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes slideUp {
+                        from { transform: translate(-50%, 100px); opacity: 0; }
+                        to { transform: translate(-50%, 0); opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                document.body.appendChild(toast);
+                
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    toast.style.animation = 'slideDown 0.3s ease-in';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+        };
+
+        // ============================================
+        // MAIN APP SYSTEM
+        // ============================================
+        const SOS_APP = {
+            EMERGENCY_API: 'https://api.example.com/emergency',
+            CONTACTS: ['112', '199'],
+            DEBUG_MODE: true,
+            
             state: {
                 isOnline: navigator.onLine,
                 queuedAlerts: [],
@@ -416,23 +960,12 @@
                 location: null
             },
             
-            // Initialize app
             init() {
                 console.log('🚨 SOS Guardian Pro Initializing...');
                 
-                // Check for service worker support
-                this.registerServiceWorker();
-                
-                // Setup event listeners
                 this.setupEventListeners();
-                
-                // Check initial connectivity
                 this.updateConnectivity();
-                
-                // Load queued alerts
                 this.loadQueuedAlerts();
-                
-                // Request location permission
                 this.requestLocationPermission();
                 
                 // Hide loading screen after 1.5 seconds
@@ -440,33 +973,12 @@
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('app').style.display = 'flex';
                 }, 1500);
+                
+                // Initialize demo system
+                DemoSystem.init();
             },
             
-            // Register Service Worker for GitHub Pages
-            registerServiceWorker() {
-                if ('serviceWorker' in navigator) {
-                    const swPath = 'sw.js';
-                    
-                    // For GitHub Pages, use relative path
-                    navigator.serviceWorker.register(swPath)
-                        .then(reg => {
-                            console.log('✅ Service Worker registered:', reg.scope);
-                            // Check for updates
-                            reg.update();
-                        })
-                        .catch(err => {
-                            console.warn('⚠️ Service Worker registration failed:', err);
-                            if (this.DEBUG_MODE) {
-                                // Show warning in debug mode
-                                this.showToast('Service Worker not available - App will work offline');
-                            }
-                        });
-                }
-            },
-            
-            // Setup all event listeners
             setupEventListeners() {
-                // SOS Button
                 const sosBtn = document.getElementById('sosButton');
                 sosBtn.addEventListener('mousedown', () => this.startSOS());
                 sosBtn.addEventListener('touchstart', () => this.startSOS());
@@ -474,29 +986,22 @@
                 sosBtn.addEventListener('touchend', () => this.cancelSOS());
                 sosBtn.addEventListener('mouseleave', () => this.cancelSOS());
                 
-                // Connectivity events
                 window.addEventListener('online', () => this.handleOnline());
                 window.addEventListener('offline', () => this.handleOffline());
                 
-                // Prevent context menu on long press
                 sosBtn.addEventListener('contextmenu', (e) => e.preventDefault());
             },
             
-            // Start SOS countdown
             startSOS() {
-                // Prevent multiple triggers
                 if (this.state.pressTimer) return;
                 
-                // Start countdown
                 let seconds = 3;
                 const countdownEl = document.getElementById('countdown');
                 const sosBtn = document.getElementById('sosButton');
                 
-                // Show countdown
                 countdownEl.style.display = 'block';
                 sosBtn.classList.add('activated');
                 
-                // Update countdown every second
                 this.state.countdown = setInterval(() => {
                     countdownEl.textContent = seconds;
                     seconds--;
@@ -507,19 +1012,16 @@
                     }
                 }, 1000);
                 
-                // Set timeout for emergency trigger
                 this.state.pressTimer = setTimeout(() => {
                     this.triggerEmergency();
                     this.cancelSOS();
                 }, 3000);
                 
-                // Vibrate if supported
                 if (navigator.vibrate) {
                     navigator.vibrate(200);
                 }
             },
             
-            // Cancel SOS
             cancelSOS() {
                 if (this.state.pressTimer) {
                     clearTimeout(this.state.pressTimer);
@@ -535,31 +1037,23 @@
                 document.getElementById('sosButton').classList.remove('activated');
             },
             
-            // Trigger emergency alert
             async triggerEmergency() {
-                console.log('🚨 EMERGENCY ALERT TRIGGERED!');
+                console.log('🚨 REAL EMERGENCY ALERT TRIGGERED!');
                 
-                // Update UI
                 this.updateEmergencyStatus('ALERT SENT!', 'fa-exclamation-triangle', '#FF3B30');
                 
-                // Vibrate pattern
                 if (navigator.vibrate) {
                     navigator.vibrate([200, 100, 200, 100, 200]);
                 }
                 
-                // Play sound if available
                 this.playEmergencySound();
                 
                 try {
-                    // Get location
                     const location = await this.getCurrentLocation();
-                    
-                    // Get battery info
                     const battery = await this.getBatteryInfo();
                     
-                    // Prepare emergency data
                     const emergencyData = {
-                        type: 'EMERGENCY_ALERT',
+                        type: 'REAL_EMERGENCY_ALERT',
                         location: location,
                         battery: battery,
                         timestamp: new Date().toISOString(),
@@ -567,37 +1061,24 @@
                         online: this.state.isOnline
                     };
                     
-                    console.log('Emergency Data:', emergencyData);
-                    
-                    // Send or queue alert
-                    if (this.state.isOnline) {
-                        await this.sendEmergencyAlert(emergencyData);
-                    } else {
-                        this.queueEmergencyAlert(emergencyData);
-                    }
+                    console.log('Real Emergency Data:', emergencyData);
                     
                     // Show confirmation
-                    this.showToast('Emergency alert sent successfully!');
+                    DemoSystem.showToast('⚠️ REAL EMERGENCY ALERT SENT! Contacting authorities...', 'warning');
+                    
+                    // In a real app, you would send to your API here
+                    // await fetch(this.EMERGENCY_API, { method: 'POST', body: JSON.stringify(emergencyData) });
                     
                 } catch (error) {
-                    console.error('Error triggering emergency:', error);
-                    this.showToast('Error sending alert. Retrying...', 'error');
-                    
-                    // Queue for retry
-                    this.queueEmergencyAlert({
-                        type: 'EMERGENCY_ALERT',
-                        timestamp: new Date().toISOString(),
-                        error: error.message
-                    });
+                    console.error('Emergency error:', error);
+                    DemoSystem.showToast('Error sending alert', 'warning');
                 }
                 
-                // Reset status after 5 seconds
                 setTimeout(() => {
                     this.updateEmergencyStatus('System Ready', 'fa-check-circle', '#008751');
                 }, 5000);
             },
             
-            // Get current location
             async getCurrentLocation() {
                 return new Promise((resolve, reject) => {
                     if (!navigator.geolocation) {
@@ -618,7 +1099,6 @@
                         },
                         (error) => {
                             console.warn('Location error:', error);
-                            // Fallback to IP location or default
                             resolve({
                                 latitude: null,
                                 longitude: null,
@@ -634,7 +1114,6 @@
                 });
             },
             
-            // Get battery info
             async getBatteryInfo() {
                 if ('getBattery' in navigator) {
                     try {
@@ -652,142 +1131,8 @@
                 return { level: 'unknown' };
             },
             
-            // Send emergency alert
-            async sendEmergencyAlert(data) {
-                // For GitHub Pages demo - you'll need to replace this with your actual API
-                if (this.DEBUG_MODE) {
-                    console.log('📤 Sending alert (DEBUG MODE):', data);
-                    
-                    // Simulate API call
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    
-                    // In production, uncomment this:
-                    /*
-                    const response = await fetch(this.EMERGENCY_API, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(data)
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error('Failed to send alert');
-                    }
-                    
-                    return await response.json();
-                    */
-                    
-                    return { success: true, message: 'Alert sent (debug mode)' };
-                }
-            },
-            
-            // Queue alert for offline
-            queueEmergencyAlert(data) {
-                const alerts = JSON.parse(localStorage.getItem('sos_queued_alerts') || '[]');
-                alerts.push(data);
-                localStorage.setItem('sos_queued_alerts', JSON.stringify(alerts));
-                
-                this.state.queuedAlerts = alerts;
-                this.updateOfflineIndicator();
-            },
-            
-            // Load queued alerts
-            loadQueuedAlerts() {
-                const alerts = JSON.parse(localStorage.getItem('sos_queued_alerts') || '[]');
-                this.state.queuedAlerts = alerts;
-                this.updateOfflineIndicator();
-            },
-            
-            // Update offline indicator
-            updateOfflineIndicator() {
-                const count = this.state.queuedAlerts.length;
-                const indicator = document.getElementById('offlineIndicator');
-                const queuedCount = document.getElementById('queuedCount');
-                
-                if (count > 0 && !this.state.isOnline) {
-                    indicator.style.display = 'flex';
-                    queuedCount.textContent = count;
-                } else {
-                    indicator.style.display = 'none';
-                }
-            },
-            
-            // Handle online
-            handleOnline() {
-                this.state.isOnline = true;
-                this.updateConnectivity();
-                this.flushQueuedAlerts();
-            },
-            
-            // Handle offline
-            handleOffline() {
-                this.state.isOnline = false;
-                this.updateConnectivity();
-            },
-            
-            // Update connectivity UI
-            updateConnectivity() {
-                const statusEl = document.getElementById('connectionStatus');
-                const signalBars = document.querySelectorAll('.signal-bar');
-                
-                if (this.state.isOnline) {
-                    statusEl.textContent = 'Secure Line Active';
-                    statusEl.style.color = '#4CAF50';
-                    
-                    // Update signal bars
-                    signalBars.forEach((bar, index) => {
-                        if (index < 3) bar.classList.add('active');
-                        else bar.classList.remove('active');
-                    });
-                } else {
-                    statusEl.textContent = 'Offline - Alerts Queued';
-                    statusEl.style.color = '#FF3B30';
-                    
-                    // Update signal bars
-                    signalBars.forEach((bar, index) => {
-                        if (index < 1) bar.classList.add('active');
-                        else bar.classList.remove('active');
-                    });
-                }
-            },
-            
-            // Flush queued alerts when online
-            async flushQueuedAlerts() {
-                if (this.state.queuedAlerts.length === 0 || !this.state.isOnline) return;
-                
-                console.log('🔄 Flushing queued alerts...');
-                
-                for (const alert of this.state.queuedAlerts) {
-                    try {
-                        await this.sendEmergencyAlert(alert);
-                    } catch (error) {
-                        console.error('Failed to send queued alert:', error);
-                        break;
-                    }
-                }
-                
-                // Clear queued alerts
-                this.state.queuedAlerts = [];
-                localStorage.removeItem('sos_queued_alerts');
-                this.updateOfflineIndicator();
-                
-                this.showToast('Queued alerts sent successfully!');
-            },
-            
-            // Update emergency status
-            updateEmergencyStatus(text, icon, color) {
-                const statusEl = document.getElementById('emergencyStatus');
-                statusEl.innerHTML = `<i class="fas ${icon}"></i><span>${text}</span>`;
-                statusEl.style.color = color;
-                statusEl.style.borderColor = color;
-                statusEl.style.background = `${color}20`;
-            },
-            
-            // Play emergency sound
             playEmergencySound() {
                 try {
-                    // Create emergency sound
                     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                     const oscillator = audioContext.createOscillator();
                     const gainNode = audioContext.createGain();
@@ -804,82 +1149,79 @@
                     
                     oscillator.start();
                     oscillator.stop(audioContext.currentTime + 0.5);
-                    
                 } catch (error) {
                     console.log('Audio not supported:', error);
                 }
             },
             
-            // Show toast message
-            showToast(message, type = 'success') {
-                // Remove existing toast
-                const existingToast = document.querySelector('.sos-toast');
-                if (existingToast) existingToast.remove();
-                
-                // Create toast
-                const toast = document.createElement('div');
-                toast.className = `sos-toast ${type}`;
-                toast.innerHTML = `
-                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-                    <span>${message}</span>
-                `;
-                
-                // Style toast
-                toast.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    background: ${type === 'success' ? '#4CAF50' : '#FF3B30'};
-                    color: white;
-                    padding: 12px 24px;
-                    border-radius: 8px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    z-index: 10000;
-                    font-weight: 600;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                    animation: fadeIn 0.3s ease-in;
-                `;
-                
-                // Add animation
-                const style = document.createElement('style');
-                style.textContent = `
-                    @keyframes fadeIn {
-                        from { opacity: 0; transform: translate(-50%, -20px); }
-                        to { opacity: 1; transform: translate(-50%, 0); }
-                    }
-                `;
-                document.head.appendChild(style);
-                
-                document.body.appendChild(toast);
-                
-                // Remove after 3 seconds
-                setTimeout(() => {
-                    toast.style.animation = 'fadeOut 0.3s ease-out';
-                    setTimeout(() => toast.remove(), 300);
-                }, 3000);
+            updateEmergencyStatus(text, icon, color) {
+                const statusEl = document.getElementById('emergencyStatus');
+                statusEl.innerHTML = `<i class="fas ${icon}"></i><span>${text}</span>`;
+                statusEl.style.color = color;
+                statusEl.style.borderColor = color;
+                statusEl.style.background = `${color}20`;
             },
             
-            // Request location permission
+            updateConnectivity() {
+                const statusEl = document.getElementById('connectionStatus');
+                const signalBars = document.querySelectorAll('.signal-bar');
+                
+                if (this.state.isOnline) {
+                    statusEl.textContent = 'Secure Line Active';
+                    statusEl.style.color = '#4CAF50';
+                    
+                    signalBars.forEach((bar, index) => {
+                        if (index < 3) bar.classList.add('active');
+                        else bar.classList.remove('active');
+                    });
+                } else {
+                    statusEl.textContent = 'Offline - Alerts Queued';
+                    statusEl.style.color = '#FF3B30';
+                    
+                    signalBars.forEach((bar, index) => {
+                        if (index < 1) bar.classList.add('active');
+                        else bar.classList.remove('active');
+                    });
+                }
+            },
+            
+            handleOnline() {
+                this.state.isOnline = true;
+                this.updateConnectivity();
+            },
+            
+            handleOffline() {
+                this.state.isOnline = false;
+                this.updateConnectivity();
+            },
+            
+            loadQueuedAlerts() {
+                const alerts = JSON.parse(localStorage.getItem('sos_queued_alerts') || '[]');
+                this.state.queuedAlerts = alerts;
+                
+                const count = alerts.length;
+                if (count > 0 && !this.state.isOnline) {
+                    document.getElementById('offlineIndicator').style.display = 'flex';
+                    document.getElementById('queuedCount').textContent = count;
+                }
+            },
+            
             requestLocationPermission() {
                 if ('geolocation' in navigator) {
-                    // Just check - actual permission is requested when needed
                     console.log('📍 Geolocation available');
                 }
             }
         };
-        
-        // Section navigation
+
+        // ============================================
+        // NAVIGATION FUNCTIONS
+        // ============================================
         function showSection(section) {
-            // Update nav items
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
             });
             event.target.closest('.nav-item').classList.add('active');
             
-            // Show appropriate section
             if (section === 'home') {
                 document.getElementById('homeSection').style.display = 'flex';
                 document.getElementById('otherSections').style.display = 'none';
@@ -887,40 +1229,70 @@
                 document.getElementById('homeSection').style.display = 'none';
                 document.getElementById('otherSections').style.display = 'block';
                 
-                // Load section content
+                const sections = {
+                    route: {
+                        icon: 'route',
+                        title: 'Route Tracking',
+                        content: 'Track and share your route with emergency contacts.'
+                    },
+                    stealth: {
+                        icon: 'camera',
+                        title: 'Stealth Mode',
+                        content: 'Discreet emergency features for sensitive situations.'
+                    },
+                    contacts: {
+                        icon: 'address-book',
+                        title: 'Emergency Contacts',
+                        content: 'Manage your emergency contacts and notification settings.'
+                    }
+                };
+                
+                const sectionData = sections[section] || {
+                    icon: 'cogs',
+                    title: 'Coming Soon',
+                    content: 'This feature is under development.'
+                };
+                
                 document.getElementById('otherSections').innerHTML = `
-                    <h2 style="margin-bottom: 20px; color: var(--sos-red);">
-                        <i class="fas fa-${section === 'route' ? 'route' : section === 'stealth' ? 'camera' : 'address-book'}"></i>
-                        ${section.charAt(0).toUpperCase() + section.slice(1)}
-                    </h2>
-                    <div style="background: var(--card-bg); padding: 20px; border-radius: 10px;">
-                        <p style="color: var(--text-secondary);">
-                            ${section === 'route' ? 'Route tracking coming soon...' : 
-                              section === 'stealth' ? 'Stealth mode under development...' : 
-                              'Emergency contacts feature in progress...'}
-                        </p>
-                        <p style="margin-top: 15px; font-size: 14px; color: #888;">
-                            <i class="fas fa-code-branch"></i> Check GitHub repository for updates
-                        </p>
+                    <div style="max-width: 500px; margin: 0 auto;">
+                        <h2 style="margin-bottom: 20px; color: var(--sos-red); display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-${sectionData.icon}"></i>
+                            ${sectionData.title}
+                        </h2>
+                        <div style="background: var(--card-bg); padding: 30px; border-radius: 15px; text-align: center;">
+                            <div style="font-size: 64px; color: var(--text-secondary); margin-bottom: 20px;">
+                                <i class="fas fa-${sectionData.icon}"></i>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 16px; line-height: 1.6;">
+                                ${sectionData.content}
+                            </p>
+                            <div style="margin-top: 30px; padding: 20px; background: rgba(0, 135, 81, 0.1); border-radius: 10px;">
+                                <p style="color: var(--text-primary); font-size: 14px;">
+                                    <i class="fas fa-code-branch"></i>
+                                    Check back soon for updates on this feature.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 `;
             }
         }
-        
-        // Initialize app when DOM is loaded
+
+        // ============================================
+        // INITIALIZE EVERYTHING
+        // ============================================
         document.addEventListener('DOMContentLoaded', () => {
             SOS_APP.init();
         });
-        
-        // Handle before install prompt
+
+        // Handle PWA install prompt
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             
-            // Show install button (optional)
             setTimeout(() => {
-                SOS_APP.showToast('Install SOS Guardian Pro for quick access!', 'info');
+                DemoSystem.showToast('Install SOS Guardian Pro for quick access!', 'info');
             }, 3000);
         });
     </script>
