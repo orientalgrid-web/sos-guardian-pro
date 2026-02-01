@@ -7,10 +7,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#008751">
     
-    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     
     <title>SOS Guardian Pro - Complete Emergency System</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
         :root {
@@ -45,7 +46,6 @@
             position: fixed;
         }
 
-        /* App Container */
         #app {
             width: 100%;
             height: 100%;
@@ -53,7 +53,6 @@
             flex-direction: column;
         }
 
-        /* ========== OFFLINE MODE INDICATOR ========== */
         .offline-mode {
             background: var(--offline-red);
             color: white;
@@ -73,7 +72,6 @@
             50% { opacity: 0.7; }
         }
 
-        /* ========== NIGERIA THEME HEADER ========== */
         .header {
             background: linear-gradient(90deg, var(--nigeria-green) 33%, var(--nigeria-white) 33%, var(--nigeria-white) 66%, var(--nigeria-green) 66%);
             padding: 15px 20px;
@@ -130,7 +128,6 @@
             gap: 8px;
         }
 
-        /* ========== SIGNAL INDICATOR ========== */
         .signal-indicator {
             display: flex;
             align-items: center;
@@ -142,15 +139,13 @@
 
         .signal-bar {
             width: 4px;
+            height: 12px;
             background: #666;
             border-radius: 2px;
         }
 
         .signal-bar.active { background: #4CAF50; }
-        .signal-bar.weak { background: #FF9800; }
-        .signal-bar.none { background: #F44336; }
 
-        /* ========== MAIN NAVIGATION ========== */
         .main-nav {
             display: flex;
             background: var(--card-bg);
@@ -158,10 +153,6 @@
             overflow-x: auto;
             white-space: nowrap;
             scrollbar-width: none;
-        }
-
-        .main-nav::-webkit-scrollbar {
-            display: none;
         }
 
         .nav-item {
@@ -182,394 +173,6 @@
             border-bottom-color: var(--sos-red);
         }
 
-        /* ========== MAIN CONTENT ========== */
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .content-section {
-            display: none;
-            padding-bottom: 80px;
-        }
-
-        .content-section.active {
-            display: block;
-        }
-
-        /* ========== HOME SECTION ========== */
-        .sos-section {
-            text-align: center;
-            padding: 40px 20px;
-            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 100%);
-        }
-
-        .sos-button {
-            width: 180px;
-            height: 180px;
-            background: radial-gradient(circle, var(--sos-red) 0%, #D70015 100%);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 32px;
-            font-weight: 800;
-            margin: 0 auto 20px;
-            cursor: pointer;
-            box-shadow: 0 15px 30px rgba(255, 59, 48, 0.4);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .sos-button.active {
-            animation: sosPulse 1s infinite;
-        }
-
-        @keyframes sosPulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(255, 59, 48, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
-        }
-
-        .sos-icon {
-            font-size: 50px;
-            margin-bottom: 10px;
-        }
-
-        /* Quick Actions */
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            padding: 20px;
-        }
-
-        .quick-btn {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            padding: 15px 5px;
-            color: var(--text-primary);
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .quick-btn:active {
-            background: var(--card-border);
-        }
-
-        .quick-icon {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-
-        /* Nigerian Emergency Numbers */
-        .nigeria-emergency {
-            background: linear-gradient(135deg, var(--nigeria-green), #006B3D);
-            border-radius: 15px;
-            margin: 20px;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .emergency-numbers {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .emergency-number {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .emergency-number .number {
-            font-size: 18px;
-            font-weight: 700;
-            color: white;
-            margin-bottom: 5px;
-        }
-
-        /* ========== ROUTE PLANNING ========== */
-        .section-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 15px;
-            margin: 20px;
-            padding: 20px;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .section-header h2 {
-            font-size: 18px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .route-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .route-input {
-            padding: 15px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 16px;
-        }
-
-        .states-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .state-btn {
-            padding: 12px 5px;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-size: 12px;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .state-btn.active {
-            background: var(--nigeria-green);
-            color: white;
-        }
-
-        /* ========== STEALTH CAMERA ========== */
-        .camera-preview {
-            width: 100%;
-            height: 300px;
-            background: #000;
-            border-radius: 15px;
-            overflow: hidden;
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        #cameraView {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .camera-controls {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .camera-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 30px;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .capture-btn {
-            background: var(--sos-red);
-            color: white;
-        }
-
-        /* ========== MILITARY SECTION ========== */
-        .military-card {
-            background: linear-gradient(135deg, var(--military-green), #3A4B1C);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 15px;
-        }
-
-        /* ========== OFFLINE FEATURES ========== */
-        .offline-features {
-            background: var(--offline-red);
-            border-radius: 15px;
-            margin: 20px;
-            padding: 20px;
-        }
-
-        .offline-feature {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-        }
-
-        .message-queue {
-            background: var(--card-bg);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 20px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .message-item {
-            padding: 10px;
-            margin-bottom: 8px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            border-left: 4px solid var(--offline-red);
-        }
-
-        .message-item.sent {
-            border-left-color: #4CAF50;
-        }
-
-        /* ========== CONNECTION TEST ========== */
-        .connection-test {
-            display: flex;
-            gap: 10px;
-            padding: 20px;
-            align-items: center;
-            justify-content: center;
-            background: var(--card-bg);
-            margin: 20px;
-            border-radius: 15px;
-        }
-
-        .connection-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #666;
-        }
-
-        .connection-dot.active {
-            background: #4CAF50;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        /* ========== MODALS ========== */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .modal-content {
-            background: var(--card-bg);
-            border-radius: 20px;
-            width: 100%;
-            max-width: 400px;
-            overflow: hidden;
-            animation: modalSlide 0.3s;
-            border: 1px solid var(--card-border);
-        }
-
-        @keyframes modalSlide {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .modal-header {
-            padding: 25px 20px;
-            text-align: center;
-            border-bottom: 1px solid var(--card-border);
-        }
-
-        .modal-body {
-            padding: 30px 20px;
-        }
-
-        .modal-footer {
-            padding: 20px;
-            display: flex;
-            gap: 12px;
-            border-top: 1px solid var(--card-border);
-        }
-
-        .modal-btn {
-            flex: 1;
-            padding: 16px;
-            border-radius: 12px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .modal-btn.cancel {
-            background: var(--card-border);
-            color: var(--text-primary);
-        }
-
-        .modal-btn.confirm {
-            background: var(--sos-red);
-            color: white;
-        }
-
-        /* ========== TOAST ========== */
-        .toast {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 15px 20px;
-            display: none;
-            align-items: center;
-            gap: 10px;
-            z-index: 1001;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        /* ========== LOADING ========== */
         .loading {
             position: fixed;
             top: 0;
@@ -598,97 +201,47 @@
             to { transform: rotate(360deg); }
         }
 
-        /* ========== FOOTER ========== */
-        .footer {
+        .sos-section {
             text-align: center;
-            padding: 20px;
-            color: var(--text-secondary);
-            font-size: 12px;
-            border-top: 1px solid var(--card-border);
-            background: var(--dark-bg);
-            position: fixed;
-            bottom: 0;
-            width: 100%;
+            padding: 40px 20px;
         }
 
-        /* ========== COUNTDOWN ========== */
-        .countdown {
-            font-size: 72px;
-            font-weight: 900;
-            color: var(--sos-red);
-            text-align: center;
-            margin: 20px 0;
-            font-family: monospace;
-        }
-
-        /* ========== BUTTONS ========== */
-        .btn-primary {
-            background: var(--nigeria-green);
+        .sos-button {
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, var(--sos-red) 0%, #D70015 100%);
+            border: none;
+            border-radius: 50%;
             color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        .btn-secondary {
-            background: var(--card-border);
-            color: var(--text-primary);
-            border: none;
-            padding: 15px;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        /* ========== RESPONSIVE ========== */
-        @media (max-width: 480px) {
-            .nav-item {
-                min-width: 80px;
-                font-size: 12px;
-                padding: 12px 15px;
-            }
-            
-            .quick-actions {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .sos-button {
-                width: 150px;
-                height: 150px;
-                font-size: 28px;
-            }
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0 auto 20px;
+            box-shadow: 0 15px 30px rgba(255, 59, 48, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
     <div class="loading" id="loading">
         <div class="loading-spinner"></div>
         <div>SOS Guardian Pro</div>
         <div style="font-size: 14px; color: var(--text-secondary); margin-top: 10px;">Initializing emergency system...</div>
     </div>
 
-    <!-- Main App -->
-    <div id="app" style="display: none;">
-        <!-- Offline Mode Indicator -->
+    <div id="app">
         <div class="offline-mode" id="offlineIndicator">
             <i class="fas fa-plane"></i>
             <span>OFFLINE MODE - Messages queued</span>
-            <i class="fas fa-database"></i>
             <span id="queuedCount">0</span>
         </div>
 
-        <!-- Nigeria Theme Header -->
         <div class="header">
             <div class="header-content">
                 <div class="app-title">
-                    <div class="app-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
+                    <div class="app-icon"><i class="fas fa-shield-alt"></i></div>
                     <div class="title-text">
                         <h1>SOS Guardian Pro</h1>
                         <p>Complete Emergency System</p>
@@ -701,21 +254,46 @@
             </div>
         </div>
 
-        <!-- Signal Indicator -->
-        <div class="signal-indicator" id="signalIndicator">
+        <div class="signal-indicator">
             <i class="fas fa-signal"></i>
-            <div class="signal-bar" id="signal1"></div>
-            <div class="signal-bar" id="signal2"></div>
-            <div class="signal-bar" id="signal3"></div>
-            <div class="signal-bar" id="signal4"></div>
-            <span id="signalText" style="margin-left: 10px; font-size: 12px;">Checking...</span>
+            <div class="signal-bar active"></div>
+            <div class="signal-bar active"></div>
+            <div class="signal-bar"></div>
+            <div class="signal-bar"></div>
+            <span style="margin-left: 10px; font-size: 12px;">Secure Line Active</span>
         </div>
 
-        <!-- Main Navigation -->
         <div class="main-nav">
-            <button class="nav-item active" data-section="home">
+            <button class="nav-item active">
                 <i class="fas fa-home"></i>
                 <div style="font-size: 11px; margin-top: 5px;">Home</div>
             </button>
-            <button class="nav-item" data-section="route">
-                <i class="fas fa-route"><
+            <button class="nav-item">
+                <i class="fas fa-route"></i>
+                <div style="font-size: 11px; margin-top: 5px;">Route</div>
+            </button>
+            <button class="nav-item">
+                <i class="fas fa-camera"></i>
+                <div style="font-size: 11px; margin-top: 5px;">Stealth</div>
+            </button>
+        </div>
+
+        <div class="sos-section">
+            <button class="sos-button">
+                <i class="fas fa-bell"></i>
+                <span>SOS</span>
+            </button>
+            <p style="margin-top: 20px; color: var(--text-secondary);">Hold for 3 seconds to trigger alarm</p>
+        </div>
+    </div>
+
+    <script>
+        // Simple loader simulation
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+            }, 1500);
+        };
+    </script>
+</body>
+</html>
