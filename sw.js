@@ -32,29 +32,23 @@ self.addEventListener('activate', event => {
 
 // Fetch event (Cache-first strategy)
 self.addEventListener('fetch', event => {
-    // Skip non-GET requests
     if (event.request.method !== 'GET') return;
 
     event.respondWith(
         caches.match(event.request)
             .then(cachedResponse => {
-                // Return cached response if found
                 if (cachedResponse) {
                     return cachedResponse;
                 }
 
-                // Otherwise fetch from network
                 return fetch(event.request)
                     .then(response => {
-                        // Don't cache if not a valid response
                         if (!response || response.status !== 200 || response.type !== 'basic') {
                             return response;
                         }
 
-                        // Clone the response
                         const responseToCache = response.clone();
 
-                        // Cache the new response
                         caches.open(CACHE_NAME)
                             .then(cache => {
                                 cache.put(event.request, responseToCache);
@@ -63,16 +57,18 @@ self.addEventListener('fetch', event => {
                         return response;
                     })
                     .catch(() => {
-                        // If network fails and no cache, return offline page
                         return caches.match('./');
                     });
             })
     );
 });
 
-// Push notifications (optional - for future enhancements)
+// Push notifications
 self.addEventListener('push', event => {
-    const data = event.data.json();
+    let data = {};
+    if (event.data) {
+        data = event.data.json();
+    }
     
     const options = {
         body: data.body || 'Emergency alert received',
