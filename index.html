@@ -297,3 +297,10 @@
     </script>
 </body>
 </html>
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+            .then(() => console.log("Guardian Engine: Active"))
+            .catch((err) => console.log("Engine Error:", err));
+    }
+</script>
