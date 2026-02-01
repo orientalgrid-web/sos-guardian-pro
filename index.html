@@ -7,7 +7,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#008751">
     
-    <link rel="manifest" href="manifest.json">
+    <!-- GitHub Pages specific manifest path -->
+    <link rel="manifest" href="manifest.webmanifest">
     
     <title>SOS Guardian Pro - Complete Emergency System</title>
     
@@ -153,6 +154,11 @@
             overflow-x: auto;
             white-space: nowrap;
             scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .main-nav::-webkit-scrollbar {
+            display: none;
         }
 
         .nav-item {
@@ -166,11 +172,18 @@
             cursor: pointer;
             min-width: 90px;
             text-align: center;
+            min-height: 44px;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .nav-item.active {
             color: var(--sos-red);
             border-bottom-color: var(--sos-red);
+        }
+
+        .nav-item:active {
+            opacity: 0.8;
         }
 
         .loading {
@@ -204,6 +217,11 @@
         .sos-section {
             text-align: center;
             padding: 40px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .sos-button {
@@ -221,6 +239,80 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            transition: transform 0.1s;
+            user-select: none;
+            -webkit-user-select: none;
+            min-height: 44px;
+        }
+
+        .sos-button:active {
+            transform: scale(0.95);
+        }
+
+        .sos-button.activated {
+            animation: pulseSOS 0.5s infinite;
+        }
+
+        @keyframes pulseSOS {
+            0%, 100% { 
+                box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7);
+            }
+            50% { 
+                box-shadow: 0 0 0 20px rgba(255, 59, 48, 0);
+            }
+        }
+
+        .instructions {
+            margin-top: 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .countdown {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* Responsive design */
+        @media (max-width: 480px) {
+            .sos-button {
+                width: 150px;
+                height: 150px;
+                font-size: 28px;
+            }
+            
+            .header-content {
+                padding: 8px 12px;
+            }
+            
+            .app-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+            
+            .title-text h1 {
+                font-size: 18px;
+            }
+            
+            .nav-item {
+                min-width: 80px;
+                padding: 12px 15px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .sos-button {
+                width: 200px;
+                height: 200px;
+                font-size: 36px;
+            }
         }
     </style>
 </head>
@@ -231,10 +323,10 @@
         <div style="font-size: 14px; color: var(--text-secondary); margin-top: 10px;">Initializing emergency system...</div>
     </div>
 
-    <div id="app">
+    <div id="app" style="display: none;">
         <div class="offline-mode" id="offlineIndicator">
-            <i class="fas fa-plane"></i>
-            <span>OFFLINE MODE - Messages queued</span>
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>OFFLINE MODE - Emergency alerts queued:</span>
             <span id="queuedCount">0</span>
         </div>
 
@@ -260,47 +352,577 @@
             <div class="signal-bar active"></div>
             <div class="signal-bar"></div>
             <div class="signal-bar"></div>
-            <span style="margin-left: 10px; font-size: 12px;">Secure Line Active</span>
+            <span style="margin-left: 10px; font-size: 12px;" id="connectionStatus">Secure Line Active</span>
         </div>
 
         <div class="main-nav">
-            <button class="nav-item active">
+            <button class="nav-item active" onclick="showSection('home')">
                 <i class="fas fa-home"></i>
                 <div style="font-size: 11px; margin-top: 5px;">Home</div>
             </button>
-            <button class="nav-item">
+            <button class="nav-item" onclick="showSection('route')">
                 <i class="fas fa-route"></i>
                 <div style="font-size: 11px; margin-top: 5px;">Route</div>
             </button>
-            <button class="nav-item">
+            <button class="nav-item" onclick="showSection('stealth')">
                 <i class="fas fa-camera"></i>
                 <div style="font-size: 11px; margin-top: 5px;">Stealth</div>
             </button>
+            <button class="nav-item" onclick="showSection('contacts')">
+                <i class="fas fa-address-book"></i>
+                <div style="font-size: 11px; margin-top: 5px;">Contacts</div>
+            </button>
         </div>
 
-        <div class="sos-section">
-            <button class="sos-button">
+        <div id="homeSection" class="sos-section">
+            <button class="sos-button" id="sosButton">
                 <i class="fas fa-bell"></i>
                 <span>SOS</span>
             </button>
-            <p style="margin-top: 20px; color: var(--text-secondary);">Hold for 3 seconds to trigger alarm</p>
+            <div class="countdown" id="countdown"></div>
+            <p class="instructions">Hold for 3 seconds to trigger emergency alert</p>
+            
+            <div style="margin-top: 30px; padding: 20px; background: var(--card-bg); border-radius: 10px; max-width: 400px; width: 90%;">
+                <h3 style="margin-bottom: 15px; color: var(--sos-red);">
+                    <i class="fas fa-info-circle"></i> Emergency Information
+                </h3>
+                <div style="text-align: left; font-size: 13px;">
+                    <p><i class="fas fa-map-marker-alt"></i> Your location will be sent</p>
+                    <p><i class="fas fa-battery-half"></i> Battery status included</p>
+                    <p><i class="fas fa-clock"></i> Timestamp recorded</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="otherSections" style="display: none; padding: 20px; flex: 1; overflow-y: auto;">
+            <!-- Other sections content will be loaded here -->
         </div>
     </div>
 
     <script>
-        // Simple loader simulation
-        window.onload = () => {
-            setTimeout(() => {
-                document.getElementById('loading').style.display = 'none';
-            }, 1500);
+        // App configuration
+        const SOS_APP = {
+            // GitHub Pages deployment - no CORS issues
+            EMERGENCY_API: 'https://api.example.com/emergency', // Replace with your actual API
+            CONTACTS: ['112', '199'], // Default emergency numbers
+            DEBUG_MODE: true, // Set to false in production
+            
+            // App state
+            state: {
+                isOnline: navigator.onLine,
+                queuedAlerts: [],
+                pressTimer: null,
+                countdown: null,
+                location: null
+            },
+            
+            // Initialize app
+            init() {
+                console.log('🚨 SOS Guardian Pro Initializing...');
+                
+                // Check for service worker support
+                this.registerServiceWorker();
+                
+                // Setup event listeners
+                this.setupEventListeners();
+                
+                // Check initial connectivity
+                this.updateConnectivity();
+                
+                // Load queued alerts
+                this.loadQueuedAlerts();
+                
+                // Request location permission
+                this.requestLocationPermission();
+                
+                // Hide loading screen after 1.5 seconds
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('app').style.display = 'flex';
+                }, 1500);
+            },
+            
+            // Register Service Worker for GitHub Pages
+            registerServiceWorker() {
+                if ('serviceWorker' in navigator) {
+                    const swPath = 'sw.js';
+                    
+                    // For GitHub Pages, use relative path
+                    navigator.serviceWorker.register(swPath)
+                        .then(reg => {
+                            console.log('✅ Service Worker registered:', reg.scope);
+                            // Check for updates
+                            reg.update();
+                        })
+                        .catch(err => {
+                            console.warn('⚠️ Service Worker registration failed:', err);
+                            if (this.DEBUG_MODE) {
+                                // Show warning in debug mode
+                                this.showToast('Service Worker not available - App will work offline');
+                            }
+                        });
+                }
+            },
+            
+            // Setup all event listeners
+            setupEventListeners() {
+                // SOS Button
+                const sosBtn = document.getElementById('sosButton');
+                sosBtn.addEventListener('mousedown', () => this.startSOS());
+                sosBtn.addEventListener('touchstart', () => this.startSOS());
+                sosBtn.addEventListener('mouseup', () => this.cancelSOS());
+                sosBtn.addEventListener('touchend', () => this.cancelSOS());
+                sosBtn.addEventListener('mouseleave', () => this.cancelSOS());
+                
+                // Connectivity events
+                window.addEventListener('online', () => this.handleOnline());
+                window.addEventListener('offline', () => this.handleOffline());
+                
+                // Prevent context menu on long press
+                sosBtn.addEventListener('contextmenu', (e) => e.preventDefault());
+            },
+            
+            // Start SOS countdown
+            startSOS() {
+                // Prevent multiple triggers
+                if (this.state.pressTimer) return;
+                
+                // Start countdown
+                let seconds = 3;
+                const countdownEl = document.getElementById('countdown');
+                const sosBtn = document.getElementById('sosButton');
+                
+                // Show countdown
+                countdownEl.style.display = 'block';
+                sosBtn.classList.add('activated');
+                
+                // Update countdown every second
+                this.state.countdown = setInterval(() => {
+                    countdownEl.textContent = seconds;
+                    seconds--;
+                    
+                    if (seconds < 0) {
+                        this.triggerEmergency();
+                        this.cancelSOS();
+                    }
+                }, 1000);
+                
+                // Set timeout for emergency trigger
+                this.state.pressTimer = setTimeout(() => {
+                    this.triggerEmergency();
+                    this.cancelSOS();
+                }, 3000);
+                
+                // Vibrate if supported
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+            },
+            
+            // Cancel SOS
+            cancelSOS() {
+                if (this.state.pressTimer) {
+                    clearTimeout(this.state.pressTimer);
+                    this.state.pressTimer = null;
+                }
+                
+                if (this.state.countdown) {
+                    clearInterval(this.state.countdown);
+                    this.state.countdown = null;
+                }
+                
+                document.getElementById('countdown').style.display = 'none';
+                document.getElementById('sosButton').classList.remove('activated');
+            },
+            
+            // Trigger emergency alert
+            async triggerEmergency() {
+                console.log('🚨 EMERGENCY ALERT TRIGGERED!');
+                
+                // Update UI
+                this.updateEmergencyStatus('ALERT SENT!', 'fa-exclamation-triangle', '#FF3B30');
+                
+                // Vibrate pattern
+                if (navigator.vibrate) {
+                    navigator.vibrate([200, 100, 200, 100, 200]);
+                }
+                
+                // Play sound if available
+                this.playEmergencySound();
+                
+                try {
+                    // Get location
+                    const location = await this.getCurrentLocation();
+                    
+                    // Get battery info
+                    const battery = await this.getBatteryInfo();
+                    
+                    // Prepare emergency data
+                    const emergencyData = {
+                        type: 'EMERGENCY_ALERT',
+                        location: location,
+                        battery: battery,
+                        timestamp: new Date().toISOString(),
+                        userAgent: navigator.userAgent,
+                        online: this.state.isOnline
+                    };
+                    
+                    console.log('Emergency Data:', emergencyData);
+                    
+                    // Send or queue alert
+                    if (this.state.isOnline) {
+                        await this.sendEmergencyAlert(emergencyData);
+                    } else {
+                        this.queueEmergencyAlert(emergencyData);
+                    }
+                    
+                    // Show confirmation
+                    this.showToast('Emergency alert sent successfully!');
+                    
+                } catch (error) {
+                    console.error('Error triggering emergency:', error);
+                    this.showToast('Error sending alert. Retrying...', 'error');
+                    
+                    // Queue for retry
+                    this.queueEmergencyAlert({
+                        type: 'EMERGENCY_ALERT',
+                        timestamp: new Date().toISOString(),
+                        error: error.message
+                    });
+                }
+                
+                // Reset status after 5 seconds
+                setTimeout(() => {
+                    this.updateEmergencyStatus('System Ready', 'fa-check-circle', '#008751');
+                }, 5000);
+            },
+            
+            // Get current location
+            async getCurrentLocation() {
+                return new Promise((resolve, reject) => {
+                    if (!navigator.geolocation) {
+                        reject(new Error('Geolocation not supported'));
+                        return;
+                    }
+                    
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const location = {
+                                latitude: position.coords.latitude,
+                                longitude: position.coords.longitude,
+                                accuracy: position.coords.accuracy,
+                                timestamp: position.timestamp
+                            };
+                            this.state.location = location;
+                            resolve(location);
+                        },
+                        (error) => {
+                            console.warn('Location error:', error);
+                            // Fallback to IP location or default
+                            resolve({
+                                latitude: null,
+                                longitude: null,
+                                error: error.message
+                            });
+                        },
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 5000,
+                            maximumAge: 0
+                        }
+                    );
+                });
+            },
+            
+            // Get battery info
+            async getBatteryInfo() {
+                if ('getBattery' in navigator) {
+                    try {
+                        const battery = await navigator.getBattery();
+                        return {
+                            level: Math.round(battery.level * 100),
+                            charging: battery.charging,
+                            chargingTime: battery.chargingTime,
+                            dischargingTime: battery.dischargingTime
+                        };
+                    } catch (error) {
+                        return { level: 'unknown', error: error.message };
+                    }
+                }
+                return { level: 'unknown' };
+            },
+            
+            // Send emergency alert
+            async sendEmergencyAlert(data) {
+                // For GitHub Pages demo - you'll need to replace this with your actual API
+                if (this.DEBUG_MODE) {
+                    console.log('📤 Sending alert (DEBUG MODE):', data);
+                    
+                    // Simulate API call
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // In production, uncomment this:
+                    /*
+                    const response = await fetch(this.EMERGENCY_API, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to send alert');
+                    }
+                    
+                    return await response.json();
+                    */
+                    
+                    return { success: true, message: 'Alert sent (debug mode)' };
+                }
+            },
+            
+            // Queue alert for offline
+            queueEmergencyAlert(data) {
+                const alerts = JSON.parse(localStorage.getItem('sos_queued_alerts') || '[]');
+                alerts.push(data);
+                localStorage.setItem('sos_queued_alerts', JSON.stringify(alerts));
+                
+                this.state.queuedAlerts = alerts;
+                this.updateOfflineIndicator();
+            },
+            
+            // Load queued alerts
+            loadQueuedAlerts() {
+                const alerts = JSON.parse(localStorage.getItem('sos_queued_alerts') || '[]');
+                this.state.queuedAlerts = alerts;
+                this.updateOfflineIndicator();
+            },
+            
+            // Update offline indicator
+            updateOfflineIndicator() {
+                const count = this.state.queuedAlerts.length;
+                const indicator = document.getElementById('offlineIndicator');
+                const queuedCount = document.getElementById('queuedCount');
+                
+                if (count > 0 && !this.state.isOnline) {
+                    indicator.style.display = 'flex';
+                    queuedCount.textContent = count;
+                } else {
+                    indicator.style.display = 'none';
+                }
+            },
+            
+            // Handle online
+            handleOnline() {
+                this.state.isOnline = true;
+                this.updateConnectivity();
+                this.flushQueuedAlerts();
+            },
+            
+            // Handle offline
+            handleOffline() {
+                this.state.isOnline = false;
+                this.updateConnectivity();
+            },
+            
+            // Update connectivity UI
+            updateConnectivity() {
+                const statusEl = document.getElementById('connectionStatus');
+                const signalBars = document.querySelectorAll('.signal-bar');
+                
+                if (this.state.isOnline) {
+                    statusEl.textContent = 'Secure Line Active';
+                    statusEl.style.color = '#4CAF50';
+                    
+                    // Update signal bars
+                    signalBars.forEach((bar, index) => {
+                        if (index < 3) bar.classList.add('active');
+                        else bar.classList.remove('active');
+                    });
+                } else {
+                    statusEl.textContent = 'Offline - Alerts Queued';
+                    statusEl.style.color = '#FF3B30';
+                    
+                    // Update signal bars
+                    signalBars.forEach((bar, index) => {
+                        if (index < 1) bar.classList.add('active');
+                        else bar.classList.remove('active');
+                    });
+                }
+            },
+            
+            // Flush queued alerts when online
+            async flushQueuedAlerts() {
+                if (this.state.queuedAlerts.length === 0 || !this.state.isOnline) return;
+                
+                console.log('🔄 Flushing queued alerts...');
+                
+                for (const alert of this.state.queuedAlerts) {
+                    try {
+                        await this.sendEmergencyAlert(alert);
+                    } catch (error) {
+                        console.error('Failed to send queued alert:', error);
+                        break;
+                    }
+                }
+                
+                // Clear queued alerts
+                this.state.queuedAlerts = [];
+                localStorage.removeItem('sos_queued_alerts');
+                this.updateOfflineIndicator();
+                
+                this.showToast('Queued alerts sent successfully!');
+            },
+            
+            // Update emergency status
+            updateEmergencyStatus(text, icon, color) {
+                const statusEl = document.getElementById('emergencyStatus');
+                statusEl.innerHTML = `<i class="fas ${icon}"></i><span>${text}</span>`;
+                statusEl.style.color = color;
+                statusEl.style.borderColor = color;
+                statusEl.style.background = `${color}20`;
+            },
+            
+            // Play emergency sound
+            playEmergencySound() {
+                try {
+                    // Create emergency sound
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    oscillator.frequency.setValueAtTime(1200, audioContext.currentTime + 0.1);
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                    
+                } catch (error) {
+                    console.log('Audio not supported:', error);
+                }
+            },
+            
+            // Show toast message
+            showToast(message, type = 'success') {
+                // Remove existing toast
+                const existingToast = document.querySelector('.sos-toast');
+                if (existingToast) existingToast.remove();
+                
+                // Create toast
+                const toast = document.createElement('div');
+                toast.className = `sos-toast ${type}`;
+                toast.innerHTML = `
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                    <span>${message}</span>
+                `;
+                
+                // Style toast
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: ${type === 'success' ? '#4CAF50' : '#FF3B30'};
+                    color: white;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    z-index: 10000;
+                    font-weight: 600;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    animation: fadeIn 0.3s ease-in;
+                `;
+                
+                // Add animation
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translate(-50%, -20px); }
+                        to { opacity: 1; transform: translate(-50%, 0); }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                document.body.appendChild(toast);
+                
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    toast.style.animation = 'fadeOut 0.3s ease-out';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            },
+            
+            // Request location permission
+            requestLocationPermission() {
+                if ('geolocation' in navigator) {
+                    // Just check - actual permission is requested when needed
+                    console.log('📍 Geolocation available');
+                }
+            }
         };
+        
+        // Section navigation
+        function showSection(section) {
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
+            
+            // Show appropriate section
+            if (section === 'home') {
+                document.getElementById('homeSection').style.display = 'flex';
+                document.getElementById('otherSections').style.display = 'none';
+            } else {
+                document.getElementById('homeSection').style.display = 'none';
+                document.getElementById('otherSections').style.display = 'block';
+                
+                // Load section content
+                document.getElementById('otherSections').innerHTML = `
+                    <h2 style="margin-bottom: 20px; color: var(--sos-red);">
+                        <i class="fas fa-${section === 'route' ? 'route' : section === 'stealth' ? 'camera' : 'address-book'}"></i>
+                        ${section.charAt(0).toUpperCase() + section.slice(1)}
+                    </h2>
+                    <div style="background: var(--card-bg); padding: 20px; border-radius: 10px;">
+                        <p style="color: var(--text-secondary);">
+                            ${section === 'route' ? 'Route tracking coming soon...' : 
+                              section === 'stealth' ? 'Stealth mode under development...' : 
+                              'Emergency contacts feature in progress...'}
+                        </p>
+                        <p style="margin-top: 15px; font-size: 14px; color: #888;">
+                            <i class="fas fa-code-branch"></i> Check GitHub repository for updates
+                        </p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Initialize app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            SOS_APP.init();
+        });
+        
+        // Handle before install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install button (optional)
+            setTimeout(() => {
+                SOS_APP.showToast('Install SOS Guardian Pro for quick access!', 'info');
+            }, 3000);
+        });
     </script>
 </body>
 </html>
-<script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js')
-            .then(() => console.log("Guardian Engine: Active"))
-            .catch((err) => console.log("Engine Error:", err));
-    }
-</script>
