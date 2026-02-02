@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#008751">
     
-    <!-- Apple Touch Icons (from favicon.io) -->
+    <!-- Apple Touch Icons -->
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
     
@@ -25,7 +25,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* All the CSS styles from earlier - it's already included */
         :root {
             --nigeria-green: #008751;
             --nigeria-white: #FFFFFF;
@@ -313,6 +312,38 @@
             box-shadow: 0 8px 20px rgba(0, 135, 81, 0.6);
         }
 
+        /* PWA Install Button */
+        .install-button {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 30px auto 0;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+            transition: all 0.3s;
+        }
+
+        .install-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.6);
+        }
+
+        .install-button.installed {
+            background: linear-gradient(135deg, #004a99, #0066cc);
+            cursor: default;
+        }
+
+        .install-button.hidden {
+            display: none;
+        }
+
         /* Responsive */
         @media (max-width: 480px) {
             .sos-button {
@@ -325,6 +356,11 @@
                 top: 10px;
                 right: 10px;
                 padding: 10px 15px;
+                font-size: 14px;
+            }
+            
+            .install-button {
+                padding: 12px 20px;
                 font-size: 14px;
             }
         }
@@ -399,6 +435,27 @@
             </button>
             <div class="countdown" id="countdown"></div>
             <p class="instructions">Hold for 3 seconds to trigger emergency alert</p>
+            
+            <!-- PWA INSTALL BUTTON -->
+            <button class="install-button hidden" id="installButton">
+                <i class="fas fa-download"></i>
+                INSTALL AS APP
+            </button>
+            <p id="installHint" style="margin-top: 10px; font-size: 12px; color: var(--text-secondary); display: none;">
+                Get quick access from home screen
+            </p>
+            
+            <div style="margin-top: 30px; padding: 20px; background: var(--card-bg); border-radius: 10px; max-width: 400px; width: 90%;">
+                <h3 style="margin-bottom: 15px; color: var(--sos-red);">
+                    <i class="fas fa-info-circle"></i> Emergency Information
+                </h3>
+                <div style="text-align: left; font-size: 13px;">
+                    <p><i class="fas fa-map-marker-alt"></i> Your location will be sent</p>
+                    <p><i class="fas fa-battery-half"></i> Battery status included</p>
+                    <p><i class="fas fa-clock"></i> Timestamp recorded</p>
+                    <p><i class="fas fa-mobile-alt"></i> Install as app for quick access</p>
+                </div>
+            </div>
         </div>
 
         <div id="otherSections" style="display: none; padding: 20px; flex: 1;">
@@ -407,7 +464,91 @@
     </div>
 
     <script>
-        // Simplified App
+        // ============================================
+        // PWA INSTALLATION SYSTEM
+        // ============================================
+        let deferredPrompt;
+        const installButton = document.getElementById('installButton');
+        const installHint = document.getElementById('installHint');
+
+        // Check if PWA is already installed
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ PWA installed successfully');
+            installButton.innerHTML = '<i class="fas fa-check"></i> INSTALLED';
+            installButton.classList.add('installed');
+            installButton.disabled = true;
+            installHint.textContent = 'App installed! Access from home screen';
+            
+            // Show success message
+            showToast('✅ SOS Guardian Pro installed successfully!');
+        });
+
+        // Listen for beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('🚀 PWA install prompt available');
+            // Prevent Chrome from automatically showing prompt
+            e.preventDefault();
+            // Stash the event so we can trigger it later
+            deferredPrompt = e;
+            
+            // Show our install button
+            installButton.classList.remove('hidden');
+            installHint.style.display = 'block';
+            
+            // Update button text based on device
+            if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                installButton.innerHTML = '<i class="fas fa-plus-square"></i> ADD TO HOME SCREEN';
+                installHint.textContent = 'Tap Share → "Add to Home Screen"';
+            } else if (/Android/.test(navigator.userAgent)) {
+                installButton.innerHTML = '<i class="fas fa-download"></i> INSTALL APP';
+                installHint.textContent = 'Get quick access from home screen';
+            }
+        });
+
+        // Install button click handler
+        installButton.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // Show the install prompt
+                deferredPrompt.prompt();
+                
+                // Wait for the user to respond
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    console.log('✅ User accepted PWA installation');
+                    installButton.innerHTML = '<i class="fas fa-check"></i> INSTALLING...';
+                    installButton.disabled = true;
+                } else {
+                    console.log('❌ User dismissed PWA installation');
+                    showToast('You can install later from the menu');
+                }
+                
+                deferredPrompt = null;
+            } else {
+                // Manual installation instructions
+                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                    alert('📱 iOS Installation:\n\n1. Tap the Share button (⎋)\n2. Scroll down\n3. Tap "Add to Home Screen"\n4. Tap "Add"');
+                } else if (/Android/.test(navigator.userAgent)) {
+                    alert('📱 Android Installation:\n\n1. Tap menu (⋮)\n2. Tap "Add to Home Screen"\n3. Tap "Add"');
+                } else {
+                    alert('💻 Desktop Installation:\n\n1. Click menu (⋮)\n2. Hover "More tools"\n3. Click "Create shortcut"\n4. Check "Open as window"\n5. Click "Create"');
+                }
+            }
+        });
+
+        // Check if already in standalone mode (already installed)
+        if (window.matchMedia('(display-mode: standalone)').matches || 
+            window.navigator.standalone === true) {
+            console.log('✅ Running in standalone mode (already installed)');
+            installButton.innerHTML = '<i class="fas fa-check"></i> APP INSTALLED';
+            installButton.classList.add('installed');
+            installButton.disabled = true;
+            installHint.textContent = 'Running as installed app';
+        }
+
+        // ============================================
+        // MAIN APP FUNCTIONALITY
+        // ============================================
         const SOS_APP = {
             init() {
                 console.log('🚨 SOS Guardian Pro Starting...');
@@ -435,7 +576,8 @@
                     document.getElementById('countdown').style.display = 'none';
                 });
                 
-                sosBtn.addEventListener('touchstart', () => {
+                sosBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
                     pressTimer = setTimeout(() => {
                         this.triggerEmergency();
                     }, 3000);
@@ -447,13 +589,23 @@
                 
                 // Setup demo button
                 document.getElementById('demoRunButton').addEventListener('click', () => {
-                    alert('🚨 TEST ALERT TRIGGERED!\n\nThis is a demo. In real emergency:\n1. Your location would be sent\n2. Emergency contacts notified\n3. Authorities alerted');
+                    this.showTestAlert();
                 });
                 
                 // Hide loading after 1.5 seconds
                 setTimeout(() => {
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('app').style.display = 'flex';
+                    
+                    // Check PWA install support after page loads
+                    setTimeout(() => {
+                        if (!deferredPrompt && installButton.classList.contains('hidden')) {
+                            // No automatic prompt available, show manual instructions
+                            installButton.classList.remove('hidden');
+                            installHint.style.display = 'block';
+                            installHint.textContent = 'Tap to get installation instructions';
+                        }
+                    }, 2000);
                 }, 1500);
             },
             
@@ -470,8 +622,14 @@
                     navigator.vibrate([200, 100, 200, 100, 200]);
                 }
                 
+                // Play emergency sound
+                this.playEmergencySound();
+                
                 // Show alert
-                alert('🚨 EMERGENCY ALERT SENT!\n\nYour location and details have been sent to emergency contacts.\n\nStay calm and move to a safe location if possible.');
+                this.showAlert(
+                    '🚨 EMERGENCY ALERT SENT!',
+                    'Your location and details have been sent to emergency contacts.\n\nStay calm and move to a safe location if possible.'
+                );
                 
                 // Reset after 5 seconds
                 setTimeout(() => {
@@ -481,9 +639,123 @@
                 
                 // Hide countdown
                 document.getElementById('countdown').style.display = 'none';
+            },
+            
+            showTestAlert() {
+                this.showAlert(
+                    '🚨 TEST EMERGENCY',
+                    'This is a test alert. In a real emergency:\n\n' +
+                    '1. Your exact location would be sent\n' +
+                    '2. Emergency contacts would be notified\n' +
+                    '3. Authorities would be alerted\n' +
+                    '4. Battery status included\n\n' +
+                    '✅ System is functioning correctly!'
+                );
+            },
+            
+            playEmergencySound() {
+                try {
+                    // Create emergency beep sound
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    oscillator.frequency.setValueAtTime(1200, audioContext.currentTime + 0.1);
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                } catch (error) {
+                    console.log('Audio not available:', error);
+                }
+            },
+            
+            showAlert(title, message) {
+                // Create custom alert modal
+                const alertDiv = document.createElement('div');
+                alertDiv.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.9);
+                    z-index: 10000;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    padding: 20px;
+                `;
+                
+                alertDiv.innerHTML = `
+                    <div style="
+                        background: linear-gradient(135deg, #1a1a2e, #16213e);
+                        border-radius: 20px;
+                        padding: 30px;
+                        max-width: 400px;
+                        width: 100%;
+                        border: 2px solid var(--sos-red);
+                        text-align: center;
+                    ">
+                        <div style="font-size: 3rem; color: var(--sos-red); margin-bottom: 20px;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h2 style="color: white; margin-bottom: 20px;">${title}</h2>
+                        <p style="color: #b0b0b0; line-height: 1.6; white-space: pre-line;">${message}</p>
+                        <button style="
+                            background: var(--sos-red);
+                            color: white;
+                            border: none;
+                            padding: 15px 30px;
+                            border-radius: 50px;
+                            font-size: 16px;
+                            font-weight: bold;
+                            cursor: pointer;
+                            margin-top: 30px;
+                            width: 100%;
+                        " onclick="this.parentElement.parentElement.remove()">
+                            OK
+                        </button>
+                    </div>
+                `;
+                
+                document.body.appendChild(alertDiv);
             }
         };
-        
+
+        // Helper function to show toast messages
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #28a745;
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                z-index: 10000;
+                font-weight: 600;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                animation: slideUp 0.3s ease-out;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideDown 0.3s ease-in';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
         // Navigation function
         function showSection(section) {
             const sections = document.querySelectorAll('.nav-item');
@@ -498,8 +770,8 @@
                 document.getElementById('otherSections').style.display = 'block';
                 
                 const content = section === 'route' 
-                    ? '<h2>Route Tracking</h2><p>Track and share your route with emergency contacts.</p>'
-                    : '<h2>Emergency Contacts</h2><p>Manage your emergency contact list.</p>';
+                    ? '<h2 style="color: var(--sos-red); margin-bottom: 20px;"><i class="fas fa-route"></i> Route Tracking</h2><p style="color: var(--text-secondary);">Track and share your route with emergency contacts.</p>'
+                    : '<h2 style="color: var(--sos-red); margin-bottom: 20px;"><i class="fas fa-address-book"></i> Emergency Contacts</h2><p style="color: var(--text-secondary);">Manage your emergency contact list.</p>';
                 
                 document.getElementById('otherSections').innerHTML = content;
             }
@@ -509,16 +781,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             SOS_APP.init();
         });
+
+        // Force HTTPS for GitHub Pages
+        if (window.location.protocol === 'http:' && 
+            window.location.hostname.includes('github.io')) {
+            window.location.href = window.location.href.replace('http:', 'https:');
+        }
     </script>
 </body>
 </html>
-<script>
-  // This registers the 'engine' (sw.js)
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('Guardian Engine: Online'))
-        .catch(err => console.log('Engine Error:', err));
-    });
-  }
-</script>
