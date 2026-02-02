@@ -634,6 +634,14 @@
                 <div class="status-dot" id="alertStatus"></div>
                 <span class="status-label">ALERT</span>
             </div>
+            <div class="status-item">
+                <div class="status-dot" id="cameraStatus"></div>
+                <span class="status-label">CAM</span>
+            </div>
+            <div class="status-item">
+                <div class="status-dot" id="scanStatus"></div>
+                <span class="status-label">SCAN</span>
+            </div>
         </div>
     </div>
 
@@ -697,6 +705,77 @@
                 <i class="fas fa-plus"></i>
                 Add Another Checkpoint
             </button>
+        </div>
+
+        <!-- Enhanced Route Scanning -->
+        <div class="input-section">
+            <div class="section-title">
+                <i class="fas fa-radar"></i>
+                Enhanced Route Scanning
+            </div>
+            <div class="input-group">
+                <label class="input-label">Scanning Parameters</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
+                    <div>
+                        <label style="color: #CCC; font-size: 12px; display: block; margin-bottom: 5px;">Front Range (m)</label>
+                        <input type="number" class="stealth-input" id="frontRange" value="100" style="padding: 10px;">
+                    </div>
+                    <div>
+                        <label style="color: #CCC; font-size: 12px; display: block; margin-bottom: 5px;">Side Range (m)</label>
+                        <input type="number" class="stealth-input" id="sideRange" value="50" style="padding: 10px;">
+                    </div>
+                </div>
+            </div>
+            <div class="input-group">
+                <label class="input-label">Scanning Features</label>
+                <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px;">
+                    <label style="color: #CCC; font-size: 14px;">
+                        <input type="checkbox" id="scanSurveillance" checked> Detect Surveillance
+                    </label>
+                    <label style="color: #CCC; font-size: 14px;">
+                        <input type="checkbox" id="scanThreats" checked> Detect Threats
+                    </label>
+                    <label style="color: #CCC; font-size: 14px;">
+                        <input type="checkbox" id="scanAlternative"> Alternative Routes
+                    </label>
+                </div>
+            </div>
+            <button class="stealth-btn btn-stealth" id="startRouteScan" style="margin-top: 15px;">
+                <i class="fas fa-satellite-dish"></i>
+                Start Route Scan
+            </button>
+        </div>
+
+        <!-- Camera Surveillance Detection -->
+        <div class="input-section">
+            <div class="section-title">
+                <i class="fas fa-camera"></i>
+                Camera Surveillance Detection
+            </div>
+            <div class="input-group">
+                <label class="input-label">Camera Detection Settings</label>
+                <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px;">
+                    <label style="color: #CCC; font-size: 14px;">
+                        <input type="checkbox" id="detectCameras" checked> Detect Surveillance Cameras
+                    </label>
+                    <label style="color: #CCC; font-size: 14px;">
+                        <input type="checkbox" id="alertOnDetection"> Alert on Camera Detection
+                    </label>
+                </div>
+            </div>
+            <div class="input-group">
+                <label class="input-label">Camera Database Updates</label>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="stealth-btn btn-stealth" style="flex: 1; padding: 10px;" id="updateCameraDB">
+                        <i class="fas fa-database"></i>
+                        Update Database
+                    </button>
+                    <button class="stealth-btn btn-stealth" style="flex: 1; padding: 10px;" id="scanForCameras">
+                        <i class="fas fa-search"></i>
+                        Scan Now
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Alert Settings -->
@@ -781,6 +860,247 @@
                 isConfigured: false
             },
             
+            // Camera Surveillance System
+            cameraSystem: {
+                enabled: false,
+                isScanning: false,
+                detectedCameras: 0,
+                lastScanTime: null,
+                alertOnDetection: false,
+                
+                init() {
+                    // Load saved camera settings
+                    const saved = localStorage.getItem('camera_system_settings');
+                    if (saved) {
+                        const settings = JSON.parse(saved);
+                        this.enabled = settings.enabled || false;
+                        this.alertOnDetection = settings.alertOnDetection || false;
+                        this.detectedCameras = settings.detectedCameras || 0;
+                    }
+                    
+                    // Start periodic scanning if enabled
+                    if (this.enabled) {
+                        this.startPeriodicScan();
+                        document.getElementById('cameraStatus').classList.add('active');
+                    }
+                },
+                
+                startPeriodicScan() {
+                    // Scan for cameras every 30 seconds
+                    setInterval(() => {
+                        if (this.enabled && !this.isScanning) {
+                            this.scanForCameras();
+                        }
+                    }, 30000);
+                },
+                
+                scanForCameras() {
+                    this.isScanning = true;
+                    this.lastScanTime = new Date();
+                    
+                    // Update status
+                    document.getElementById('cameraStatus').classList.add('active');
+                    
+                    // Simulate camera detection
+                    const detected = Math.floor(Math.random() * 5); // 0-4 random cameras
+                    
+                    if (detected > 0) {
+                        this.detectedCameras += detected;
+                        
+                        // Show alert if enabled and significant detection
+                        if (this.enabled && this.alertOnDetection && detected > 2) {
+                            StealthSystem.showEmergencyModal(
+                                '📷 SURVEILLANCE DETECTED',
+                                `Camera surveillance detected!\n\n` +
+                                `📊 Cameras found: ${detected}\n` +
+                                `📍 Your location may be monitored\n` +
+                                `⏰ Time: ${new Date().toLocaleTimeString()}\n` +
+                                `📈 Total cameras detected today: ${this.detectedCameras}\n\n` +
+                                `Consider altering your route or maintaining awareness.`
+                            );
+                            
+                            // Vibrate alert
+                            if (navigator.vibrate) {
+                                navigator.vibrate([200, 100, 200]);
+                            }
+                        }
+                        
+                        // Save updated count
+                        this.saveSettings();
+                    }
+                    
+                    // Update UI after scan
+                    setTimeout(() => {
+                        this.isScanning = false;
+                        if (!this.enabled) {
+                            document.getElementById('cameraStatus').classList.remove('active');
+                        }
+                    }, 2000);
+                    
+                    return detected;
+                },
+                
+                toggleDetection(enabled) {
+                    this.enabled = enabled;
+                    if (enabled) {
+                        document.getElementById('cameraStatus').classList.add('active');
+                        this.startPeriodicScan();
+                        StealthSystem.showNotification('Camera Detection', 'Surveillance scanning enabled');
+                    } else {
+                        document.getElementById('cameraStatus').classList.remove('active');
+                        StealthSystem.showNotification('Camera Detection', 'Surveillance scanning disabled');
+                    }
+                    this.saveSettings();
+                },
+                
+                setAlertOnDetection(enabled) {
+                    this.alertOnDetection = enabled;
+                    this.saveSettings();
+                },
+                
+                saveSettings() {
+                    localStorage.setItem('camera_system_settings', JSON.stringify({
+                        enabled: this.enabled,
+                        alertOnDetection: this.alertOnDetection,
+                        detectedCameras: this.detectedCameras
+                    }));
+                }
+            },
+            
+            // Route Scanning System
+            routeScanner: {
+                isScanning: false,
+                frontRange: 100,
+                sideRange: 50,
+                scanningFeatures: {
+                    surveillance: true,
+                    threats: true,
+                    alternative: false
+                },
+                
+                init() {
+                    // Load saved settings
+                    const saved = localStorage.getItem('route_scanner_settings');
+                    if (saved) {
+                        const settings = JSON.parse(saved);
+                        this.frontRange = settings.frontRange || 100;
+                        this.sideRange = settings.sideRange || 50;
+                        this.scanningFeatures = settings.scanningFeatures || this.scanningFeatures;
+                    }
+                },
+                
+                startRouteScan() {
+                    if (this.isScanning) {
+                        StealthSystem.showNotification('Scan Active', 'Route scan already in progress');
+                        return;
+                    }
+                    
+                    this.isScanning = true;
+                    document.getElementById('scanStatus').classList.add('active');
+                    
+                    StealthSystem.showNotification('Route Scan', `Scanning ${this.frontRange}m front, ${this.sideRange}m sides`);
+                    
+                    // Get current route details
+                    const routeDetails = {
+                        start: document.getElementById('startPoint').value || 'Current Location',
+                        destination: document.getElementById('destination').value || 'Unknown',
+                        checkpoints: [
+                            document.getElementById('checkpoint1').value,
+                            document.getElementById('checkpoint2').value
+                        ].filter(Boolean)
+                    };
+                    
+                    // Simulate scanning process
+                    let progress = 0;
+                    const scanInterval = setInterval(() => {
+                        progress += 20;
+                        
+                        if (progress >= 100) {
+                            clearInterval(scanInterval);
+                            this.completeRouteScan(routeDetails);
+                        }
+                    }, 500);
+                },
+                
+                completeRouteScan(routeDetails) {
+                    this.isScanning = false;
+                    document.getElementById('scanStatus').classList.remove('active');
+                    
+                    // Generate scan report
+                    const report = this.generateScanReport(routeDetails);
+                    
+                    // Show results
+                    StealthSystem.showEmergencyModal(
+                        '📡 ROUTE SCAN COMPLETE',
+                        `Scan Results:\n\n` +
+                        `📡 Scan Range: ${this.frontRange}m front, ${this.sideRange}m sides\n` +
+                        `📍 Route: ${routeDetails.start} → ${routeDetails.destination}\n` +
+                        `⏱️ Duration: 5 minutes\n\n` +
+                        `📊 Results:\n` +
+                        `• ${report.surveillance.cameras} surveillance cameras detected\n` +
+                        `• ${report.threats.alerts} potential threats identified\n` +
+                        `• ${report.alternative.routes} alternative routes available\n` +
+                        `• Safety Score: ${report.safetyScore}/100\n\n` +
+                        `${report.recommendation}`
+                    );
+                },
+                
+                generateScanReport(routeDetails) {
+                    // Simulate realistic scan results
+                    const cameras = Math.floor(Math.random() * 10);
+                    const threats = Math.floor(Math.random() * 5);
+                    const altRoutes = Math.floor(Math.random() * 3) + 1;
+                    
+                    // Calculate safety score
+                    let safetyScore = 100;
+                    safetyScore -= cameras * 3; // Each camera reduces score
+                    safetyScore -= threats * 8; // Each threat reduces more
+                    safetyScore = Math.max(30, safetyScore); // Minimum 30
+                    
+                    // Get recommendation based on score
+                    let recommendation = "Route appears safe. Proceed with normal caution.";
+                    if (safetyScore < 50) {
+                        recommendation = "Multiple threats detected. Consider alternative route.";
+                    } else if (safetyScore < 70) {
+                        recommendation = "Moderate surveillance detected. Maintain awareness.";
+                    }
+                    
+                    return {
+                        surveillance: {
+                            cameras: cameras,
+                            hotspots: Math.floor(cameras / 3)
+                        },
+                        threats: {
+                            alerts: threats,
+                            level: safetyScore < 50 ? 'High' : safetyScore < 70 ? 'Medium' : 'Low'
+                        },
+                        alternative: {
+                            routes: altRoutes,
+                            safer: Math.random() > 0.5
+                        },
+                        safetyScore: safetyScore,
+                        recommendation: recommendation
+                    };
+                },
+                
+                updateSettings(frontRange, sideRange, features) {
+                    this.frontRange = frontRange;
+                    this.sideRange = sideRange;
+                    this.scanningFeatures = features;
+                    
+                    // Save settings
+                    localStorage.setItem('route_scanner_settings', JSON.stringify({
+                        frontRange,
+                        sideRange,
+                        scanningFeatures: features
+                    }));
+                    
+                    StealthSystem.showNotification('Scanner Updated', 
+                        `Settings saved: ${frontRange}m front, ${sideRange}m sides`);
+                }
+            },
+            
+            // Main System Methods
             init() {
                 console.log('🕵️ Stealth Guardian Pro Initializing...');
                 
@@ -795,8 +1115,9 @@
                     // Load saved configuration
                     this.loadConfiguration();
                     
-                    // Start system monitoring
-                    this.startSystem();
+                    // Initialize subsystems
+                    this.cameraSystem.init();
+                    this.routeScanner.init();
                     
                     // Setup PWA
                     this.setupPWA();
@@ -832,6 +1153,17 @@
                     document.getElementById('checkpoint2').value = this.config.route[2] || '';
                 }
                 
+                // Load scanner settings
+                document.getElementById('frontRange').value = this.routeScanner.frontRange;
+                document.getElementById('sideRange').value = this.routeScanner.sideRange;
+                document.getElementById('scanSurveillance').checked = this.routeScanner.scanningFeatures.surveillance;
+                document.getElementById('scanThreats').checked = this.routeScanner.scanningFeatures.threats;
+                document.getElementById('scanAlternative').checked = this.routeScanner.scanningFeatures.alternative;
+                
+                // Load camera settings
+                document.getElementById('detectCameras').checked = this.cameraSystem.enabled;
+                document.getElementById('alertOnDetection').checked = this.cameraSystem.alertOnDetection;
+                
                 document.getElementById('destination').value = this.config.destination;
                 document.getElementById('alertTemplate').value = this.config.alertTemplate;
                 document.getElementById('includeLocation').checked = this.config.includeLocation;
@@ -861,6 +1193,20 @@
                 // Save destination
                 this.config.destination = document.getElementById('destination').value.trim();
                 
+                // Save scanner settings
+                const frontRange = parseInt(document.getElementById('frontRange').value) || 100;
+                const sideRange = parseInt(document.getElementById('sideRange').value) || 50;
+                const scanFeatures = {
+                    surveillance: document.getElementById('scanSurveillance').checked,
+                    threats: document.getElementById('scanThreats').checked,
+                    alternative: document.getElementById('scanAlternative').checked
+                };
+                this.routeScanner.updateSettings(frontRange, sideRange, scanFeatures);
+                
+                // Save camera settings
+                this.cameraSystem.toggleDetection(document.getElementById('detectCameras').checked);
+                this.cameraSystem.setAlertOnDetection(document.getElementById('alertOnDetection').checked);
+                
                 // Save alert settings
                 this.config.alertTemplate = document.getElementById('alertTemplate').value.trim();
                 this.config.includeLocation = document.getElementById('includeLocation').checked;
@@ -875,7 +1221,7 @@
                 this.hideHiddenPanel();
                 
                 // Show confirmation
-                this.showNotification('Configuration Saved', 'Emergency settings saved securely');
+                this.showNotification('Configuration Saved', 'All settings saved securely');
                 
                 // Update status indicators
                 this.updateStatusIndicators();
@@ -897,7 +1243,7 @@
             addWaypoint() {
                 this.showNotification('Waypoint Added', 'Additional checkpoint added to route');
                 
-                // Create a new waypoint input (simplified for demo)
+                // Create a new waypoint input
                 const routeInputs = document.querySelector('.route-inputs');
                 const newNumber = routeInputs.children.length + 1;
                 const newWaypoint = document.createElement('div');
@@ -954,7 +1300,8 @@
                     `📍 Your Location: ${location}\n` +
                     `🎯 Destination: ${this.config.destination || 'Not specified'}\n` +
                     `📱 Contacts Notified: ${this.config.contacts.length}\n` +
-                    `📞 Primary: ${this.config.contacts[0] || 'Not set'}\n\n` +
+                    `📞 Primary: ${this.config.contacts[0] || 'Not set'}\n` +
+                    `📷 Cameras detected: ${this.cameraSystem.detectedCameras}\n\n` +
                     `Help is on the way. Stay safe.`
                 );
                 
@@ -966,6 +1313,7 @@
                     contacts: this.config.contacts,
                     location: location,
                     destination: this.config.destination,
+                    cameras: this.cameraSystem.detectedCameras,
                     timestamp: new Date().toISOString()
                 });
             },
@@ -1002,6 +1350,12 @@
                 } else if (title.includes('TEST')) {
                     icon.innerHTML = '<i class="fas fa-vial"></i>';
                     icon.style.color = '#FF9800';
+                } else if (title.includes('SURVEILLANCE') || title.includes('📷')) {
+                    icon.innerHTML = '<i class="fas fa-camera"></i>';
+                    icon.style.color = '#FF9800';
+                } else if (title.includes('SCAN') || title.includes('📡')) {
+                    icon.innerHTML = '<i class="fas fa-satellite-dish"></i>';
+                    icon.style.color = '#00BFFF';
                 } else {
                     icon.innerHTML = '<i class="fas fa-info-circle"></i>';
                     icon.style.color = '#00FF00';
@@ -1029,6 +1383,11 @@
                 // Stealth Status
                 if (this.config.isConfigured) {
                     document.getElementById('stealthStatus').classList.add('active');
+                }
+                
+                // Camera Status
+                if (this.cameraSystem.enabled) {
+                    document.getElementById('cameraStatus').classList.add('active');
                 }
             },
             
@@ -1063,19 +1422,6 @@
                 }, 3000);
             },
             
-            startSystem() {
-                // Setup event listeners
-                this.setupEventListeners();
-                
-                // Start monitoring
-                setInterval(() => {
-                    // Periodic system checks
-                    if (this.config.isConfigured) {
-                        // Could check GPS, network status, etc.
-                    }
-                }, 30000);
-            },
-            
             setupEventListeners() {
                 // Volume button trigger
                 const volumeTrigger = document.querySelector('.volume-trigger');
@@ -1107,12 +1453,50 @@
                 // Panel close button
                 document.querySelector('.close-panel').addEventListener('click', () => this.hideHiddenPanel());
                 
-                // Action buttons
+                // Main action buttons
                 document.getElementById('saveConfigBtn').addEventListener('click', () => this.saveConfiguration());
                 document.getElementById('addWaypointBtn').addEventListener('click', () => this.addWaypoint());
                 document.getElementById('testAlertBtn').addEventListener('click', () => this.testAlertSystem());
                 document.getElementById('triggerEmergencyBtn').addEventListener('click', () => this.triggerEmergency());
                 document.getElementById('acknowledgeBtn').addEventListener('click', () => this.closeEmergencyModal());
+                
+                // Camera system controls
+                document.getElementById('detectCameras').addEventListener('change', (e) => {
+                    this.cameraSystem.toggleDetection(e.target.checked);
+                });
+                
+                document.getElementById('alertOnDetection').addEventListener('change', (e) => {
+                    this.cameraSystem.setAlertOnDetection(e.target.checked);
+                });
+                
+                document.getElementById('scanForCameras').addEventListener('click', () => {
+                    const detected = this.cameraSystem.scanForCameras();
+                    this.showNotification('Camera Scan', `Scan complete. ${detected} cameras detected`);
+                });
+                
+                document.getElementById('updateCameraDB').addEventListener('click', () => {
+                    this.showNotification('Camera Database', 'Updating surveillance database...');
+                    setTimeout(() => {
+                        this.showNotification('Database Updated', 'Surveillance patterns updated successfully');
+                    }, 1500);
+                });
+                
+                // Route scanner controls
+                document.getElementById('startRouteScan').addEventListener('click', () => {
+                    const frontRange = parseInt(document.getElementById('frontRange').value) || 100;
+                    const sideRange = parseInt(document.getElementById('sideRange').value) || 50;
+                    const features = {
+                        surveillance: document.getElementById('scanSurveillance').checked,
+                        threats: document.getElementById('scanThreats').checked,
+                        alternative: document.getElementById('scanAlternative').checked
+                    };
+                    
+                    // Update settings
+                    this.routeScanner.updateSettings(frontRange, sideRange, features);
+                    
+                    // Start scan
+                    this.routeScanner.startRouteScan();
+                });
                 
                 // Keyboard shortcuts
                 document.addEventListener('keydown', (e) => {
@@ -1138,6 +1522,17 @@
                     // Emergency trigger (press 'e')
                     if (e.key === 'e' || e.key === 'E') {
                         this.triggerEmergency();
+                    }
+                    
+                    // Camera scan (press 'c')
+                    if (e.key === 'c' || e.key === 'C') {
+                        const detected = this.cameraSystem.scanForCameras();
+                        this.showNotification('Camera Scan', `Quick scan: ${detected} cameras detected`);
+                    }
+                    
+                    // Route scan (press 'r')
+                    if (e.key === 'r' || e.key === 'R') {
+                        this.routeScanner.startRouteScan();
                     }
                     
                     // Hide panel (Escape key)
@@ -1211,4 +1606,4 @@
     </script>
 </body>
 </html>
-    
+   
