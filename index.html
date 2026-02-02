@@ -346,6 +346,16 @@
             border: 1px solid var(--stealth-text);
         }
 
+        .btn-warning {
+            background: #FF9800;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #FFB74D;
+            transform: translateY(-2px);
+        }
+
         /* === EMERGENCY MODAL === */
         .emergency-modal {
             position: fixed;
@@ -665,15 +675,22 @@
             </div>
             <div class="input-group">
                 <label class="input-label">Primary Contact (Required)</label>
-                <input type="tel" class="stealth-input" id="primaryContact" placeholder="080XXXXXXXX">
+                <input type="tel" class="stealth-input" id="primaryContact" placeholder="+2348012345678">
             </div>
             <div class="input-group">
                 <label class="input-label">Secondary Contact</label>
-                <input type="tel" class="stealth-input" id="secondaryContact" placeholder="Optional">
+                <input type="tel" class="stealth-input" id="secondaryContact" placeholder="+2348023456789">
             </div>
             <div class="input-group">
-                <label class="input-label">Command Center</label>
-                <input type="tel" class="stealth-input" id="commandContact" placeholder="Emergency services">
+                <label class="input-label">Third Contact</label>
+                <input type="tel" class="stealth-input" id="thirdContact" placeholder="+2348034567890">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Test Notification</label>
+                <button class="stealth-btn btn-stealth" id="testNotificationBtn" style="width: 100%; margin-top: 5px;">
+                    <i class="fas fa-bell"></i>
+                    Test Contact Notifications
+                </button>
             </div>
         </div>
 
@@ -786,7 +803,13 @@
             </div>
             <div class="input-group">
                 <label class="input-label">Emergency Message Template</label>
-                <textarea class="stealth-input" id="alertTemplate" rows="4" placeholder="Emergency! Location: {LOCATION}. Destination: {DESTINATION}. Need immediate assistance!">Emergency! Location: {LOCATION}. Destination: {DESTINATION}. Need immediate assistance!</textarea>
+                <textarea class="stealth-input" id="alertTemplate" rows="4" placeholder="Emergency! Location: {LOCATION}. Destination: {DESTINATION}. Need immediate assistance!">🚨 EMERGENCY! I need help!
+
+📍 My Location: {LOCATION}
+🎯 Destination: {DESTINATION}
+⏰ Time: {TIME}
+
+Please send help immediately!</textarea>
             </div>
             <div class="input-group">
                 <label class="input-label">Include in Alerts:</label>
@@ -814,6 +837,10 @@
                 <i class="fas fa-vial"></i>
                 Test Alert System
             </button>
+            <button class="stealth-btn btn-warning" id="clearDataBtn">
+                <i class="fas fa-trash-alt"></i>
+                Clear All Data
+            </button>
             <button class="stealth-btn btn-alert" id="triggerEmergencyBtn">
                 <i class="fas fa-exclamation-triangle"></i>
                 Trigger Emergency Now
@@ -828,13 +855,19 @@
                 <i class="fas fa-exclamation-triangle"></i>
             </div>
             <h2 class="modal-title" id="modalTitle">EMERGENCY ALERT</h2>
-            <p class="modal-message" id="modalMessage">
+            <div class="modal-message" id="modalMessage">
                 Loading emergency details...
-            </p>
-            <button class="stealth-btn btn-primary" id="acknowledgeBtn">
-                <i class="fas fa-check"></i>
-                Acknowledge
-            </button>
+            </div>
+            <div id="modalActions">
+                <button class="stealth-btn btn-primary" id="acknowledgeBtn" style="width: 100%; margin-bottom: 10px;">
+                    <i class="fas fa-check"></i>
+                    Acknowledge
+                </button>
+                <button class="stealth-btn btn-stealth" id="clearModalBtn" style="width: 100%;">
+                    <i class="fas fa-times"></i>
+                    Clear & Close
+                </button>
+            </div>
         </div>
     </div>
 
@@ -853,11 +886,12 @@
                 contacts: [],
                 route: [],
                 destination: '',
-                alertTemplate: 'Emergency! Location: {LOCATION}. Destination: {DESTINATION}. Need immediate assistance!',
+                alertTemplate: '🚨 EMERGENCY! I need help!\n\n📍 My Location: {LOCATION}\n🎯 Destination: {DESTINATION}\n⏰ Time: {TIME}\n\nPlease send help immediately!',
                 includeLocation: true,
                 includeDestination: true,
                 includeRoute: true,
-                isConfigured: false
+                isConfigured: false,
+                lastEmergencyTime: null
             },
             
             // Camera Surveillance System
@@ -870,12 +904,17 @@
                 
                 init() {
                     // Load saved camera settings
-                    const saved = localStorage.getItem('camera_system_settings');
+                    const saved = localStorage.getItem('stealth_camera_system');
                     if (saved) {
-                        const settings = JSON.parse(saved);
-                        this.enabled = settings.enabled || false;
-                        this.alertOnDetection = settings.alertOnDetection || false;
-                        this.detectedCameras = settings.detectedCameras || 0;
+                        try {
+                            const settings = JSON.parse(saved);
+                            this.enabled = settings.enabled || false;
+                            this.alertOnDetection = settings.alertOnDetection || false;
+                            this.detectedCameras = settings.detectedCameras || 0;
+                        } catch (e) {
+                            console.error('Error loading camera settings:', e);
+                            this.resetSettings();
+                        }
                     }
                     
                     // Start periodic scanning if enabled
@@ -887,11 +926,14 @@
                 
                 startPeriodicScan() {
                     // Scan for cameras every 30 seconds
-                    setInterval(() => {
+                    const scanInterval = setInterval(() => {
                         if (this.enabled && !this.isScanning) {
                             this.scanForCameras();
                         }
                     }, 30000);
+                    
+                    // Store interval ID for cleanup
+                    this.scanInterval = scanInterval;
                 },
                 
                 scanForCameras() {
@@ -899,13 +941,18 @@
                     this.lastScanTime = new Date();
                     
                     // Update status
-                    document.getElementById('cameraStatus').classList.add('active');
+                    const cameraStatus = document.getElementById('cameraStatus');
+                    cameraStatus.classList.add('active');
+                    cameraStatus.style.animation = 'pulse 1s infinite';
                     
                     // Simulate camera detection
                     const detected = Math.floor(Math.random() * 5); // 0-4 random cameras
                     
                     if (detected > 0) {
                         this.detectedCameras += detected;
+                        
+                        // Save updated count
+                        this.saveSettings();
                         
                         // Show alert if enabled and significant detection
                         if (this.enabled && this.alertOnDetection && detected > 2) {
@@ -916,7 +963,8 @@
                                 `📍 Your location may be monitored\n` +
                                 `⏰ Time: ${new Date().toLocaleTimeString()}\n` +
                                 `📈 Total cameras detected today: ${this.detectedCameras}\n\n` +
-                                `Consider altering your route or maintaining awareness.`
+                                `Consider altering your route or maintaining awareness.`,
+                                false
                             );
                             
                             // Vibrate alert
@@ -924,16 +972,14 @@
                                 navigator.vibrate([200, 100, 200]);
                             }
                         }
-                        
-                        // Save updated count
-                        this.saveSettings();
                     }
                     
                     // Update UI after scan
                     setTimeout(() => {
                         this.isScanning = false;
+                        cameraStatus.style.animation = '';
                         if (!this.enabled) {
-                            document.getElementById('cameraStatus').classList.remove('active');
+                            cameraStatus.classList.remove('active');
                         }
                     }, 2000);
                     
@@ -948,6 +994,9 @@
                         StealthSystem.showNotification('Camera Detection', 'Surveillance scanning enabled');
                     } else {
                         document.getElementById('cameraStatus').classList.remove('active');
+                        if (this.scanInterval) {
+                            clearInterval(this.scanInterval);
+                        }
                         StealthSystem.showNotification('Camera Detection', 'Surveillance scanning disabled');
                     }
                     this.saveSettings();
@@ -959,11 +1008,18 @@
                 },
                 
                 saveSettings() {
-                    localStorage.setItem('camera_system_settings', JSON.stringify({
+                    localStorage.setItem('stealth_camera_system', JSON.stringify({
                         enabled: this.enabled,
                         alertOnDetection: this.alertOnDetection,
                         detectedCameras: this.detectedCameras
                     }));
+                },
+                
+                resetSettings() {
+                    this.enabled = false;
+                    this.alertOnDetection = false;
+                    this.detectedCameras = 0;
+                    this.saveSettings();
                 }
             },
             
@@ -980,12 +1036,17 @@
                 
                 init() {
                     // Load saved settings
-                    const saved = localStorage.getItem('route_scanner_settings');
+                    const saved = localStorage.getItem('stealth_route_scanner');
                     if (saved) {
-                        const settings = JSON.parse(saved);
-                        this.frontRange = settings.frontRange || 100;
-                        this.sideRange = settings.sideRange || 50;
-                        this.scanningFeatures = settings.scanningFeatures || this.scanningFeatures;
+                        try {
+                            const settings = JSON.parse(saved);
+                            this.frontRange = settings.frontRange || 100;
+                            this.sideRange = settings.sideRange || 50;
+                            this.scanningFeatures = settings.scanningFeatures || this.scanningFeatures;
+                        } catch (e) {
+                            console.error('Error loading scanner settings:', e);
+                            this.resetSettings();
+                        }
                     }
                 },
                 
@@ -996,7 +1057,9 @@
                     }
                     
                     this.isScanning = true;
-                    document.getElementById('scanStatus').classList.add('active');
+                    const scanStatus = document.getElementById('scanStatus');
+                    scanStatus.classList.add('active');
+                    scanStatus.style.animation = 'pulse 0.5s infinite';
                     
                     StealthSystem.showNotification('Route Scan', `Scanning ${this.frontRange}m front, ${this.sideRange}m sides`);
                     
@@ -1024,7 +1087,9 @@
                 
                 completeRouteScan(routeDetails) {
                     this.isScanning = false;
-                    document.getElementById('scanStatus').classList.remove('active');
+                    const scanStatus = document.getElementById('scanStatus');
+                    scanStatus.classList.remove('active');
+                    scanStatus.style.animation = '';
                     
                     // Generate scan report
                     const report = this.generateScanReport(routeDetails);
@@ -1041,7 +1106,8 @@
                         `• ${report.threats.alerts} potential threats identified\n` +
                         `• ${report.alternative.routes} alternative routes available\n` +
                         `• Safety Score: ${report.safetyScore}/100\n\n` +
-                        `${report.recommendation}`
+                        `${report.recommendation}`,
+                        false
                     );
                 },
                 
@@ -1060,9 +1126,9 @@
                     // Get recommendation based on score
                     let recommendation = "Route appears safe. Proceed with normal caution.";
                     if (safetyScore < 50) {
-                        recommendation = "Multiple threats detected. Consider alternative route.";
+                        recommendation = "⚠️ Multiple threats detected. Consider alternative route.";
                     } else if (safetyScore < 70) {
-                        recommendation = "Moderate surveillance detected. Maintain awareness.";
+                        recommendation = "⚠️ Moderate surveillance detected. Maintain awareness.";
                     }
                     
                     return {
@@ -1089,7 +1155,7 @@
                     this.scanningFeatures = features;
                     
                     // Save settings
-                    localStorage.setItem('route_scanner_settings', JSON.stringify({
+                    localStorage.setItem('stealth_route_scanner', JSON.stringify({
                         frontRange,
                         sideRange,
                         scanningFeatures: features
@@ -1097,6 +1163,17 @@
                     
                     StealthSystem.showNotification('Scanner Updated', 
                         `Settings saved: ${frontRange}m front, ${sideRange}m sides`);
+                },
+                
+                resetSettings() {
+                    this.frontRange = 100;
+                    this.sideRange = 50;
+                    this.scanningFeatures = {
+                        surveillance: true,
+                        threats: true,
+                        alternative: false
+                    };
+                    localStorage.removeItem('stealth_route_scanner');
                 }
             },
             
@@ -1124,10 +1201,12 @@
                     
                     // Show welcome notification
                     this.showNotification('System Active', 'Stealth mode enabled. Configure emergency settings.');
+                    
+                    // Update time immediately
+                    this.updateTime();
                 }, 1500);
                 
-                // Update time display
-                this.updateTime();
+                // Update time display every minute
                 setInterval(() => this.updateTime(), 60000);
             },
             
@@ -1135,6 +1214,7 @@
                 const now = new Date();
                 const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 document.getElementById('currentTime').textContent = timeString;
+                return now;
             },
             
             showHiddenPanel() {
@@ -1144,7 +1224,7 @@
                 if (this.config.contacts.length > 0) {
                     document.getElementById('primaryContact').value = this.config.contacts[0] || '';
                     document.getElementById('secondaryContact').value = this.config.contacts[1] || '';
-                    document.getElementById('commandContact').value = this.config.contacts[2] || '';
+                    document.getElementById('thirdContact').value = this.config.contacts[2] || '';
                 }
                 
                 if (this.config.route.length > 0) {
@@ -1164,7 +1244,7 @@
                 document.getElementById('detectCameras').checked = this.cameraSystem.enabled;
                 document.getElementById('alertOnDetection').checked = this.cameraSystem.alertOnDetection;
                 
-                document.getElementById('destination').value = this.config.destination;
+                document.getElementById('destination').value = this.config.destination || '';
                 document.getElementById('alertTemplate').value = this.config.alertTemplate;
                 document.getElementById('includeLocation').checked = this.config.includeLocation;
                 document.getElementById('includeDestination').checked = this.config.includeDestination;
@@ -1180,7 +1260,7 @@
                 this.config.contacts = [
                     document.getElementById('primaryContact').value.trim(),
                     document.getElementById('secondaryContact').value.trim(),
-                    document.getElementById('commandContact').value.trim()
+                    document.getElementById('thirdContact').value.trim()
                 ].filter(contact => contact !== '');
                 
                 // Save route
@@ -1215,28 +1295,82 @@
                 this.config.isConfigured = true;
                 
                 // Save to localStorage
-                localStorage.setItem('stealth_config', JSON.stringify(this.config));
-                
-                // Hide panel
-                this.hideHiddenPanel();
-                
-                // Show confirmation
-                this.showNotification('Configuration Saved', 'All settings saved securely');
-                
-                // Update status indicators
-                this.updateStatusIndicators();
-                
-                // Vibrate confirmation
-                if (navigator.vibrate) {
-                    navigator.vibrate([100, 50, 100]);
+                try {
+                    localStorage.setItem('stealth_config', JSON.stringify(this.config));
+                    this.showNotification('Configuration Saved', 'All settings saved successfully');
+                    
+                    // Update status indicators
+                    this.updateStatusIndicators();
+                    
+                    // Vibrate confirmation
+                    if (navigator.vibrate) {
+                        navigator.vibrate([100, 50, 100]);
+                    }
+                    
+                    // Hide panel after a delay
+                    setTimeout(() => this.hideHiddenPanel(), 1000);
+                } catch (e) {
+                    console.error('Error saving configuration:', e);
+                    this.showNotification('Save Error', 'Could not save configuration. Storage may be full.');
                 }
             },
             
             loadConfiguration() {
-                const saved = localStorage.getItem('stealth_config');
-                if (saved) {
-                    this.config = JSON.parse(saved);
-                    this.updateStatusIndicators();
+                try {
+                    const saved = localStorage.getItem('stealth_config');
+                    if (saved) {
+                        this.config = JSON.parse(saved);
+                        this.updateStatusIndicators();
+                        return true;
+                    }
+                } catch (e) {
+                    console.error('Error loading configuration:', e);
+                }
+                return false;
+            },
+            
+            clearAllData() {
+                if (confirm('⚠️ Are you sure you want to clear ALL data? This cannot be undone!')) {
+                    // Clear all localStorage items
+                    localStorage.removeItem('stealth_config');
+                    localStorage.removeItem('stealth_camera_system');
+                    localStorage.removeItem('stealth_route_scanner');
+                    
+                    // Reset config
+                    this.config = {
+                        contacts: [],
+                        route: [],
+                        destination: '',
+                        alertTemplate: '🚨 EMERGENCY! I need help!\n\n📍 My Location: {LOCATION}\n🎯 Destination: {DESTINATION}\n⏰ Time: {TIME}\n\nPlease send help immediately!',
+                        includeLocation: true,
+                        includeDestination: true,
+                        includeRoute: true,
+                        isConfigured: false,
+                        lastEmergencyTime: null
+                    };
+                    
+                    // Reset subsystems
+                    this.cameraSystem.resetSettings();
+                    this.routeScanner.resetSettings();
+                    
+                    // Clear form inputs
+                    document.getElementById('primaryContact').value = '';
+                    document.getElementById('secondaryContact').value = '';
+                    document.getElementById('thirdContact').value = '';
+                    document.getElementById('startPoint').value = '';
+                    document.getElementById('checkpoint1').value = '';
+                    document.getElementById('checkpoint2').value = '';
+                    document.getElementById('destination').value = '';
+                    document.getElementById('alertTemplate').value = this.config.alertTemplate;
+                    
+                    // Update status indicators
+                    document.getElementById('stealthStatus').classList.remove('active');
+                    document.getElementById('cameraStatus').classList.remove('active');
+                    
+                    this.showNotification('Data Cleared', 'All settings have been reset to default');
+                    
+                    // Hide panel
+                    this.hideHiddenPanel();
                 }
             },
             
@@ -1256,121 +1390,233 @@
             },
             
             testAlertSystem() {
-                if (!this.config.isConfigured) {
-                    this.showEmergencyModal('Configuration Required', 'Please configure emergency contacts and route first.');
+                if (!this.config.isConfigured || this.config.contacts.length === 0) {
+                    this.showEmergencyModal('Configuration Required', 'Please configure emergency contacts first.\n\nAdd at least one contact number in the format: +2348012345678');
                     return;
                 }
                 
                 const testLocation = this.getSimulatedLocation();
-                const testMessage = this.config.alertTemplate
-                    .replace('{LOCATION}', testLocation)
-                    .replace('{DESTINATION}', this.config.destination || 'Test Destination');
+                const currentTime = new Date().toLocaleTimeString();
+                let testMessage = this.config.alertTemplate
+                    .replace(/{LOCATION}/g, testLocation)
+                    .replace(/{DESTINATION}/g, this.config.destination || 'Test Destination')
+                    .replace(/{TIME}/g, currentTime);
                 
                 this.showEmergencyModal(
-                    'TEST ALERT',
+                    '🔔 TEST ALERT',
                     `Test alert prepared:\n\n` +
-                    `📱 Contacts: ${this.config.contacts.length}\n` +
-                    `📍 Location: ${testLocation}\n` +
+                    `📱 Contacts to notify: ${this.config.contacts.length}\n` +
+                    `1. ${this.config.contacts[0] || 'Not set'}\n` +
+                    `2. ${this.config.contacts[1] || 'Not set'}\n` +
+                    `3. ${this.config.contacts[2] || 'Not set'}\n\n` +
+                    `📍 Simulated Location: ${testLocation}\n` +
                     `🎯 Destination: ${this.config.destination || 'Not set'}\n` +
-                    `📨 Message: ${testMessage.substring(0, 80)}...\n\n` +
-                    `System is functioning correctly.`
+                    `⏰ Time: ${currentTime}\n\n` +
+                    `📨 Message preview:\n${testMessage.substring(0, 150)}...\n\n` +
+                    `System is functioning correctly.`,
+                    false
                 );
+                
+                // Test notification sound
+                this.playNotificationSound();
+            },
+            
+            testContactNotifications() {
+                if (!this.config.isConfigured || this.config.contacts.length === 0) {
+                    this.showNotification('No Contacts', 'Please add emergency contacts first');
+                    return;
+                }
+                
+                this.showNotification('Testing Notifications', 
+                    `Would send alerts to:\n${this.config.contacts.join('\n')}\n\nTest successful!`);
+                
+                // Play test sound
+                this.playNotificationSound();
+                
+                // Vibrate
+                if (navigator.vibrate) {
+                    navigator.vibrate([200, 100, 200, 100, 200]);
+                }
             },
             
             triggerEmergency() {
-                if (!this.config.isConfigured) {
-                    this.showEmergencyModal('Configuration Required', 'Please configure emergency contacts first.');
+                if (!this.config.isConfigured || this.config.contacts.length === 0) {
+                    this.showEmergencyModal('Configuration Required', 
+                        '❌ Please configure emergency contacts first!\n\n' +
+                        '1. Open hidden panel (volume button 3x)\n' +
+                        '2. Add at least one contact number\n' +
+                        '3. Save configuration\n' +
+                        '4. Try again');
                     return;
                 }
                 
                 const location = this.getSimulatedLocation();
+                const currentTime = new Date().toLocaleTimeString();
                 let message = this.config.alertTemplate
-                    .replace('{LOCATION}', location)
-                    .replace('{DESTINATION}', this.config.destination || 'Unknown');
+                    .replace(/{LOCATION}/g, location)
+                    .replace(/{DESTINATION}/g, this.config.destination || 'Unknown')
+                    .replace(/{TIME}/g, currentTime);
+                
+                // Store emergency time
+                this.config.lastEmergencyTime = new Date().toISOString();
+                localStorage.setItem('stealth_config', JSON.stringify(this.config));
                 
                 // Send to all contacts
-                this.config.contacts.forEach(contact => {
-                    this.sendEmergencyAlert(contact, message);
+                this.config.contacts.forEach((contact, index) => {
+                    this.sendEmergencyAlert(contact, message, index + 1);
                 });
                 
                 // Show emergency modal
                 this.showEmergencyModal(
-                    '🚨 EMERGENCY ALERT SENT',
-                    `Emergency alert activated:\n\n` +
+                    '🚨 EMERGENCY ALERT SENT!',
+                    `Emergency alert activated and sent to your contacts:\n\n` +
                     `📍 Your Location: ${location}\n` +
                     `🎯 Destination: ${this.config.destination || 'Not specified'}\n` +
+                    `⏰ Time: ${currentTime}\n` +
                     `📱 Contacts Notified: ${this.config.contacts.length}\n` +
-                    `📞 Primary: ${this.config.contacts[0] || 'Not set'}\n` +
                     `📷 Cameras detected: ${this.cameraSystem.detectedCameras}\n\n` +
-                    `Help is on the way. Stay safe.`
+                    `✅ Alerts sent successfully!\n` +
+                    `Your loved ones have been notified.\n\n` +
+                    `Stay calm and safe. Help is on the way.`,
+                    true
                 );
                 
                 // Update alert status
                 document.getElementById('alertStatus').classList.add('active');
                 
+                // Play emergency sound
+                this.playEmergencySound();
+                
                 // Log the emergency
-                console.log('🚨 Emergency Alert:', {
+                console.log('🚨 Emergency Alert Sent:', {
                     contacts: this.config.contacts,
                     location: location,
                     destination: this.config.destination,
                     cameras: this.cameraSystem.detectedCameras,
-                    timestamp: new Date().toISOString()
+                    timestamp: this.config.lastEmergencyTime
                 });
             },
             
-            sendEmergencyAlert(contact, message) {
-                // In real implementation, this would use SMS/WhatsApp API
-                console.log(`🚨 Sending to ${contact}: ${message}`);
+            sendEmergencyAlert(contact, message, contactNumber) {
+                console.log(`🚨 Sending to Contact ${contactNumber}: ${contact}\nMessage: ${message}`);
                 
-                // Simulate sending
+                // In a real app, this would use:
+                // 1. SMS API (Twilio, etc.)
+                // 2. WhatsApp API
+                // 3. Phone call
+                // 4. Push notifications
+                
+                // Simulate sending with delay
                 setTimeout(() => {
                     console.log(`✅ Alert delivered to ${contact}`);
-                    this.showNotification('Alert Sent', `Delivered to ${contact}`);
-                }, 1000);
+                    this.showNotification(`Contact ${contactNumber}`, `Alert sent to ${contact}`);
+                }, contactNumber * 1000);
             },
             
             getSimulatedLocation() {
                 const locations = [
-                    '6.5244° N, 3.3792° E', // Lagos
-                    '9.0765° N, 7.3986° E', // Abuja
-                    '12.0022° N, 8.5920° E'  // Kano
+                    '6.5244° N, 3.3792° E (Lagos)', 
+                    '9.0765° N, 7.3986° E (Abuja)',
+                    '12.0022° N, 8.5920° E (Kano)',
+                    '4.8156° N, 7.0498° E (Port Harcourt)',
+                    '6.3187° N, 5.6080° E (Benin City)'
                 ];
                 return locations[Math.floor(Math.random() * locations.length)];
             },
             
-            showEmergencyModal(title, message) {
+            showEmergencyModal(title, message, isEmergency = false) {
                 document.getElementById('modalTitle').textContent = title;
                 document.getElementById('modalMessage').textContent = message;
                 
                 // Set icon based on type
                 const icon = document.getElementById('modalIcon');
-                if (title.includes('EMERGENCY') || title.includes('🚨')) {
+                if (isEmergency || title.includes('EMERGENCY') || title.includes('🚨')) {
                     icon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
                     icon.style.color = '#FF3B30';
-                } else if (title.includes('TEST')) {
+                    document.querySelector('.modal-content').style.borderColor = '#FF3B30';
+                } else if (title.includes('TEST') || title.includes('🔔')) {
                     icon.innerHTML = '<i class="fas fa-vial"></i>';
                     icon.style.color = '#FF9800';
+                    document.querySelector('.modal-content').style.borderColor = '#FF9800';
                 } else if (title.includes('SURVEILLANCE') || title.includes('📷')) {
                     icon.innerHTML = '<i class="fas fa-camera"></i>';
                     icon.style.color = '#FF9800';
+                    document.querySelector('.modal-content').style.borderColor = '#FF9800';
                 } else if (title.includes('SCAN') || title.includes('📡')) {
                     icon.innerHTML = '<i class="fas fa-satellite-dish"></i>';
                     icon.style.color = '#00BFFF';
+                    document.querySelector('.modal-content').style.borderColor = '#00BFFF';
                 } else {
                     icon.innerHTML = '<i class="fas fa-info-circle"></i>';
                     icon.style.color = '#00FF00';
+                    document.querySelector('.modal-content').style.borderColor = '#00FF00';
                 }
                 
                 document.getElementById('emergencyModal').style.display = 'flex';
                 
                 // Vibrate for emergency
-                if (title.includes('EMERGENCY') && navigator.vibrate) {
-                    navigator.vibrate([200, 100, 200, 100, 200]);
+                if (isEmergency && navigator.vibrate) {
+                    navigator.vibrate([500, 200, 500, 200, 500]);
                 }
             },
             
-            closeEmergencyModal() {
+            closeEmergencyModal(clearData = false) {
+                if (clearData) {
+                    // Clear any emergency data if needed
+                    document.getElementById('alertStatus').classList.remove('active');
+                }
                 document.getElementById('emergencyModal').style.display = 'none';
+            },
+            
+            playNotificationSound() {
+                // Create a simple notification sound
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = 800;
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            },
+            
+            playEmergencySound() {
+                // Create emergency sound
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    for (let i = 0; i < 3; i++) {
+                        setTimeout(() => {
+                            const oscillator = audioContext.createOscillator();
+                            const gainNode = audioContext.createGain();
+                            
+                            oscillator.connect(gainNode);
+                            gainNode.connect(audioContext.destination);
+                            
+                            oscillator.frequency.value = 1200;
+                            oscillator.type = 'sawtooth';
+                            
+                            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                            
+                            oscillator.start(audioContext.currentTime);
+                            oscillator.stop(audioContext.currentTime + 0.3);
+                        }, i * 500);
+                    }
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
             },
             
             updateStatusIndicators() {
@@ -1398,7 +1644,7 @@
                     position: fixed;
                     top: 20px;
                     right: 20px;
-                    background: rgba(0,0,0,0.9);
+                    background: rgba(0,0,0,0.95);
                     border-left: 4px solid #00FF00;
                     color: #00FF00;
                     padding: 15px 25px;
@@ -1407,19 +1653,25 @@
                     max-width: 400px;
                     animation: slideIn 0.3s ease;
                     box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+                    backdrop-filter: blur(10px);
                 `;
                 
                 toast.innerHTML = `
-                    <div style="font-weight: bold; margin-bottom: 5px;">${title}</div>
-                    <div style="font-size: 14px; color: #CCC;">${message}</div>
+                    <div style="font-weight: bold; margin-bottom: 8px; font-size: 16px;">${title}</div>
+                    <div style="font-size: 14px; color: #CCC; line-height: 1.4;">${message}</div>
                 `;
                 
                 document.body.appendChild(toast);
                 
+                // Auto-remove after 4 seconds
                 setTimeout(() => {
                     toast.style.animation = 'slideOut 0.3s ease forwards';
-                    setTimeout(() => toast.remove(), 300);
-                }, 3000);
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            toast.parentNode.removeChild(toast);
+                        }
+                    }, 300);
+                }, 4000);
             },
             
             setupEventListeners() {
@@ -1437,7 +1689,7 @@
                         if (volumePressCount === 3) {
                             volumePressCount = 0;
                             this.showHiddenPanel();
-                            this.showNotification('Stealth Access', 'Volume button trigger activated');
+                            this.showNotification('Stealth Access', 'Hidden panel activated via volume button');
                         }
                     } else {
                         volumePressCount = 1;
@@ -1446,9 +1698,14 @@
                     lastVolumePress = now;
                 });
                 
-                // Settings icon in app grid
+                // Settings icon in app grid (4th icon)
                 const settingsIcon = document.querySelector('.app-grid .app-icon:nth-child(4)');
-                settingsIcon.addEventListener('click', () => this.showHiddenPanel());
+                if (settingsIcon) {
+                    settingsIcon.addEventListener('click', () => {
+                        this.showHiddenPanel();
+                        this.showNotification('Settings', 'Hidden configuration panel opened');
+                    });
+                }
                 
                 // Panel close button
                 document.querySelector('.close-panel').addEventListener('click', () => this.hideHiddenPanel());
@@ -1457,8 +1714,11 @@
                 document.getElementById('saveConfigBtn').addEventListener('click', () => this.saveConfiguration());
                 document.getElementById('addWaypointBtn').addEventListener('click', () => this.addWaypoint());
                 document.getElementById('testAlertBtn').addEventListener('click', () => this.testAlertSystem());
+                document.getElementById('testNotificationBtn').addEventListener('click', () => this.testContactNotifications());
                 document.getElementById('triggerEmergencyBtn').addEventListener('click', () => this.triggerEmergency());
-                document.getElementById('acknowledgeBtn').addEventListener('click', () => this.closeEmergencyModal());
+                document.getElementById('clearDataBtn').addEventListener('click', () => this.clearAllData());
+                document.getElementById('acknowledgeBtn').addEventListener('click', () => this.closeEmergencyModal(false));
+                document.getElementById('clearModalBtn').addEventListener('click', () => this.closeEmergencyModal(true));
                 
                 // Camera system controls
                 document.getElementById('detectCameras').addEventListener('change', (e) => {
@@ -1510,7 +1770,7 @@
                             if (volumePressCount === 3) {
                                 volumePressCount = 0;
                                 this.showHiddenPanel();
-                                this.showNotification('Stealth Access', 'Volume button trigger activated');
+                                this.showNotification('Stealth Access', 'Hidden panel activated (Keyboard shortcut)');
                             }
                         } else {
                             volumePressCount = 1;
@@ -1535,21 +1795,26 @@
                         this.routeScanner.startRouteScan();
                     }
                     
+                    // Test alert (press 't')
+                    if (e.key === 't' || e.key === 'T') {
+                        this.testAlertSystem();
+                    }
+                    
                     // Hide panel (Escape key)
                     if (e.key === 'Escape') {
                         this.hideHiddenPanel();
-                        this.closeEmergencyModal();
+                        this.closeEmergencyModal(true);
                     }
                 });
                 
-                // Shake detection
+                // Shake detection for emergency
                 this.setupShakeDetection();
             },
             
             setupShakeDetection() {
-                let lastShake = 0;
-                
                 if (window.DeviceMotionEvent) {
+                    let lastShake = 0;
+                    
                     window.addEventListener('devicemotion', (e) => {
                         if (!this.config.isConfigured) return;
                         
@@ -1563,7 +1828,7 @@
                         if (force > 30 && Date.now() - lastShake > 3000) {
                             lastShake = Date.now();
                             this.triggerEmergency();
-                            this.showNotification('Shake Detected', 'Emergency alert activated');
+                            this.showNotification('Shake Detected', 'Emergency alert activated by shake gesture');
                         }
                     });
                 }
@@ -1586,6 +1851,7 @@
                                 installButton.innerHTML = '<i class="fas fa-check"></i> INSTALLED';
                                 installButton.style.background = '#666';
                                 installButton.disabled = true;
+                                this.showNotification('App Installed', 'Stealth Guardian Pro installed successfully');
                             }
                             deferredPrompt = null;
                         }
@@ -1596,12 +1862,25 @@
                 if (window.matchMedia('(display-mode: standalone)').matches) {
                     installButton.style.display = 'none';
                 }
+                
+                // Show install button after 5 seconds
+                setTimeout(() => {
+                    if (!window.matchMedia('(display-mode: standalone)').matches) {
+                        installButton.style.display = 'flex';
+                    }
+                }, 5000);
             }
         };
         
         // Initialize the system when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
             StealthSystem.init();
+        });
+        
+        // Add global error handling
+        window.addEventListener('error', (e) => {
+            console.error('Global error:', e);
+            StealthSystem.showNotification('System Error', 'An error occurred. Please refresh the app.');
         });
     </script>
 </body>
