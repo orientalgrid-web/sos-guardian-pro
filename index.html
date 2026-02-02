@@ -2,791 +2,1063 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#008751">
-    
-    <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
-    
-    <!-- Regular favicons -->
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    
-    <!-- Manifest -->
-    <link rel="manifest" href="manifest.webmanifest">
-    
-    <title>SOS Guardian Pro - Complete Emergency System</title>
-    
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUARDIAN PRO - Unified Security System</title>
     <style>
         :root {
-            --nigeria-green: #008751;
-            --nigeria-white: #FFFFFF;
-            --sos-red: #FF3B30;
-            --offline-red: #8B0000;
+            --military-red: #D32F2F;
+            --military-green: #2D5A27;
+            --civilian-blue: #1565C0;
+            --civilian-green: #008751;
             --dark-bg: #0A0A0A;
             --card-bg: #1A1A1A;
-            --card-border: #2A2A2A;
-            --text-primary: #FFFFFF;
-            --text-secondary: #AAAAAA;
+            --text-light: #FFFFFF;
+            --text-dim: #AAAAAA;
         }
-
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Arial, sans-serif;
         }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        
+        body {
             background: var(--dark-bg);
-            color: var(--text-primary);
-            position: fixed;
+            color: var(--text-light);
+            min-height: 100vh;
         }
-
-        #app {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .offline-mode {
-            background: var(--offline-red);
-            color: white;
-            padding: 10px 15px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-weight: 600;
-            font-size: 13px;
-            animation: pulseOffline 2s infinite;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        @keyframes pulseOffline {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .header {
-            background: linear-gradient(90deg, var(--nigeria-green) 33%, var(--nigeria-white) 33%, var(--nigeria-white) 66%, var(--nigeria-green) 66%);
-            padding: 15px 20px;
+        
+        /* === UNIFIED HEADER === */
+        .unified-header {
+            background: linear-gradient(90deg, #0A1929, #1A2B3C);
+            padding: 20px;
+            border-bottom: 3px solid var(--military-red);
             position: relative;
         }
-
-        .header-content {
+        
+        .header-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(0,0,0,0.7);
-            padding: 10px 15px;
-            border-radius: 10px;
+            margin-bottom: 15px;
         }
-
-        .app-title {
+        
+        .app-brand {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
         }
-
-        .app-icon {
-            width: 45px;
-            height: 45px;
-            background: var(--sos-red);
-            border-radius: 10px;
+        
+        .logo-container {
+            position: relative;
+        }
+        
+        .main-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--military-red), #B71C1C);
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 28px;
+            color: white;
+            border: 3px solid white;
+        }
+        
+        .mode-badge {
+            position: absolute;
+            bottom: -8px;
+            right: -8px;
+            background: var(--military-red);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .brand-text h1 {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(45deg, #FFFFFF, #4FC3F7);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .brand-text p {
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+        
+        /* === MODE SELECTOR === */
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        
+        .mode-tab {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .mode-military {
+            background: var(--military-red);
             color: white;
         }
-
-        .title-text h1 {
-            font-size: 20px;
-            font-weight: 700;
+        
+        .mode-civilian {
+            background: var(--civilian-blue);
+            color: white;
         }
-
-        .title-text p {
-            font-size: 12px;
-            color: var(--text-secondary);
+        
+        .mode-tab.active {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
         }
-
-        .emergency-status {
-            background: rgba(255, 59, 48, 0.2);
-            border: 1px solid rgba(255, 59, 48, 0.5);
-            color: var(--sos-red);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        
+        /* === DASHBOARD === */
+        .dashboard {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
-
-        .signal-indicator {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 10px 20px;
-            background: rgba(0,0,0,0.3);
-            border-bottom: 1px solid var(--card-border);
-        }
-
-        .signal-bar {
-            width: 4px;
-            height: 12px;
-            background: #666;
-            border-radius: 2px;
-        }
-
-        .signal-bar.active { background: #4CAF50; }
-
-        .main-nav {
-            display: flex;
-            background: var(--card-bg);
-            padding: 0 15px;
-            overflow-x: auto;
-            white-space: nowrap;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-
-        .main-nav::-webkit-scrollbar {
+        
+        .dashboard-section {
             display: none;
         }
-
-        .nav-item {
-            padding: 15px 20px;
-            background: none;
-            border: none;
-            color: var(--text-secondary);
+        
+        .dashboard-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* === MILITARY DASHBOARD === */
+        .military-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .military-card {
+            background: rgba(26, 43, 60, 0.8);
+            border: 2px solid var(--military-green);
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .military-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--military-red), #FF9800);
+        }
+        
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: var(--military-red);
+            font-size: 18px;
             font-weight: 600;
-            font-size: 14px;
-            border-bottom: 3px solid transparent;
+        }
+        
+        /* === CIVILIAN DASHBOARD === */
+        .civilian-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .civilian-card {
+            background: rgba(21, 101, 192, 0.1);
+            border: 2px solid var(--civilian-blue);
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .civilian-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--civilian-blue), #00BCD4);
+        }
+        
+        /* === BUTTONS === */
+        .control-grid {
+            display: grid;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .control-btn {
+            padding: 18px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            min-width: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s;
             text-align: center;
-            min-height: 44px;
-            user-select: none;
-            -webkit-user-select: none;
         }
-
-        .nav-item.active {
-            color: var(--sos-red);
-            border-bottom-color: var(--sos-red);
+        
+        .btn-military {
+            background: linear-gradient(135deg, var(--military-red), #B71C1C);
+            color: white;
         }
-
-        .nav-item:active {
-            opacity: 0.8;
+        
+        .btn-military:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(211, 47, 47, 0.3);
         }
-
-        .loading {
+        
+        .btn-civilian {
+            background: linear-gradient(135deg, var(--civilian-green), #00B894);
+            color: white;
+        }
+        
+        .btn-civilian:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 135, 81, 0.3);
+        }
+        
+        .btn-stealth {
+            background: linear-gradient(135deg, #424242, #212121);
+            color: white;
+            border: 2px solid #666;
+        }
+        
+        /* === MODAL === */
+        .alert-modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--dark-bg);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 3px solid var(--card-border);
-            border-top-color: var(--nigeria-green);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .sos-section {
-            text-align: center;
-            padding: 40px 20px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .sos-button {
-            width: 180px;
-            height: 180px;
-            background: radial-gradient(circle, var(--sos-red) 0%, #D70015 100%);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 32px;
-            font-weight: 800;
-            margin: 0 auto 20px;
-            box-shadow: 0 15px 30px rgba(255, 59, 48, 0.4);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.1s;
-            user-select: none;
-            -webkit-user-select: none;
-            min-height: 44px;
-        }
-
-        .sos-button:active {
-            transform: scale(0.95);
-        }
-
-        .sos-button.activated {
-            animation: pulseSOS 0.5s infinite;
-        }
-
-        @keyframes pulseSOS {
-            0%, 100% { 
-                box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7);
-            }
-            50% { 
-                box-shadow: 0 0 0 20px rgba(255, 59, 48, 0);
-            }
-        }
-
-        .instructions {
-            margin-top: 20px;
-            color: var(--text-secondary);
-            font-size: 14px;
-            text-align: center;
-            padding: 0 20px;
-        }
-
-        .countdown {
-            font-size: 24px;
-            font-weight: bold;
-            color: white;
-            margin-top: 10px;
-            display: none;
-        }
-
-        /* Demo Run Button */
-        .demo-run-button {
-            position: fixed;
-            top: 20px;
-            right: 20px;
+            background: rgba(0,0,0,0.95);
             z-index: 10000;
-            background: linear-gradient(135deg, var(--nigeria-green), #00B894);
-            color: white;
-            border: none;
-            padding: 15px 25px;
-            border-radius: 50px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 135, 81, 0.4);
-            display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 10px;
-            transition: all 0.3s;
+            padding: 20px;
         }
-
-        .demo-run-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 135, 81, 0.6);
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1A1A1A, #2D2D2D);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 4px solid var(--military-red);
+            animation: modalIn 0.4s ease-out;
         }
-
-        /* PWA Install Button */
-        .install-button {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 30px auto 0;
-            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
-            transition: all 0.3s;
+        
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
-
-        .install-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.6);
-        }
-
-        .install-button.installed {
-            background: linear-gradient(135deg, #004a99, #0066cc);
-            cursor: default;
-        }
-
-        .install-button.hidden {
-            display: none;
-        }
-
-        /* Responsive */
-        @media (max-width: 480px) {
-            .sos-button {
-                width: 150px;
-                height: 150px;
-                font-size: 28px;
+        
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .header-top {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
             }
             
-            .demo-run-button {
-                top: 10px;
-                right: 10px;
-                padding: 10px 15px;
-                font-size: 14px;
+            .mode-selector {
+                width: 100%;
             }
             
-            .install-button {
-                padding: 12px 20px;
-                font-size: 14px;
+            .military-dashboard,
+            .civilian-dashboard {
+                grid-template-columns: 1fr;
             }
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <!-- Demo Run Button -->
-    <button class="demo-run-button" id="demoRunButton">
-        <i class="fas fa-play"></i>
-        TEST EMERGENCY
-    </button>
-
-    <!-- Loading Screen -->
-    <div class="loading" id="loading">
-        <div class="loading-spinner"></div>
-        <div>SOS Guardian Pro</div>
-        <div style="font-size: 14px; color: var(--text-secondary); margin-top: 10px;">Initializing emergency system...</div>
-    </div>
-
-    <!-- Main App -->
-    <div id="app" style="display: none;">
-        <div class="offline-mode" id="offlineIndicator">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>OFFLINE MODE - Alerts queued:</span>
-            <span id="queuedCount">0</span>
+    <!-- === UNIFIED HEADER === -->
+    <div class="unified-header">
+        <div class="header-top">
+            <div class="app-brand">
+                <div class="logo-container">
+                    <div class="main-logo">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="mode-badge" id="currentModeBadge">MILITARY</div>
+                </div>
+                <div class="brand-text">
+                    <h1>GUARDIAN PRO</h1>
+                    <p>Unified Security & Emergency System</p>
+                </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="text-align: right;">
+                    <div style="font-size: 12px; color: var(--text-dim);">Status</div>
+                    <div style="font-weight: bold; color: #4CAF50;" id="systemStatus">OPERATIONAL</div>
+                </div>
+            </div>
         </div>
-
-        <div class="header">
-            <div class="header-content">
-                <div class="app-title">
-                    <div class="app-icon"><i class="fas fa-shield-alt"></i></div>
-                    <div class="title-text">
-                        <h1>SOS Guardian Pro</h1>
-                        <p>Complete Emergency System</p>
+        
+        <div class="mode-selector">
+            <button class="mode-tab mode-military active" onclick="switchMode('military')">
+                <i class="fas fa-crosshairs"></i>
+                MILITARY GRADE
+            </button>
+            <button class="mode-tab mode-civilian" onclick="switchMode('civilian')">
+                <i class="fas fa-user-shield"></i>
+                CIVILIAN GRADE
+            </button>
+        </div>
+    </div>
+    
+    <!-- === MILITARY DASHBOARD (Hidden by default) === -->
+    <div class="dashboard">
+        <div id="militaryDashboard" class="dashboard-section active">
+            <div class="military-dashboard">
+                <!-- Combat Operations -->
+                <div class="military-card">
+                    <div class="card-title">
+                        <i class="fas fa-crosshairs"></i>
+                        COMBAT OPERATIONS
+                    </div>
+                    <div class="control-grid">
+                        <button class="control-btn btn-military" onclick="activateCombatMode()">
+                            <i class="fas fa-fighter-jet"></i>
+                            ACTIVATE COMBAT MODE
+                        </button>
+                        <button class="control-btn btn-stealth" onclick="stealthScan()">
+                            <i class="fas fa-eye-slash"></i>
+                            STEALTH ROAD SCAN (50m)
+                        </button>
+                        <button class="control-btn btn-stealth" onclick="guideTroops()">
+                            <i class="fas fa-users"></i>
+                            TROOP MOVEMENT GUIDANCE
+                        </button>
                     </div>
                 </div>
-                <div class="emergency-status" id="emergencyStatus">
-                    <i class="fas fa-check-circle"></i>
-                    <span>System Ready</span>
+                
+                <!-- Intelligence Gathering -->
+                <div class="military-card">
+                    <div class="card-title">
+                        <i class="fas fa-binoculars"></i>
+                        INTELLIGENCE GATHERING
+                    </div>
+                    <div class="control-grid">
+                        <button class="control-btn btn-stealth" onclick="captureEnvironment()">
+                            <i class="fas fa-camera"></i>
+                            CAPTURE ENVIRONMENT
+                        </button>
+                        <button class="control-btn btn-stealth" onclick="recordAudio()">
+                            <i class="fas fa-microphone"></i>
+                            RECORD AUDIO INTELL
+                        </button>
+                        <button class="control-btn btn-stealth" onclick="liveTracking()">
+                            <i class="fas fa-map-marker-alt"></i>
+                            LIVE GPS TRACKING
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Stealth Alerts -->
+                <div class="military-card">
+                    <div class="card-title">
+                        <i class="fas fa-user-secret"></i>
+                        STEALTH ALERTS
+                    </div>
+                    <div class="control-grid">
+                        <button class="control-btn btn-military" onclick="volumeButtonAlert()">
+                            <i class="fas fa-volume-up"></i>
+                            VOLUME BUTTON x3
+                        </button>
+                        <button class="control-btn btn-military" onclick="shakeAlert()">
+                            <i class="fas fa-hand-rock"></i>
+                            SHAKE DEVICE ALERT
+                        </button>
+                        <button class="control-btn btn-military" onclick="silentSOS()">
+                            <i class="fas fa-bell-slash"></i>
+                            SILENT SOS
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Command Center -->
+                <div class="military-card">
+                    <div class="card-title">
+                        <i class="fas fa-satellite-dish"></i>
+                        COMMAND CENTER
+                    </div>
+                    <div class="control-grid">
+                        <button class="control-btn btn-military" onclick="contactCommand()">
+                            <i class="fas fa-headset"></i>
+                            CONTACT COMMAND
+                        </button>
+                        <button class="control-btn btn-stealth" onclick="requestSupport()">
+                            <i class="fas fa-helicopter"></i>
+                            REQUEST AIR SUPPORT
+                        </button>
+                        <button class="control-btn btn-stealth" onclick="extractTeam()">
+                            <i class="fas fa-ambulance"></i>
+                            MEDICAL EXTRACTION
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <div class="signal-indicator">
-            <i class="fas fa-signal"></i>
-            <div class="signal-bar active"></div>
-            <div class="signal-bar active"></div>
-            <div class="signal-bar"></div>
-            <div class="signal-bar"></div>
-            <span style="margin-left: 10px; font-size: 12px;" id="connectionStatus">Secure Line Active</span>
-        </div>
-
-        <div class="main-nav">
-            <button class="nav-item active" onclick="showSection('home')">
-                <i class="fas fa-home"></i>
-                <div style="font-size: 11px; margin-top: 5px;">Home</div>
-            </button>
-            <button class="nav-item" onclick="showSection('route')">
-                <i class="fas fa-route"></i>
-                <div style="font-size: 11px; margin-top: 5px;">Route</div>
-            </button>
-            <button class="nav-item" onclick="showSection('contacts')">
-                <i class="fas fa-address-book"></i>
-                <div style="font-size: 11px; margin-top: 5px;">Contacts</div>
-            </button>
-        </div>
-
-        <div id="homeSection" class="sos-section">
-            <button class="sos-button" id="sosButton">
-                <i class="fas fa-bell"></i>
-                <span>SOS</span>
-            </button>
-            <div class="countdown" id="countdown"></div>
-            <p class="instructions">Hold for 3 seconds to trigger emergency alert</p>
-            
-            <!-- PWA INSTALL BUTTON -->
-            <button class="install-button hidden" id="installButton">
-                <i class="fas fa-download"></i>
-                INSTALL AS APP
-            </button>
-            <p id="installHint" style="margin-top: 10px; font-size: 12px; color: var(--text-secondary); display: none;">
-                Get quick access from home screen
-            </p>
-            
-            <div style="margin-top: 30px; padding: 20px; background: var(--card-bg); border-radius: 10px; max-width: 400px; width: 90%;">
-                <h3 style="margin-bottom: 15px; color: var(--sos-red);">
-                    <i class="fas fa-info-circle"></i> Emergency Information
-                </h3>
-                <div style="text-align: left; font-size: 13px;">
-                    <p><i class="fas fa-map-marker-alt"></i> Your location will be sent</p>
-                    <p><i class="fas fa-battery-half"></i> Battery status included</p>
-                    <p><i class="fas fa-clock"></i> Timestamp recorded</p>
-                    <p><i class="fas fa-mobile-alt"></i> Install as app for quick access</p>
+        
+        <!-- === CIVILIAN DASHBOARD (Hidden by default) === -->
+        <div id="civilianDashboard" class="dashboard-section">
+            <div class="civilian-dashboard">
+                <!-- Emergency SOS -->
+                <div class="civilian-card">
+                    <div class="card-title" style="color: var(--civilian-blue);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        EMERGENCY SOS
+                    </div>
+                    <div class="control-grid">
+                        <button class="control-btn btn-civilian" onclick="civilianSOS()">
+                            <i class="fas fa-bell"></i>
+                            PRESS FOR EMERGENCY
+                        </button>
+                        <button class="control-btn" style="background: #FF9800; color: white;" onclick="shareLocation()">
+                            <i class="fas fa-share-alt"></i>
+                            SHARE MY LOCATION
+                        </button>
+                        <button class="control-btn" style="background: #9C27B0; color: white;" onclick="alertContacts()">
+                            <i class="fas fa-address-book"></i>
+                            ALERT CONTACTS
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Safety Tools -->
+                <div class="civilian-card">
+                    <div class="card-title" style="color: var(--civilian-blue);">
+                        <i class="fas fa-shield-alt"></i>
+                        SAFETY TOOLS
+                    </div>
+                    <div class="control-grid">
+                        <button class="control-btn" style="background: #2196F3; color: white;" onclick="fakeCall()">
+                            <i class="fas fa-phone"></i>
+                            FAKE INCOMING CALL
+                        </button>
+                        <button class="control-btn" style="background: #4CAF50; color: white;" onclick="safetyCheck()">
+                            <i class="fas fa-check-circle"></i>
+                            SAFETY CHECK-IN
+                        </button>
+                        <button class="control-btn" style="background: #607D8B; color: white;" onclick="recordIncident()">
+                            <i class="fas fa-video"></i>
+                            RECORD INCIDENT
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Quick Assistance -->
+                <div class="civilian-card">
+                    <div class="card-title" style="color: var(--civilian-blue);">
+                        <i class="fas fa-hands-helping"></i>
+                        QUICK ASSISTANCE
+                    </div>
+                    <div class="control-grid">
+                        <button class="control-btn" style="background: #FF5722; color: white;" onclick="callPolice()">
+                            <i class="fas fa-car"></i>
+                            CONTACT POLICE
+                        </button>
+                        <button class="control-btn" style="background: #F44336; color: white;" onclick="callAmbulance()">
+                            <i class="fas fa-ambulance"></i>
+                            CALL AMBULANCE
+                        </button>
+                        <button class="control-btn" style="background: #795548; color: white;" onclick="roadsideHelp()">
+                            <i class="fas fa-wrench"></i>
+                            ROADSIDE HELP
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Community Safety -->
+                <div class="civilian-card">
+                    <div class="card-title" style="color: var(--civilian-blue);">
+                        <i class="fas fa-users"></i>
+                        COMMUNITY SAFETY
+                    </div>
+                    <div class="control-grid">
+                        <button class="control-btn" style="background: #009688; color: white;" onclick="reportIncident()">
+                            <i class="fas fa-flag"></i>
+                            REPORT INCIDENT
+                        </button>
+                        <button class="control-btn" style="background: #3F51B5; color: white;" onclick="safeRoutes()">
+                            <i class="fas fa-route"></i>
+                            SAFE ROUTES
+                        </button>
+                        <button class="control-btn" style="background: #00BCD4; color: white;" onclick="emergencyInfo()">
+                            <i class="fas fa-info-circle"></i>
+                            EMERGENCY INFO
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div id="otherSections" style="display: none; padding: 20px; flex: 1;">
-            <!-- Other sections will load here -->
         </div>
     </div>
-
+    
+    <!-- === ALERT MODAL === -->
+    <div class="alert-modal" id="alertModal">
+        <div class="modal-content">
+            <div id="modalIcon" style="font-size: 70px; color: var(--military-red); margin-bottom: 20px;">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2 id="modalTitle" style="margin-bottom: 15px;">ALERT ACTIVATED</h2>
+            <p id="modalMessage" style="color: #CCC; line-height: 1.6; margin-bottom: 30px; white-space: pre-line;">
+                Loading alert details...
+            </p>
+            <div style="display: flex; gap: 15px;">
+                <button class="control-btn btn-military" onclick="closeModal()" style="flex: 1;">
+                    ACKNOWLEDGE
+                </button>
+                <button class="control-btn btn-stealth" onclick="additionalAction()" style="flex: 1;">
+                    MORE ACTIONS
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <script>
         // ============================================
-        // PWA INSTALLATION SYSTEM
+        // GUARDIAN PRO - UNIFIED SYSTEM
         // ============================================
-        let deferredPrompt;
-        const installButton = document.getElementById('installButton');
-        const installHint = document.getElementById('installHint');
-
-        // Check if PWA is already installed
-        window.addEventListener('appinstalled', () => {
-            console.log('✅ PWA installed successfully');
-            installButton.innerHTML = '<i class="fas fa-check"></i> INSTALLED';
-            installButton.classList.add('installed');
-            installButton.disabled = true;
-            installHint.textContent = 'App installed! Access from home screen';
+        const GuardianPro = {
+            currentMode: 'military',
+            systemStatus: 'OPERATIONAL',
             
-            // Show success message
-            showToast('✅ SOS Guardian Pro installed successfully!');
-        });
-
-        // Listen for beforeinstallprompt event
-        window.addEventListener('beforeinstallprompt', (e) => {
-            console.log('🚀 PWA install prompt available');
-            // Prevent Chrome from automatically showing prompt
-            e.preventDefault();
-            // Stash the event so we can trigger it later
-            deferredPrompt = e;
-            
-            // Show our install button
-            installButton.classList.remove('hidden');
-            installHint.style.display = 'block';
-            
-            // Update button text based on device
-            if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-                installButton.innerHTML = '<i class="fas fa-plus-square"></i> ADD TO HOME SCREEN';
-                installHint.textContent = 'Tap Share → "Add to Home Screen"';
-            } else if (/Android/.test(navigator.userAgent)) {
-                installButton.innerHTML = '<i class="fas fa-download"></i> INSTALL APP';
-                installHint.textContent = 'Get quick access from home screen';
-            }
-        });
-
-        // Install button click handler
-        installButton.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                // Show the install prompt
-                deferredPrompt.prompt();
-                
-                // Wait for the user to respond
-                const { outcome } = await deferredPrompt.userChoice;
-                
-                if (outcome === 'accepted') {
-                    console.log('✅ User accepted PWA installation');
-                    installButton.innerHTML = '<i class="fas fa-check"></i> INSTALLING...';
-                    installButton.disabled = true;
-                } else {
-                    console.log('❌ User dismissed PWA installation');
-                    showToast('You can install later from the menu');
-                }
-                
-                deferredPrompt = null;
-            } else {
-                // Manual installation instructions
-                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-                    alert('📱 iOS Installation:\n\n1. Tap the Share button (⎋)\n2. Scroll down\n3. Tap "Add to Home Screen"\n4. Tap "Add"');
-                } else if (/Android/.test(navigator.userAgent)) {
-                    alert('📱 Android Installation:\n\n1. Tap menu (⋮)\n2. Tap "Add to Home Screen"\n3. Tap "Add"');
-                } else {
-                    alert('💻 Desktop Installation:\n\n1. Click menu (⋮)\n2. Hover "More tools"\n3. Click "Create shortcut"\n4. Check "Open as window"\n5. Click "Create"');
-                }
-            }
-        });
-
-        // Check if already in standalone mode (already installed)
-        if (window.matchMedia('(display-mode: standalone)').matches || 
-            window.navigator.standalone === true) {
-            console.log('✅ Running in standalone mode (already installed)');
-            installButton.innerHTML = '<i class="fas fa-check"></i> APP INSTALLED';
-            installButton.classList.add('installed');
-            installButton.disabled = true;
-            installHint.textContent = 'Running as installed app';
-        }
-
-        // ============================================
-        // MAIN APP FUNCTIONALITY
-        // ============================================
-        const SOS_APP = {
             init() {
-                console.log('🚨 SOS Guardian Pro Starting...');
+                console.log('🛡️ Guardian Pro Unified System Initialized');
                 
-                // Setup SOS button
-                const sosBtn = document.getElementById('sosButton');
-                let pressTimer;
+                // Setup event listeners
+                this.setupEventListeners();
                 
-                sosBtn.addEventListener('mousedown', () => {
-                    pressTimer = setTimeout(() => {
-                        this.triggerEmergency();
-                    }, 3000);
-                    
-                    // Show countdown
-                    const countdown = document.getElementById('countdown');
-                    countdown.style.display = 'block';
-                    countdown.textContent = '3';
-                    
-                    setTimeout(() => countdown.textContent = '2', 1000);
-                    setTimeout(() => countdown.textContent = '1', 2000);
-                });
-                
-                sosBtn.addEventListener('mouseup', () => {
-                    clearTimeout(pressTimer);
-                    document.getElementById('countdown').style.display = 'none';
-                });
-                
-                sosBtn.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    pressTimer = setTimeout(() => {
-                        this.triggerEmergency();
-                    }, 3000);
-                });
-                
-                sosBtn.addEventListener('touchend', () => {
-                    clearTimeout(pressTimer);
-                });
-                
-                // Setup demo button
-                document.getElementById('demoRunButton').addEventListener('click', () => {
-                    this.showTestAlert();
-                });
-                
-                // Hide loading after 1.5 seconds
+                // Show welcome based on mode
                 setTimeout(() => {
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('app').style.display = 'flex';
-                    
-                    // Check PWA install support after page loads
-                    setTimeout(() => {
-                        if (!deferredPrompt && installButton.classList.contains('hidden')) {
-                            // No automatic prompt available, show manual instructions
-                            installButton.classList.remove('hidden');
-                            installHint.style.display = 'block';
-                            installHint.textContent = 'Tap to get installation instructions';
-                        }
-                    }, 2000);
-                }, 1500);
+                    this.showAlert(
+                        'SYSTEM READY',
+                        `Guardian Pro ${this.currentMode.toUpperCase()} mode activated\nAll systems operational`,
+                        'success'
+                    );
+                }, 1000);
+                
+                // Setup demo key bindings
+                this.setupDemoKeys();
             },
             
-            triggerEmergency() {
-                console.log('🚨 EMERGENCY ALERT!');
+            switchMode(mode) {
+                this.currentMode = mode;
                 
-                // Update status
-                const status = document.getElementById('emergencyStatus');
-                status.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>ALERT SENT!</span>';
-                status.style.color = '#FF3B30';
+                // Update UI
+                document.querySelectorAll('.mode-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelector(`.mode-${mode}`).classList.add('active');
+                
+                // Update badge
+                document.getElementById('currentModeBadge').textContent = mode.toUpperCase();
+                document.getElementById('currentModeBadge').style.background = 
+                    mode === 'military' ? 'var(--military-red)' : 'var(--civilian-blue)';
+                
+                // Show correct dashboard
+                document.querySelectorAll('.dashboard-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(`${mode}Dashboard`).classList.add('active');
+                
+                // Update system theme
+                const header = document.querySelector('.unified-header');
+                if (mode === 'military') {
+                    header.style.background = 'linear-gradient(90deg, #0A1929, #1A2B3C)';
+                    header.style.borderBottomColor = 'var(--military-red)';
+                } else {
+                    header.style.background = 'linear-gradient(90deg, #0D47A1, #1565C0)';
+                    header.style.borderBottomColor = 'var(--civilian-blue)';
+                }
+                
+                this.showAlert(
+                    `MODE SWITCHED`,
+                    `Now in ${mode.toUpperCase()} mode\n${this.getModeDescription(mode)}`,
+                    'info'
+                );
+            },
+            
+            getModeDescription(mode) {
+                if (mode === 'military') {
+                    return 'Advanced combat and intelligence features enabled';
+                } else {
+                    return 'Civilian safety and emergency features active';
+                }
+            },
+            
+            // ===== MILITARY FUNCTIONS =====
+            activateCombatMode() {
+                this.showAlert(
+                    '🚀 COMBAT MODE ACTIVATED',
+                    'All combat systems online:\n\n' +
+                    '✅ Weapon systems linked\n' +
+                    '✅ Tactical communications\n' +
+                    '✅ Threat detection active\n' +
+                    '✅ Support teams notified\n' +
+                    '✅ Encrypted channel secure\n\n' +
+                    'Proceed with mission objectives',
+                    'combat'
+                );
+            },
+            
+            stealthScan() {
+                this.showAlert(
+                    '👁️ STEALTH ROAD SCAN',
+                    'Scanning 50m perimeter:\n\n' +
+                    '📍 Left side: Scanning...\n' +
+                    '📍 Right side: Scanning...\n' +
+                    '📍 Front: Clear path\n' +
+                    '📍 Rear: Secure\n\n' +
+                    'No threats detected\nRoad secure for movement',
+                    'stealth'
+                );
+            },
+            
+            guideTroops() {
+                this.showAlert(
+                    '👥 TROOP GUIDANCE',
+                    'Movement guidance active:\n\n' +
+                    '📏 Distance to target: 2.3km\n' +
+                    '⏱️ Estimated time: 45 minutes\n' +
+                    '🛡️ Cover available: 70%\n' +
+                    '⚠️ Threat zones: None\n' +
+                    '📍 Next checkpoint: Alpha-7\n\n' +
+                    'Follow highlighted route',
+                    'guidance'
+                );
+            },
+            
+            captureEnvironment() {
+                this.showAlert(
+                    '📸 ENVIRONMENT CAPTURED',
+                    'Random photo intelligence:\n\n' +
+                    '✅ Photo taken silently\n' +
+                    '✅ GPS coordinates embedded\n' +
+                    '✅ Timestamp recorded\n' +
+                    '✅ Encrypted transmission\n' +
+                    '✅ Sent to command center\n\n' +
+                    'Evidence preserved securely',
+                    'intel'
+                );
+            },
+            
+            recordAudio() {
+                this.showAlert(
+                    '🎙️ AUDIO INTELLIGENCE',
+                    'Recording environmental audio:\n\n' +
+                    '⏺️ Recording for 30 seconds\n' +
+                    '🎚️ Noise filtering active\n' +
+                    '🔍 Voice detection enabled\n' +
+                    '📡 Transmitting to analysis\n' +
+                    '🔒 Encrypted channel secure\n\n' +
+                    'Audio intelligence captured',
+                    'intel'
+                );
+            },
+            
+            liveTracking() {
+                this.showAlert(
+                    '📍 LIVE GPS TRACKING',
+                    'Continuous location tracking:\n\n' +
+                    '🛰️ Satellite link: STRONG\n' +
+                    '📡 Signal: Encrypted\n' +
+                    '👁️ Command view: ACTIVE\n' +
+                    '🔄 Update rate: 5 seconds\n' +
+                    '📊 Accuracy: 3 meters\n\n' +
+                    'Real-time position streaming',
+                    'tracking'
+                );
+            },
+            
+            volumeButtonAlert() {
+                this.showAlert(
+                    '🔇 VOLUME BUTTON ALERT',
+                    'Stealth emergency activated:\n\n' +
+                    '✅ Press volume button 3x\n' +
+                    '✅ No screen lights\n' +
+                    '✅ No sounds\n' +
+                    '✅ Location transmitted\n' +
+                    '✅ Photos auto-captured\n' +
+                    '✅ Command center notified\n\n' +
+                    'RESPONSE TEAMS DISPATCHED',
+                    'stealth'
+                );
+            },
+            
+            shakeAlert() {
+                this.showAlert(
+                    '🤚 SHAKE ALERT',
+                    'Device shake detected:\n\n' +
+                    '🔄 Shake device to activate\n' +
+                    '🚨 Silent emergency alert\n' +
+                    '📍 Live location sharing\n' +
+                    '📸 Auto-photo every 30s\n' +
+                    '🎙️ Background audio recording\n' +
+                    '👥 All contacts notified\n\n' +
+                    'STAY IN POSITION - HELP INCOMING',
+                    'stealth'
+                );
+            },
+            
+            silentSOS() {
+                this.showAlert(
+                    '🔕 SILENT SOS',
+                    'Covert emergency signal:\n\n' +
+                    '📱 Looks like normal phone\n' +
+                    '🔇 No external indication\n' +
+                    '📍 GPS coordinates streaming\n' +
+                    '📷 Periodic photo capture\n' +
+                    '🎙️ Environmental recording\n' +
+                    '📡 Encrypted transmission\n\n' +
+                    'UNDERCOVER OPERATION ACTIVE',
+                    'stealth'
+                );
+            },
+            
+            contactCommand() {
+                this.showAlert(
+                    '📡 CONTACTING COMMAND',
+                    'Secure line to command center:\n\n' +
+                    '🛰️ Satellite uplink: ACTIVE\n' +
+                    '🔒 Encryption: LEVEL 7\n' +
+                    '👤 Authentication: VERIFIED\n' +
+                    '💬 Voice channel: OPEN\n' +
+                    '📊 Data stream: LIVE\n\n' +
+                    'Command center responding...',
+                    'comms'
+                );
+            },
+            
+            requestSupport() {
+                this.showAlert(
+                    '🚁 AIR SUPPORT REQUESTED',
+                    'Air support deployment:\n\n' +
+                    '📍 Coordinates transmitted\n' +
+                    '🎯 Target area marked\n' +
+                    '🚁 Helicopters: 10 MIN\n' +
+                    '✈️ Jets: 15 MIN\n' +
+                    '🚁 Medical evac: 5 MIN\n' +
+                    '📡 Comms established\n\n' +
+                    'AIR SUPPORT INBOUND',
+                    'support'
+                );
+            },
+            
+            extractTeam() {
+                this.showAlert(
+                    '🚑 MEDICAL EXTRACTION',
+                    'Emergency medical evacuation:\n\n' +
+                    '📍 Extraction point set\n' +
+                    '🚁 Medevac helicopter: 7 MIN\n' +
+                    '👨‍⚕️ Medical team: READY\n' +
+                    '🩹 Supplies: FULL\n' +
+                    '🏥 Hospital notified: READY\n' +
+                    '📞 Family notified: YES\n\n' +
+                    'MEDICAL TEAM INBOUND',
+                    'medical'
+                );
+            },
+            
+            // ===== CIVILIAN FUNCTIONS =====
+            civilianSOS() {
+                this.showAlert(
+                    '🚨 EMERGENCY SOS',
+                    'Emergency alert activated:\n\n' +
+                    '📞 Calling emergency services\n' +
+                    '📍 Sharing your location\n' +
+                    '👤 Sending your profile\n' +
+                    '🩺 Medical info transmitted\n' +
+                    '👥 Alerting emergency contacts\n\n' +
+                    'HELP IS ON THE WAY!',
+                    'emergency'
+                );
+            },
+            
+            shareLocation() {
+                this.showAlert(
+                    '📍 LOCATION SHARED',
+                    'Your location has been shared:\n\n' +
+                    '✅ Real-time GPS location\n' +
+                    '✅ 5 emergency contacts\n' +
+                    '✅ Police department\n' +
+                    '✅ Nearest hospital\n' +
+                    '✅ Family members\n\n' +
+                    'Location updates every minute',
+                    'civilian'
+                );
+            },
+            
+            alertContacts() {
+                this.showAlert(
+                    '📱 CONTACTS ALERTED',
+                    'Emergency contacts notified:\n\n' +
+                    '👨‍👩‍👧 Family: NOTIFIED\n' +
+                    '👫 Friends: NOTIFIED\n' +
+                    '👮 Police: NOTIFIED\n' +
+                    '🏥 Hospital: NOTIFIED\n' +
+                    '🚑 Ambulance: DISPATCHED\n\n' +
+                    'All contacts responding',
+                    'civilian'
+                );
+            },
+            
+            fakeCall() {
+                this.showAlert(
+                    '📞 FAKE CALL ACTIVATED',
+                    'Simulating incoming call:\n\n' +
+                    '📱 Phone appears to ring\n' +
+                    '👤 Fake caller: "Mom"\n' +
+                    '⏱️ Duration: 2 minutes\n' +
+                    '🎭 Realistic conversation\n' +
+                    '🚪 Exit strategy created\n\n' +
+                    'Use to escape dangerous situations',
+                    'civilian'
+                );
+            },
+            
+            safetyCheck() {
+                this.showAlert(
+                    '✅ SAFETY CHECK-IN',
+                    'Safety status confirmed:\n\n' +
+                    '📍 Location: RECORDED\n' +
+                    '🕒 Time: LOGGED\n' +
+                    '🔋 Battery: 85%\n' +
+                    '📡 Signal: STRONG\n' +
+                    '👥 Contacts: NOTIFIED\n\n' +
+                    'Next check-in: 1 hour',
+                    'civilian'
+                );
+            },
+            
+            recordIncident() {
+                this.showAlert(
+                    '📹 INCIDENT RECORDING',
+                    'Recording activated:\n\n' +
+                    '🎥 Video: RECORDING\n' +
+                    '🎙️ Audio: RECORDING\n' +
+                    '📍 Location: EMBEDDED\n' +
+                    '⏱️ Timestamp: ADDED\n' +
+                    '☁️ Cloud backup: ACTIVE\n\n' +
+                    'Evidence securely saved',
+                    'civilian'
+                );
+            },
+            
+            // ===== UTILITY FUNCTIONS =====
+            showAlert(title, message, type = 'info') {
+                // Update modal content
+                document.getElementById('modalTitle').textContent = title;
+                document.getElementById('modalMessage').textContent = message;
+                
+                // Update icon based on type
+                const icon = document.getElementById('modalIcon');
+                icon.style.color = type === 'combat' ? '#D32F2F' :
+                                  type === 'stealth' ? '#424242' :
+                                  type === 'intel' ? '#FF9800' :
+                                  type === 'tracking' ? '#4CAF50' :
+                                  type === 'emergency' ? '#F44336' :
+                                  type === 'civilian' ? '#2196F3' :
+                                  type === 'success' ? '#4CAF50' : '#FF9800';
+                
+                // Show modal
+                document.getElementById('alertModal').style.display = 'flex';
                 
                 // Vibrate if available
                 if (navigator.vibrate) {
-                    navigator.vibrate([200, 100, 200, 100, 200]);
-                }
-                
-                // Play emergency sound
-                this.playEmergencySound();
-                
-                // Show alert
-                this.showAlert(
-                    '🚨 EMERGENCY ALERT SENT!',
-                    'Your location and details have been sent to emergency contacts.\n\nStay calm and move to a safe location if possible.'
-                );
-                
-                // Reset after 5 seconds
-                setTimeout(() => {
-                    status.innerHTML = '<i class="fas fa-check-circle"></i><span>System Ready</span>';
-                    status.style.color = '#008751';
-                }, 5000);
-                
-                // Hide countdown
-                document.getElementById('countdown').style.display = 'none';
-            },
-            
-            showTestAlert() {
-                this.showAlert(
-                    '🚨 TEST EMERGENCY',
-                    'This is a test alert. In a real emergency:\n\n' +
-                    '1. Your exact location would be sent\n' +
-                    '2. Emergency contacts would be notified\n' +
-                    '3. Authorities would be alerted\n' +
-                    '4. Battery status included\n\n' +
-                    '✅ System is functioning correctly!'
-                );
-            },
-            
-            playEmergencySound() {
-                try {
-                    // Create emergency beep sound
-                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    
-                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-                    oscillator.frequency.setValueAtTime(1200, audioContext.currentTime + 0.1);
-                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
-                    
-                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                    
-                    oscillator.start();
-                    oscillator.stop(audioContext.currentTime + 0.5);
-                } catch (error) {
-                    console.log('Audio not available:', error);
+                    if (type === 'emergency' || type === 'combat') {
+                        navigator.vibrate([200, 100, 200, 100, 200]);
+                    } else {
+                        navigator.vibrate(200);
+                    }
                 }
             },
             
-            showAlert(title, message) {
-                // Create custom alert modal
-                const alertDiv = document.createElement('div');
-                alertDiv.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0,0,0,0.9);
-                    z-index: 10000;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    padding: 20px;
-                `;
+            closeModal() {
+                document.getElementById('alertModal').style.display = 'none';
+            },
+            
+            additionalAction() {
+                this.showAlert(
+                    'MORE OPTIONS',
+                    'Additional actions available:\n\n' +
+                    (this.currentMode === 'military' ? 
+                        '• Request reinforcements\n' +
+                        '• Update command status\n' +
+                        '• Change extraction point\n' +
+                        '• Adjust scan parameters\n' +
+                        '• Encrypt all communications' :
+                        '• Call trusted friend\n' +
+                        '• Share live location\n' +
+                        '• Record voice message\n' +
+                        '• Set safety timer\n' +
+                        '• Check nearby help'),
+                    'info'
+                );
+            },
+            
+            setupEventListeners() {
+                // Setup shake detection for military mode
+                this.setupShakeDetection();
                 
-                alertDiv.innerHTML = `
-                    <div style="
-                        background: linear-gradient(135deg, #1a1a2e, #16213e);
-                        border-radius: 20px;
-                        padding: 30px;
-                        max-width: 400px;
-                        width: 100%;
-                        border: 2px solid var(--sos-red);
-                        text-align: center;
-                    ">
-                        <div style="font-size: 3rem; color: var(--sos-red); margin-bottom: 20px;">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <h2 style="color: white; margin-bottom: 20px;">${title}</h2>
-                        <p style="color: #b0b0b0; line-height: 1.6; white-space: pre-line;">${message}</p>
-                        <button style="
-                            background: var(--sos-red);
-                            color: white;
-                            border: none;
-                            padding: 15px 30px;
-                            border-radius: 50px;
-                            font-size: 16px;
-                            font-weight: bold;
-                            cursor: pointer;
-                            margin-top: 30px;
-                            width: 100%;
-                        " onclick="this.parentElement.parentElement.remove()">
-                            OK
-                        </button>
-                    </div>
-                `;
+                // Setup volume button simulation
+                this.setupVolumeSimulation();
+            },
+            
+            setupShakeDetection() {
+                let lastShake = 0;
                 
-                document.body.appendChild(alertDiv);
+                window.addEventListener('devicemotion', (e) => {
+                    if (this.currentMode !== 'military') return;
+                    
+                    const acc = e.acceleration;
+                    if (!acc) return;
+                    
+                    const force = Math.abs(acc.x || 0) + Math.abs(acc.y || 0) + Math.abs(acc.z || 0);
+                    
+                    if (force > 20 && Date.now() - lastShake > 3000) {
+                        lastShake = Date.now();
+                        this.shakeAlert();
+                    }
+                });
+            },
+            
+            setupVolumeSimulation() {
+                let volumeCount = 0;
+                let lastVolumePress = 0;
+                
+                document.addEventListener('keydown', (e) => {
+                    if (this.currentMode !== 'military') return;
+                    
+                    // Use 'V' key to simulate volume button
+                    if (e.key === 'v' || e.key === 'V') {
+                        const now = Date.now();
+                        
+                        if (now - lastVolumePress < 1000) {
+                            volumeCount++;
+                            
+                            if (volumeCount >= 3) {
+                                volumeCount = 0;
+                                this.volumeButtonAlert();
+                            }
+                        } else {
+                            volumeCount = 1;
+                        }
+                        
+                        lastVolumePress = now;
+                    }
+                });
+            },
+            
+            setupDemoKeys() {
+                document.addEventListener('keydown', (e) => {
+                    // Quick mode switch with M and C keys
+                    if (e.key === 'm' || e.key === 'M') {
+                        this.switchMode('military');
+                    } else if (e.key === 'c' || e.key === 'C') {
+                        this.switchMode('civilian');
+                    }
+                    
+                    // Quick alert test with A key
+                    if (e.key === 'a' || e.key === 'A') {
+                        if (this.currentMode === 'military') {
+                            this.activateCombatMode();
+                        } else {
+                            this.civilianSOS();
+                        }
+                    }
+                });
+                
+                console.log('🎮 Demo Controls:\nM = Military Mode\nC = Civilian Mode\nA = Alert\nV x3 = Volume Button Alert');
             }
         };
-
-        // Helper function to show toast messages
-        function showToast(message) {
-            const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: #28a745;
-                color: white;
-                padding: 12px 24px;
-                border-radius: 8px;
-                z-index: 10000;
-                font-weight: 600;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                animation: slideUp 0.3s ease-out;
-            `;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.style.animation = 'slideDown 0.3s ease-in';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        // Navigation function
-        function showSection(section) {
-            const sections = document.querySelectorAll('.nav-item');
-            sections.forEach(btn => btn.classList.remove('active'));
-            event.target.closest('.nav-item').classList.add('active');
-            
-            if (section === 'home') {
-                document.getElementById('homeSection').style.display = 'flex';
-                document.getElementById('otherSections').style.display = 'none';
-            } else {
-                document.getElementById('homeSection').style.display = 'none';
-                document.getElementById('otherSections').style.display = 'block';
-                
-                const content = section === 'route' 
-                    ? '<h2 style="color: var(--sos-red); margin-bottom: 20px;"><i class="fas fa-route"></i> Route Tracking</h2><p style="color: var(--text-secondary);">Track and share your route with emergency contacts.</p>'
-                    : '<h2 style="color: var(--sos-red); margin-bottom: 20px;"><i class="fas fa-address-book"></i> Emergency Contacts</h2><p style="color: var(--text-secondary);">Manage your emergency contact list.</p>';
-                
-                document.getElementById('otherSections').innerHTML = content;
-            }
+        
+        // ============================================
+        // GLOBAL FUNCTIONS FOR HTML
+        // ============================================
+        function switchMode(mode) {
+            GuardianPro.switchMode(mode);
         }
         
-        // Start app when page loads
+        // Military Functions
+        function activateCombatMode() { GuardianPro.activateCombatMode(); }
+        function stealthScan() { GuardianPro.stealthScan(); }
+        function guideTroops() { GuardianPro.guideTroops(); }
+        function captureEnvironment() { GuardianPro.captureEnvironment(); }
+        function recordAudio() { GuardianPro.recordAudio(); }
+        function liveTracking() { GuardianPro.liveTracking(); }
+        function volumeButtonAlert() { GuardianPro.volumeButtonAlert(); }
+        function shakeAlert() { GuardianPro.shakeAlert(); }
+        function silentSOS() { GuardianPro.silentSOS(); }
+        function contactCommand() { GuardianPro.contactCommand(); }
+        function requestSupport() { GuardianPro.requestSupport(); }
+        function extractTeam() { GuardianPro.extractTeam(); }
+        
+        // Civilian Functions
+        function civilianSOS() { GuardianPro.civilianSOS(); }
+        function shareLocation() { GuardianPro.shareLocation(); }
+        function alertContacts() { GuardianPro.alertContacts(); }
+        function fakeCall() { GuardianPro.fakeCall(); }
+        function safetyCheck() { GuardianPro.safetyCheck(); }
+        function recordIncident() { GuardianPro.recordIncident(); }
+        function callPolice() { GuardianPro.showAlert('POLICE', 'Contacting nearest police station...', 'emergency'); }
+        function callAmbulance() { GuardianPro.showAlert('AMBULANCE', 'Dispatching nearest ambulance...', 'medical'); }
+        function roadsideHelp() { GuardianPro.showAlert('ROADSIDE HELP', 'Connecting to roadside assistance...', 'civilian'); }
+        function reportIncident() { GuardianPro.showAlert('INCIDENT REPORT', 'Reporting incident to authorities...', 'civilian'); }
+        function safeRoutes() { GuardianPro.showAlert('SAFE ROUTES', 'Calculating safest route home...', 'civilian'); }
+        function emergencyInfo() { GuardianPro.showAlert('EMERGENCY INFO', 'Showing emergency contacts and hospitals...', 'civilian'); }
+        
+        // Modal Functions
+        function closeModal() { GuardianPro.closeModal(); }
+        function additionalAction() { GuardianPro.additionalAction(); }
+        
+        // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
-            SOS_APP.init();
+            GuardianPro.init();
         });
-
-        // Force HTTPS for GitHub Pages
-        if (window.location.protocol === 'http:' && 
-            window.location.hostname.includes('github.io')) {
-            window.location.href = window.location.href.replace('http:', 'https:');
-        }
     </script>
 </body>
 </html>
