@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUARDIAN PRO - Unified Security System</title>
+    <title>Guardian Pro - Live Testing Platform</title>
     <style>
         :root {
             --military-red: #D32F2F;
             --military-green: #2D5A27;
             --civilian-blue: #1565C0;
             --civilian-green: #008751;
-            --dark-bg: #0A0A0A;
-            --card-bg: #1A1A1A;
-            --text-light: #FFFFFF;
-            --text-dim: #AAAAAA;
+            --live-color: #00FF00;
+            --test-orange: #FF9800;
+            --analytics-purple: #9C27B0;
         }
         
         * {
@@ -24,87 +23,81 @@
         }
         
         body {
-            background: var(--dark-bg);
-            color: var(--text-light);
+            background: linear-gradient(135deg, #0A0A0A, #1A1A1A);
+            color: white;
             min-height: 100vh;
+            overflow-x: hidden;
         }
         
-        /* === UNIFIED HEADER === */
-        .unified-header {
-            background: linear-gradient(90deg, #0A1929, #1A2B3C);
-            padding: 20px;
-            border-bottom: 3px solid var(--military-red);
+        /* === LIVE TESTING HEADER === */
+        .testing-header {
+            background: linear-gradient(90deg, #000, #222);
+            padding: 15px 20px;
+            border-bottom: 3px solid var(--live-color);
             position: relative;
+            overflow: hidden;
         }
         
-        .header-top {
+        .testing-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(0, 255, 0, 0.1) 10px,
+                rgba(0, 255, 0, 0.1) 20px
+            );
+            z-index: 0;
+        }
+        
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .app-brand {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .logo-container {
             position: relative;
+            z-index: 1;
         }
         
-        .main-logo {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--military-red), #B71C1C);
-            border-radius: 15px;
+        .live-badge {
+            background: var(--live-color);
+            color: black;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            animation: pulse 2s infinite;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            color: white;
-            border: 3px solid white;
+            gap: 8px;
         }
         
-        .mode-badge {
-            position: absolute;
-            bottom: -8px;
-            right: -8px;
-            background: var(--military-red);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
         
-        .brand-text h1 {
-            font-size: 24px;
-            font-weight: 800;
-            background: linear-gradient(45deg, #FFFFFF, #4FC3F7);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        
-        .brand-text p {
-            font-size: 14px;
-            color: var(--text-dim);
-        }
-        
-        /* === MODE SELECTOR === */
-        .mode-selector {
-            display: flex;
-            gap: 10px;
-            background: rgba(0,0,0,0.3);
-            padding: 10px;
+        /* === TESTING CONTROLS === */
+        .testing-controls {
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
             border-radius: 10px;
-            margin-top: 10px;
+            margin: 20px;
+            border: 2px solid var(--test-orange);
         }
         
-        .mode-tab {
-            flex: 1;
+        .test-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .test-btn {
             padding: 15px;
             border: none;
             border-radius: 8px;
@@ -117,65 +110,48 @@
             transition: all 0.3s;
         }
         
-        .mode-military {
-            background: var(--military-red);
+        .btn-test {
+            background: linear-gradient(135deg, var(--test-orange), #FF5722);
             color: white;
         }
         
-        .mode-civilian {
-            background: var(--civilian-blue);
-            color: white;
+        .btn-test:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
         }
         
-        .mode-tab.active {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255,255,255,0.3);
+        .btn-live {
+            background: linear-gradient(135deg, var(--live-color), #00CC00);
+            color: black;
         }
         
-        /* === DASHBOARD === */
-        .dashboard {
+        /* === LIVE DASHBOARD === */
+        .live-dashboard {
             padding: 20px;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         
-        .dashboard-section {
-            display: none;
-        }
-        
-        .dashboard-section.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* === MILITARY DASHBOARD === */
-        .military-dashboard {
+        .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
         }
         
-        .military-card {
-            background: rgba(26, 43, 60, 0.8);
-            border: 2px solid var(--military-green);
+        .dashboard-card {
+            background: rgba(30, 30, 30, 0.8);
+            border: 2px solid #444;
             border-radius: 15px;
-            padding: 20px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
             position: relative;
+            overflow: hidden;
         }
         
-        .military-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--military-red), #FF9800);
+        .dashboard-card.live {
+            border-color: var(--live-color);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
         }
         
         .card-title {
@@ -183,882 +159,885 @@
             align-items: center;
             gap: 10px;
             margin-bottom: 20px;
-            color: var(--military-red);
+            color: var(--live-color);
             font-size: 18px;
-            font-weight: 600;
         }
         
-        /* === CIVILIAN DASHBOARD === */
-        .civilian-dashboard {
+        /* === LIVE COUNTERS === */
+        .counters-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .counter-item {
+            background: rgba(0,0,0,0.5);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #444;
+        }
+        
+        .counter-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--live-color);
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .counter-label {
+            font-size: 12px;
+            color: #AAA;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* === REAL-TIME FEED === */
+        .live-feed {
+            background: rgba(0,0,0,0.9);
+            border: 2px solid var(--live-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .feed-item {
+            padding: 12px;
+            border-bottom: 1px solid #333;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .feed-item:last-child {
+            border-bottom: none;
+        }
+        
+        .feed-time {
+            color: var(--live-color);
+            margin-right: 10px;
+        }
+        
+        .feed-message {
+            color: #CCC;
+        }
+        
+        /* === TEST MODES === */
+        .test-modes {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
+            margin-top: 30px;
         }
         
-        .civilian-card {
-            background: rgba(21, 101, 192, 0.1);
-            border: 2px solid var(--civilian-blue);
+        .mode-card {
+            background: rgba(40, 40, 40, 0.8);
             border-radius: 15px;
-            padding: 20px;
-            position: relative;
-        }
-        
-        .civilian-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--civilian-blue), #00BCD4);
-        }
-        
-        /* === BUTTONS === */
-        .control-grid {
-            display: grid;
-            gap: 15px;
-            margin-top: 15px;
-        }
-        
-        .control-btn {
-            padding: 18px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
+            padding: 25px;
+            border: 2px solid transparent;
             transition: all 0.3s;
-            text-align: center;
+            cursor: pointer;
         }
         
-        .btn-military {
-            background: linear-gradient(135deg, var(--military-red), #B71C1C);
-            color: white;
+        .mode-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--live-color);
         }
         
-        .btn-military:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(211, 47, 47, 0.3);
+        .mode-card.military {
+            background: linear-gradient(135deg, rgba(211, 47, 47, 0.1), rgba(0,0,0,0.8));
+            border-color: var(--military-red);
         }
         
-        .btn-civilian {
-            background: linear-gradient(135deg, var(--civilian-green), #00B894);
-            color: white;
-        }
-        
-        .btn-civilian:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 135, 81, 0.3);
-        }
-        
-        .btn-stealth {
-            background: linear-gradient(135deg, #424242, #212121);
-            color: white;
-            border: 2px solid #666;
-        }
-        
-        /* === MODAL === */
-        .alert-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .modal-content {
-            background: linear-gradient(135deg, #1A1A1A, #2D2D2D);
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-            border: 4px solid var(--military-red);
-            animation: modalIn 0.4s ease-out;
-        }
-        
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+        .mode-card.civilian {
+            background: linear-gradient(135deg, rgba(21, 101, 192, 0.1), rgba(0,0,0,0.8));
+            border-color: var(--civilian-blue);
         }
         
         /* === RESPONSIVE === */
         @media (max-width: 768px) {
-            .header-top {
+            .header-content {
                 flex-direction: column;
                 gap: 15px;
-                text-align: center;
             }
             
-            .mode-selector {
-                width: 100%;
-            }
-            
-            .military-dashboard,
-            .civilian-dashboard {
+            .test-buttons {
                 grid-template-columns: 1fr;
             }
+            
+            .counters-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* === TEST RESULTS === */
+        .test-results {
+            background: rgba(0,0,0,0.8);
+            border: 2px solid var(--analytics-purple);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .result-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-pass {
+            background: rgba(0, 255, 0, 0.2);
+            color: var(--live-color);
+            border: 1px solid var(--live-color);
+        }
+        
+        .status-fail {
+            background: rgba(255, 0, 0, 0.2);
+            color: #FF5555;
+            border: 1px solid #FF5555;
+        }
+        
+        /* === INSTRUCTIONS === */
+        .instructions {
+            background: rgba(0,0,0,0.6);
+            border: 2px solid #FF9800;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .instruction-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+        
+        .step-number {
+            background: var(--test-orange);
+            color: black;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <!-- === UNIFIED HEADER === -->
-    <div class="unified-header">
-        <div class="header-top">
-            <div class="app-brand">
-                <div class="logo-container">
-                    <div class="main-logo">
+    <!-- === LIVE TESTING HEADER === -->
+    <div class="testing-header">
+        <div class="header-content">
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 50px; height: 50px; background: var(--live-color); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
                         <i class="fas fa-shield-alt"></i>
                     </div>
-                    <div class="mode-badge" id="currentModeBadge">MILITARY</div>
+                    <div>
+                        <h1>GUARDIAN PRO</h1>
+                        <p style="color: #CCC; font-size: 14px;">Live Testing Platform v2.0</p>
+                    </div>
                 </div>
-                <div class="brand-text">
-                    <h1>GUARDIAN PRO</h1>
-                    <p>Unified Security & Emergency System</p>
+                <div class="live-badge">
+                    <i class="fas fa-circle" style="font-size: 10px;"></i>
+                    LIVE TESTING ACTIVE
                 </div>
             </div>
             
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div style="text-align: right;">
-                    <div style="font-size: 12px; color: var(--text-dim);">Status</div>
-                    <div style="font-weight: bold; color: #4CAF50;" id="systemStatus">OPERATIONAL</div>
-                </div>
+            <div style="text-align: right;">
+                <div style="font-size: 12px; color: #CCC;">Test Session</div>
+                <div style="font-size: 18px; font-weight: bold; color: var(--live-color);" id="sessionTimer">00:00:00</div>
             </div>
         </div>
-        
-        <div class="mode-selector">
-            <button class="mode-tab mode-military active" onclick="switchMode('military')">
+    </div>
+    
+    <!-- === TESTING INSTRUCTIONS === -->
+    <div class="instructions">
+        <h3 style="color: var(--test-orange); margin-bottom: 15px;">
+            <i class="fas fa-info-circle"></i> TESTER INSTRUCTIONS
+        </h3>
+        <div class="instruction-step">
+            <div class="step-number">1</div>
+            <div>Click any test button below to simulate emergency scenarios</div>
+        </div>
+        <div class="instruction-step">
+            <div class="step-number">2</div>
+            <div>Watch real-time counters update automatically</div>
+        </div>
+        <div class="instruction-step">
+            <div class="step-number">3</div>
+            <div>Monitor the live feed for system responses</div>
+        </div>
+        <div class="instruction-step">
+            <div class="step-number">4</div>
+            <div>All data is simulated for testing purposes</div>
+        </div>
+    </div>
+    
+    <!-- === TESTING CONTROLS === -->
+    <div class="testing-controls">
+        <h3 style="color: var(--test-orange); margin-bottom: 15px;">
+            <i class="fas fa-vial"></i> QUICK TEST BUTTONS
+        </h3>
+        <div class="test-buttons">
+            <button class="test-btn btn-test" onclick="runTest('military_alert')">
                 <i class="fas fa-crosshairs"></i>
-                MILITARY GRADE
+                TEST MILITARY ALERT
             </button>
-            <button class="mode-tab mode-civilian" onclick="switchMode('civilian')">
-                <i class="fas fa-user-shield"></i>
-                CIVILIAN GRADE
+            <button class="test-btn btn-test" onclick="runTest('civilian_sos')">
+                <i class="fas fa-bell"></i>
+                TEST CIVILIAN SOS
+            </button>
+            <button class="test-btn btn-test" onclick="runTest('road_scan')">
+                <i class="fas fa-road"></i>
+                TEST ROAD SCAN
+            </button>
+            <button class="test-btn btn-test" onclick="runTest('environment_capture')">
+                <i class="fas fa-camera"></i>
+                TEST ENVIRONMENT CAPTURE
+            </button>
+            <button class="test-btn btn-test" onclick="runTest('stealth_alert')">
+                <i class="fas fa-user-secret"></i>
+                TEST STEALTH ALERT
+            </button>
+            <button class="test-btn btn-live" onclick="runAllTests()">
+                <i class="fas fa-bolt"></i>
+                RUN ALL TESTS
             </button>
         </div>
     </div>
     
-    <!-- === MILITARY DASHBOARD (Hidden by default) === -->
-    <div class="dashboard">
-        <div id="militaryDashboard" class="dashboard-section active">
-            <div class="military-dashboard">
-                <!-- Combat Operations -->
-                <div class="military-card">
-                    <div class="card-title">
-                        <i class="fas fa-crosshairs"></i>
-                        COMBAT OPERATIONS
+    <!-- === LIVE DASHBOARD === -->
+    <div class="live-dashboard">
+        <div class="dashboard-grid">
+            <!-- Live Counters -->
+            <div class="dashboard-card live">
+                <div class="card-title">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>LIVE SYSTEM METRICS</h3>
+                </div>
+                <div class="counters-grid">
+                    <div class="counter-item">
+                        <div class="counter-value" id="alertsSent">0</div>
+                        <div class="counter-label">ALERTS SENT</div>
                     </div>
-                    <div class="control-grid">
-                        <button class="control-btn btn-military" onclick="activateCombatMode()">
-                            <i class="fas fa-fighter-jet"></i>
-                            ACTIVATE COMBAT MODE
-                        </button>
-                        <button class="control-btn btn-stealth" onclick="stealthScan()">
-                            <i class="fas fa-eye-slash"></i>
-                            STEALTH ROAD SCAN (50m)
-                        </button>
-                        <button class="control-btn btn-stealth" onclick="guideTroops()">
-                            <i class="fas fa-users"></i>
-                            TROOP MOVEMENT GUIDANCE
-                        </button>
+                    <div class="counter-item">
+                        <div class="counter-value" id="photosTaken">0</div>
+                        <div class="counter-label">PHOTOS CAPTURED</div>
+                    </div>
+                    <div class="counter-item">
+                        <div class="counter-value" id="scansCompleted">0</div>
+                        <div class="counter-label">ROAD SCANS</div>
+                    </div>
+                    <div class="counter-item">
+                        <div class="counter-value" id="responseTime">0.0s</div>
+                        <div class="counter-label">AVG RESPONSE TIME</div>
                     </div>
                 </div>
-                
-                <!-- Intelligence Gathering -->
-                <div class="military-card">
-                    <div class="card-title">
-                        <i class="fas fa-binoculars"></i>
-                        INTELLIGENCE GATHERING
-                    </div>
-                    <div class="control-grid">
-                        <button class="control-btn btn-stealth" onclick="captureEnvironment()">
-                            <i class="fas fa-camera"></i>
-                            CAPTURE ENVIRONMENT
-                        </button>
-                        <button class="control-btn btn-stealth" onclick="recordAudio()">
-                            <i class="fas fa-microphone"></i>
-                            RECORD AUDIO INTELL
-                        </button>
-                        <button class="control-btn btn-stealth" onclick="liveTracking()">
-                            <i class="fas fa-map-marker-alt"></i>
-                            LIVE GPS TRACKING
-                        </button>
-                    </div>
+            </div>
+            
+            <!-- System Status -->
+            <div class="dashboard-card">
+                <div class="card-title">
+                    <i class="fas fa-server"></i>
+                    <h3>SYSTEM STATUS</h3>
                 </div>
-                
-                <!-- Stealth Alerts -->
-                <div class="military-card">
-                    <div class="card-title">
-                        <i class="fas fa-user-secret"></i>
-                        STEALTH ALERTS
+                <div style="margin-top: 20px;">
+                    <div class="result-item">
+                        <span>Military Mode</span>
+                        <span class="result-status status-pass" id="militaryStatus">ACTIVE</span>
                     </div>
-                    <div class="control-grid">
-                        <button class="control-btn btn-military" onclick="volumeButtonAlert()">
-                            <i class="fas fa-volume-up"></i>
-                            VOLUME BUTTON x3
-                        </button>
-                        <button class="control-btn btn-military" onclick="shakeAlert()">
-                            <i class="fas fa-hand-rock"></i>
-                            SHAKE DEVICE ALERT
-                        </button>
-                        <button class="control-btn btn-military" onclick="silentSOS()">
-                            <i class="fas fa-bell-slash"></i>
-                            SILENT SOS
-                        </button>
+                    <div class="result-item">
+                        <span>Civilian Mode</span>
+                        <span class="result-status status-pass" id="civilianStatus">ACTIVE</span>
                     </div>
-                </div>
-                
-                <!-- Command Center -->
-                <div class="military-card">
-                    <div class="card-title">
-                        <i class="fas fa-satellite-dish"></i>
-                        COMMAND CENTER
+                    <div class="result-item">
+                        <span>GPS Tracking</span>
+                        <span class="result-status status-pass">LIVE</span>
                     </div>
-                    <div class="control-grid">
-                        <button class="control-btn btn-military" onclick="contactCommand()">
-                            <i class="fas fa-headset"></i>
-                            CONTACT COMMAND
-                        </button>
-                        <button class="control-btn btn-stealth" onclick="requestSupport()">
-                            <i class="fas fa-helicopter"></i>
-                            REQUEST AIR SUPPORT
-                        </button>
-                        <button class="control-btn btn-stealth" onclick="extractTeam()">
-                            <i class="fas fa-ambulance"></i>
-                            MEDICAL EXTRACTION
-                        </button>
+                    <div class="result-item">
+                        <span>Encryption</span>
+                        <span class="result-status status-pass">AES-256</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Server Connection</span>
+                        <span class="result-status status-pass">STABLE</span>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- === CIVILIAN DASHBOARD (Hidden by default) === -->
-        <div id="civilianDashboard" class="dashboard-section">
-            <div class="civilian-dashboard">
-                <!-- Emergency SOS -->
-                <div class="civilian-card">
-                    <div class="card-title" style="color: var(--civilian-blue);">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        EMERGENCY SOS
-                    </div>
-                    <div class="control-grid">
-                        <button class="control-btn btn-civilian" onclick="civilianSOS()">
-                            <i class="fas fa-bell"></i>
-                            PRESS FOR EMERGENCY
-                        </button>
-                        <button class="control-btn" style="background: #FF9800; color: white;" onclick="shareLocation()">
-                            <i class="fas fa-share-alt"></i>
-                            SHARE MY LOCATION
-                        </button>
-                        <button class="control-btn" style="background: #9C27B0; color: white;" onclick="alertContacts()">
-                            <i class="fas fa-address-book"></i>
-                            ALERT CONTACTS
-                        </button>
-                    </div>
+        <!-- Live Feed -->
+        <div class="dashboard-card">
+            <div class="card-title">
+                <i class="fas fa-broadcast-tower"></i>
+                <h3>LIVE SYSTEM FEED</h3>
+            </div>
+            <div class="live-feed" id="liveFeed">
+                <!-- Feed items will be added here -->
+                <div class="feed-item">
+                    <span class="feed-time" id="currentTime">00:00:00</span>
+                    <span class="feed-message">System initialized. Ready for testing...</span>
                 </div>
-                
-                <!-- Safety Tools -->
-                <div class="civilian-card">
-                    <div class="card-title" style="color: var(--civilian-blue);">
-                        <i class="fas fa-shield-alt"></i>
-                        SAFETY TOOLS
-                    </div>
-                    <div class="control-grid">
-                        <button class="control-btn" style="background: #2196F3; color: white;" onclick="fakeCall()">
-                            <i class="fas fa-phone"></i>
-                            FAKE INCOMING CALL
-                        </button>
-                        <button class="control-btn" style="background: #4CAF50; color: white;" onclick="safetyCheck()">
-                            <i class="fas fa-check-circle"></i>
-                            SAFETY CHECK-IN
-                        </button>
-                        <button class="control-btn" style="background: #607D8B; color: white;" onclick="recordIncident()">
-                            <i class="fas fa-video"></i>
-                            RECORD INCIDENT
-                        </button>
-                    </div>
+            </div>
+        </div>
+        
+        <!-- Test Modes -->
+        <div class="test-modes">
+            <div class="mode-card military" onclick="switchToMode('military')">
+                <h3 style="color: var(--military-red); margin-bottom: 15px;">
+                    <i class="fas fa-crosshairs"></i> MILITARY GRADE MODE
+                </h3>
+                <p style="color: #CCC; margin-bottom: 20px;">
+                    Advanced combat and intelligence features for military operations.
+                </p>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <span style="background: rgba(211, 47, 47, 0.2); color: #FF6B6B; padding: 5px 10px; border-radius: 15px; font-size: 12px;">Stealth Alerts</span>
+                    <span style="background: rgba(211, 47, 47, 0.2); color: #FF6B6B; padding: 5px 10px; border-radius: 15px; font-size: 12px;">Road Scanning</span>
+                    <span style="background: rgba(211, 47, 47, 0.2); color: #FF6B6B; padding: 5px 10px; border-radius: 15px; font-size: 12px;">Intel Gathering</span>
                 </div>
-                
-                <!-- Quick Assistance -->
-                <div class="civilian-card">
-                    <div class="card-title" style="color: var(--civilian-blue);">
-                        <i class="fas fa-hands-helping"></i>
-                        QUICK ASSISTANCE
-                    </div>
-                    <div class="control-grid">
-                        <button class="control-btn" style="background: #FF5722; color: white;" onclick="callPolice()">
-                            <i class="fas fa-car"></i>
-                            CONTACT POLICE
-                        </button>
-                        <button class="control-btn" style="background: #F44336; color: white;" onclick="callAmbulance()">
-                            <i class="fas fa-ambulance"></i>
-                            CALL AMBULANCE
-                        </button>
-                        <button class="control-btn" style="background: #795548; color: white;" onclick="roadsideHelp()">
-                            <i class="fas fa-wrench"></i>
-                            ROADSIDE HELP
-                        </button>
-                    </div>
+            </div>
+            
+            <div class="mode-card civilian" onclick="switchToMode('civilian')">
+                <h3 style="color: var(--civilian-blue); margin-bottom: 15px;">
+                    <i class="fas fa-user-shield"></i> CIVILIAN GRADE MODE
+                </h3>
+                <p style="color: #CCC; margin-bottom: 20px;">
+                    Emergency response and safety features for civilian protection.
+                </p>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <span style="background: rgba(21, 101, 192, 0.2); color: #64B5F6; padding: 5px 10px; border-radius: 15px; font-size: 12px;">SOS Alerts</span>
+                    <span style="background: rgba(21, 101, 192, 0.2); color: #64B5F6; padding: 5px 10px; border-radius: 15px; font-size: 12px;">Location Sharing</span>
+                    <span style="background: rgba(21, 101, 192, 0.2); color: #64B5F6; padding: 5px 10px; border-radius: 15px; font-size: 12px;">Safety Tools</span>
                 </div>
-                
-                <!-- Community Safety -->
-                <div class="civilian-card">
-                    <div class="card-title" style="color: var(--civilian-blue);">
-                        <i class="fas fa-users"></i>
-                        COMMUNITY SAFETY
-                    </div>
-                    <div class="control-grid">
-                        <button class="control-btn" style="background: #009688; color: white;" onclick="reportIncident()">
-                            <i class="fas fa-flag"></i>
-                            REPORT INCIDENT
-                        </button>
-                        <button class="control-btn" style="background: #3F51B5; color: white;" onclick="safeRoutes()">
-                            <i class="fas fa-route"></i>
-                            SAFE ROUTES
-                        </button>
-                        <button class="control-btn" style="background: #00BCD4; color: white;" onclick="emergencyInfo()">
-                            <i class="fas fa-info-circle"></i>
-                            EMERGENCY INFO
-                        </button>
-                    </div>
+            </div>
+        </div>
+        
+        <!-- Test Results -->
+        <div class="test-results">
+            <div class="card-title">
+                <i class="fas fa-clipboard-check"></i>
+                <h3>TEST RESULTS ANALYTICS</h3>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
+                <div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.5); border-radius: 10px;">
+                    <div style="font-size: 40px; font-weight: bold; color: var(--live-color);" id="testsPassed">0</div>
+                    <div style="color: #AAA; font-size: 14px;">TESTS PASSED</div>
                 </div>
+                <div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.5); border-radius: 10px;">
+                    <div style="font-size: 40px; font-weight: bold; color: #FF5555;" id="testsFailed">0</div>
+                    <div style="color: #AAA; font-size: 14px;">TESTS FAILED</div>
+                </div>
+                <div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.5); border-radius: 10px;">
+                    <div style="font-size: 40px; font-weight: bold; color: #FF9800;" id="totalTests">0</div>
+                    <div style="color: #AAA; font-size: 14px;">TOTAL TESTS</div>
+                </div>
+                <div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.5); border-radius: 10px;">
+                    <div style="font-size: 40px; font-weight: bold; color: #9C27B0;" id="successRate">100%</div>
+                    <div style="color: #AAA; font-size: 14px;">SUCCESS RATE</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tester Feedback -->
+        <div class="dashboard-card" style="margin-top: 30px;">
+            <div class="card-title">
+                <i class="fas fa-comment-dots"></i>
+                <h3>TESTER FEEDBACK</h3>
+            </div>
+            <div style="margin-top: 20px;">
+                <textarea id="testerFeedback" placeholder="Enter your feedback about the testing experience..." style="
+                    width: 100%;
+                    height: 100px;
+                    background: rgba(0,0,0,0.5);
+                    border: 2px solid #444;
+                    border-radius: 8px;
+                    color: white;
+                    padding: 15px;
+                    font-family: inherit;
+                    resize: vertical;
+                    margin-bottom: 15px;
+                "></textarea>
+                <button class="test-btn btn-test" onclick="submitFeedback()" style="width: 100%;">
+                    <i class="fas fa-paper-plane"></i>
+                    SUBMIT FEEDBACK
+                </button>
             </div>
         </div>
     </div>
     
-    <!-- === ALERT MODAL === -->
-    <div class="alert-modal" id="alertModal">
-        <div class="modal-content">
-            <div id="modalIcon" style="font-size: 70px; color: var(--military-red); margin-bottom: 20px;">
-                <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <h2 id="modalTitle" style="margin-bottom: 15px;">ALERT ACTIVATED</h2>
-            <p id="modalMessage" style="color: #CCC; line-height: 1.6; margin-bottom: 30px; white-space: pre-line;">
-                Loading alert details...
-            </p>
-            <div style="display: flex; gap: 15px;">
-                <button class="control-btn btn-military" onclick="closeModal()" style="flex: 1;">
-                    ACKNOWLEDGE
-                </button>
-                <button class="control-btn btn-stealth" onclick="additionalAction()" style="flex: 1;">
-                    MORE ACTIONS
-                </button>
-            </div>
-        </div>
+    <!-- === FOOTER === -->
+    <div style="text-align: center; padding: 20px; color: #666; font-size: 12px; margin-top: 30px; border-top: 1px solid #333;">
+        <p>Guardian Pro Testing Platform v2.0 | All tests are simulated for demonstration purposes</p>
+        <p>🇳🇬 Developed for Nigerian Military and Civilian Protection</p>
     </div>
     
     <script>
         // ============================================
-        // GUARDIAN PRO - UNIFIED SYSTEM
+        // LIVE TESTING SYSTEM
         // ============================================
-        const GuardianPro = {
-            currentMode: 'military',
-            systemStatus: 'OPERATIONAL',
+        const TestingSystem = {
+            // Test Data
+            testCounters: {
+                alertsSent: 0,
+                photosTaken: 0,
+                scansCompleted: 0,
+                testsPassed: 0,
+                testsFailed: 0,
+                totalTests: 0
+            },
+            
+            testHistory: [],
+            sessionStartTime: Date.now(),
             
             init() {
-                console.log('🛡️ Guardian Pro Unified System Initialized');
+                console.log('🧪 Guardian Pro Testing Platform Started');
                 
-                // Setup event listeners
-                this.setupEventListeners();
+                // Start timers
+                this.updateTime();
+                this.startSessionTimer();
                 
-                // Show welcome based on mode
+                // Initialize counters
+                this.updateAllCounters();
+                
+                // Add initial feed messages
+                this.addFeedMessage('System initialized. Ready for testing...', 'system');
+                this.addFeedMessage('Military mode: ACTIVE | Civilian mode: ACTIVE', 'system');
+                this.addFeedMessage('GPS tracking enabled. Encryption: AES-256', 'system');
+                
+                // Setup automatic tests
+                this.setupAutoTests();
+                
+                // Welcome message
                 setTimeout(() => {
-                    this.showAlert(
-                        'SYSTEM READY',
-                        `Guardian Pro ${this.currentMode.toUpperCase()} mode activated\nAll systems operational`,
-                        'success'
-                    );
+                    this.showNotification('🎯 TESTING PLATFORM READY', 'Click any test button to begin');
                 }, 1000);
-                
-                // Setup demo key bindings
-                this.setupDemoKeys();
             },
             
-            switchMode(mode) {
-                this.currentMode = mode;
+            runTest(testType) {
+                this.testCounters.totalTests++;
                 
-                // Update UI
-                document.querySelectorAll('.mode-tab').forEach(tab => {
-                    tab.classList.remove('active');
-                });
-                document.querySelector(`.mode-${mode}`).classList.add('active');
+                switch(testType) {
+                    case 'military_alert':
+                        this.testMilitaryAlert();
+                        break;
+                    case 'civilian_sos':
+                        this.testCivilianSOS();
+                        break;
+                    case 'road_scan':
+                        this.testRoadScan();
+                        break;
+                    case 'environment_capture':
+                        this.testEnvironmentCapture();
+                        break;
+                    case 'stealth_alert':
+                        this.testStealthAlert();
+                        break;
+                }
                 
-                // Update badge
-                document.getElementById('currentModeBadge').textContent = mode.toUpperCase();
-                document.getElementById('currentModeBadge').style.background = 
-                    mode === 'military' ? 'var(--military-red)' : 'var(--civilian-blue)';
+                this.updateAllCounters();
+                this.calculateSuccessRate();
+            },
+            
+            testMilitaryAlert() {
+                this.testCounters.alertsSent++;
                 
-                // Show correct dashboard
-                document.querySelectorAll('.dashboard-section').forEach(section => {
-                    section.classList.remove('active');
-                });
-                document.getElementById(`${mode}Dashboard`).classList.add('active');
+                // Simulate military alert
+                this.addFeedMessage('MILITARY ALERT: Combat mode activated', 'military');
+                this.addFeedMessage('Location transmitted to command center', 'gps');
+                this.addFeedMessage('Rapid response team dispatched', 'support');
                 
-                // Update system theme
-                const header = document.querySelector('.unified-header');
-                if (mode === 'military') {
-                    header.style.background = 'linear-gradient(90deg, #0A1929, #1A2B3C)';
-                    header.style.borderBottomColor = 'var(--military-red)';
+                // Update counter with animation
+                this.animateCounter('alertsSent');
+                
+                // Random pass/fail for realism
+                const passed = Math.random() > 0.1; // 90% pass rate
+                if (passed) {
+                    this.testCounters.testsPassed++;
+                    this.addFeedMessage('✓ Military alert test PASSED', 'success');
+                    this.showNotification('✅ MILITARY ALERT TEST', 'Alert successfully transmitted to command');
                 } else {
-                    header.style.background = 'linear-gradient(90deg, #0D47A1, #1565C0)';
-                    header.style.borderBottomColor = 'var(--civilian-blue)';
+                    this.testCounters.testsFailed++;
+                    this.addFeedMessage('✗ Military alert test FAILED - Signal weak', 'error');
+                    this.showNotification('⚠️ MILITARY ALERT TEST', 'Signal interference detected');
                 }
-                
-                this.showAlert(
-                    `MODE SWITCHED`,
-                    `Now in ${mode.toUpperCase()} mode\n${this.getModeDescription(mode)}`,
-                    'info'
-                );
             },
             
-            getModeDescription(mode) {
-                if (mode === 'military') {
-                    return 'Advanced combat and intelligence features enabled';
+            testCivilianSOS() {
+                this.testCounters.alertsSent++;
+                
+                // Simulate civilian SOS
+                this.addFeedMessage('CIVILIAN SOS: Emergency alert activated', 'civilian');
+                this.addFeedMessage('Location shared with 5 emergency contacts', 'gps');
+                this.addFeedMessage('Police and ambulance notified', 'support');
+                
+                this.animateCounter('alertsSent');
+                
+                const passed = Math.random() > 0.05; // 95% pass rate
+                if (passed) {
+                    this.testCounters.testsPassed++;
+                    this.addFeedMessage('✓ Civilian SOS test PASSED', 'success');
+                    this.showNotification('✅ CIVILIAN SOS TEST', 'Emergency services notified successfully');
                 } else {
-                    return 'Civilian safety and emergency features active';
+                    this.testCounters.testsFailed++;
+                    this.addFeedMessage('✗ Civilian SOS test FAILED - No network', 'error');
+                    this.showNotification('⚠️ CIVILIAN SOS TEST', 'Network connection required');
                 }
             },
             
-            // ===== MILITARY FUNCTIONS =====
-            activateCombatMode() {
-                this.showAlert(
-                    '🚀 COMBAT MODE ACTIVATED',
-                    'All combat systems online:\n\n' +
-                    '✅ Weapon systems linked\n' +
-                    '✅ Tactical communications\n' +
-                    '✅ Threat detection active\n' +
-                    '✅ Support teams notified\n' +
-                    '✅ Encrypted channel secure\n\n' +
-                    'Proceed with mission objectives',
-                    'combat'
-                );
-            },
-            
-            stealthScan() {
-                this.showAlert(
-                    '👁️ STEALTH ROAD SCAN',
-                    'Scanning 50m perimeter:\n\n' +
-                    '📍 Left side: Scanning...\n' +
-                    '📍 Right side: Scanning...\n' +
-                    '📍 Front: Clear path\n' +
-                    '📍 Rear: Secure\n\n' +
-                    'No threats detected\nRoad secure for movement',
-                    'stealth'
-                );
-            },
-            
-            guideTroops() {
-                this.showAlert(
-                    '👥 TROOP GUIDANCE',
-                    'Movement guidance active:\n\n' +
-                    '📏 Distance to target: 2.3km\n' +
-                    '⏱️ Estimated time: 45 minutes\n' +
-                    '🛡️ Cover available: 70%\n' +
-                    '⚠️ Threat zones: None\n' +
-                    '📍 Next checkpoint: Alpha-7\n\n' +
-                    'Follow highlighted route',
-                    'guidance'
-                );
-            },
-            
-            captureEnvironment() {
-                this.showAlert(
-                    '📸 ENVIRONMENT CAPTURED',
-                    'Random photo intelligence:\n\n' +
-                    '✅ Photo taken silently\n' +
-                    '✅ GPS coordinates embedded\n' +
-                    '✅ Timestamp recorded\n' +
-                    '✅ Encrypted transmission\n' +
-                    '✅ Sent to command center\n\n' +
-                    'Evidence preserved securely',
-                    'intel'
-                );
-            },
-            
-            recordAudio() {
-                this.showAlert(
-                    '🎙️ AUDIO INTELLIGENCE',
-                    'Recording environmental audio:\n\n' +
-                    '⏺️ Recording for 30 seconds\n' +
-                    '🎚️ Noise filtering active\n' +
-                    '🔍 Voice detection enabled\n' +
-                    '📡 Transmitting to analysis\n' +
-                    '🔒 Encrypted channel secure\n\n' +
-                    'Audio intelligence captured',
-                    'intel'
-                );
-            },
-            
-            liveTracking() {
-                this.showAlert(
-                    '📍 LIVE GPS TRACKING',
-                    'Continuous location tracking:\n\n' +
-                    '🛰️ Satellite link: STRONG\n' +
-                    '📡 Signal: Encrypted\n' +
-                    '👁️ Command view: ACTIVE\n' +
-                    '🔄 Update rate: 5 seconds\n' +
-                    '📊 Accuracy: 3 meters\n\n' +
-                    'Real-time position streaming',
-                    'tracking'
-                );
-            },
-            
-            volumeButtonAlert() {
-                this.showAlert(
-                    '🔇 VOLUME BUTTON ALERT',
-                    'Stealth emergency activated:\n\n' +
-                    '✅ Press volume button 3x\n' +
-                    '✅ No screen lights\n' +
-                    '✅ No sounds\n' +
-                    '✅ Location transmitted\n' +
-                    '✅ Photos auto-captured\n' +
-                    '✅ Command center notified\n\n' +
-                    'RESPONSE TEAMS DISPATCHED',
-                    'stealth'
-                );
-            },
-            
-            shakeAlert() {
-                this.showAlert(
-                    '🤚 SHAKE ALERT',
-                    'Device shake detected:\n\n' +
-                    '🔄 Shake device to activate\n' +
-                    '🚨 Silent emergency alert\n' +
-                    '📍 Live location sharing\n' +
-                    '📸 Auto-photo every 30s\n' +
-                    '🎙️ Background audio recording\n' +
-                    '👥 All contacts notified\n\n' +
-                    'STAY IN POSITION - HELP INCOMING',
-                    'stealth'
-                );
-            },
-            
-            silentSOS() {
-                this.showAlert(
-                    '🔕 SILENT SOS',
-                    'Covert emergency signal:\n\n' +
-                    '📱 Looks like normal phone\n' +
-                    '🔇 No external indication\n' +
-                    '📍 GPS coordinates streaming\n' +
-                    '📷 Periodic photo capture\n' +
-                    '🎙️ Environmental recording\n' +
-                    '📡 Encrypted transmission\n\n' +
-                    'UNDERCOVER OPERATION ACTIVE',
-                    'stealth'
-                );
-            },
-            
-            contactCommand() {
-                this.showAlert(
-                    '📡 CONTACTING COMMAND',
-                    'Secure line to command center:\n\n' +
-                    '🛰️ Satellite uplink: ACTIVE\n' +
-                    '🔒 Encryption: LEVEL 7\n' +
-                    '👤 Authentication: VERIFIED\n' +
-                    '💬 Voice channel: OPEN\n' +
-                    '📊 Data stream: LIVE\n\n' +
-                    'Command center responding...',
-                    'comms'
-                );
-            },
-            
-            requestSupport() {
-                this.showAlert(
-                    '🚁 AIR SUPPORT REQUESTED',
-                    'Air support deployment:\n\n' +
-                    '📍 Coordinates transmitted\n' +
-                    '🎯 Target area marked\n' +
-                    '🚁 Helicopters: 10 MIN\n' +
-                    '✈️ Jets: 15 MIN\n' +
-                    '🚁 Medical evac: 5 MIN\n' +
-                    '📡 Comms established\n\n' +
-                    'AIR SUPPORT INBOUND',
-                    'support'
-                );
-            },
-            
-            extractTeam() {
-                this.showAlert(
-                    '🚑 MEDICAL EXTRACTION',
-                    'Emergency medical evacuation:\n\n' +
-                    '📍 Extraction point set\n' +
-                    '🚁 Medevac helicopter: 7 MIN\n' +
-                    '👨‍⚕️ Medical team: READY\n' +
-                    '🩹 Supplies: FULL\n' +
-                    '🏥 Hospital notified: READY\n' +
-                    '📞 Family notified: YES\n\n' +
-                    'MEDICAL TEAM INBOUND',
-                    'medical'
-                );
-            },
-            
-            // ===== CIVILIAN FUNCTIONS =====
-            civilianSOS() {
-                this.showAlert(
-                    '🚨 EMERGENCY SOS',
-                    'Emergency alert activated:\n\n' +
-                    '📞 Calling emergency services\n' +
-                    '📍 Sharing your location\n' +
-                    '👤 Sending your profile\n' +
-                    '🩺 Medical info transmitted\n' +
-                    '👥 Alerting emergency contacts\n\n' +
-                    'HELP IS ON THE WAY!',
-                    'emergency'
-                );
-            },
-            
-            shareLocation() {
-                this.showAlert(
-                    '📍 LOCATION SHARED',
-                    'Your location has been shared:\n\n' +
-                    '✅ Real-time GPS location\n' +
-                    '✅ 5 emergency contacts\n' +
-                    '✅ Police department\n' +
-                    '✅ Nearest hospital\n' +
-                    '✅ Family members\n\n' +
-                    'Location updates every minute',
-                    'civilian'
-                );
-            },
-            
-            alertContacts() {
-                this.showAlert(
-                    '📱 CONTACTS ALERTED',
-                    'Emergency contacts notified:\n\n' +
-                    '👨‍👩‍👧 Family: NOTIFIED\n' +
-                    '👫 Friends: NOTIFIED\n' +
-                    '👮 Police: NOTIFIED\n' +
-                    '🏥 Hospital: NOTIFIED\n' +
-                    '🚑 Ambulance: DISPATCHED\n\n' +
-                    'All contacts responding',
-                    'civilian'
-                );
-            },
-            
-            fakeCall() {
-                this.showAlert(
-                    '📞 FAKE CALL ACTIVATED',
-                    'Simulating incoming call:\n\n' +
-                    '📱 Phone appears to ring\n' +
-                    '👤 Fake caller: "Mom"\n' +
-                    '⏱️ Duration: 2 minutes\n' +
-                    '🎭 Realistic conversation\n' +
-                    '🚪 Exit strategy created\n\n' +
-                    'Use to escape dangerous situations',
-                    'civilian'
-                );
-            },
-            
-            safetyCheck() {
-                this.showAlert(
-                    '✅ SAFETY CHECK-IN',
-                    'Safety status confirmed:\n\n' +
-                    '📍 Location: RECORDED\n' +
-                    '🕒 Time: LOGGED\n' +
-                    '🔋 Battery: 85%\n' +
-                    '📡 Signal: STRONG\n' +
-                    '👥 Contacts: NOTIFIED\n\n' +
-                    'Next check-in: 1 hour',
-                    'civilian'
-                );
-            },
-            
-            recordIncident() {
-                this.showAlert(
-                    '📹 INCIDENT RECORDING',
-                    'Recording activated:\n\n' +
-                    '🎥 Video: RECORDING\n' +
-                    '🎙️ Audio: RECORDING\n' +
-                    '📍 Location: EMBEDDED\n' +
-                    '⏱️ Timestamp: ADDED\n' +
-                    '☁️ Cloud backup: ACTIVE\n\n' +
-                    'Evidence securely saved',
-                    'civilian'
-                );
-            },
-            
-            // ===== UTILITY FUNCTIONS =====
-            showAlert(title, message, type = 'info') {
-                // Update modal content
-                document.getElementById('modalTitle').textContent = title;
-                document.getElementById('modalMessage').textContent = message;
+            testRoadScan() {
+                this.testCounters.scansCompleted++;
                 
-                // Update icon based on type
-                const icon = document.getElementById('modalIcon');
-                icon.style.color = type === 'combat' ? '#D32F2F' :
-                                  type === 'stealth' ? '#424242' :
-                                  type === 'intel' ? '#FF9800' :
-                                  type === 'tracking' ? '#4CAF50' :
-                                  type === 'emergency' ? '#F44336' :
-                                  type === 'civilian' ? '#2196F3' :
-                                  type === 'success' ? '#4CAF50' : '#FF9800';
+                // Simulate road scan
+                this.addFeedMessage('ROAD SCAN: Scanning 50m left and right', 'scan');
+                this.addFeedMessage('Left side: Clear | Right side: Clear', 'scan');
+                this.addFeedMessage('Road surface analysis complete', 'scan');
                 
-                // Show modal
-                document.getElementById('alertModal').style.display = 'flex';
+                this.animateCounter('scansCompleted');
                 
-                // Vibrate if available
-                if (navigator.vibrate) {
-                    if (type === 'emergency' || type === 'combat') {
-                        navigator.vibrate([200, 100, 200, 100, 200]);
-                    } else {
-                        navigator.vibrate(200);
-                    }
+                const passed = Math.random() > 0.15; // 85% pass rate
+                if (passed) {
+                    this.testCounters.testsPassed++;
+                    this.addFeedMessage('✓ Road scan test PASSED', 'success');
+                    this.showNotification('✅ ROAD SCAN TEST', '50m perimeter scan completed successfully');
+                } else {
+                    this.testCounters.testsFailed++;
+                    this.addFeedMessage('✗ Road scan test FAILED - Sensor error', 'error');
+                    this.showNotification('⚠️ ROAD SCAN TEST', 'Sensor calibration required');
                 }
             },
             
-            closeModal() {
-                document.getElementById('alertModal').style.display = 'none';
-            },
-            
-            additionalAction() {
-                this.showAlert(
-                    'MORE OPTIONS',
-                    'Additional actions available:\n\n' +
-                    (this.currentMode === 'military' ? 
-                        '• Request reinforcements\n' +
-                        '• Update command status\n' +
-                        '• Change extraction point\n' +
-                        '• Adjust scan parameters\n' +
-                        '• Encrypt all communications' :
-                        '• Call trusted friend\n' +
-                        '• Share live location\n' +
-                        '• Record voice message\n' +
-                        '• Set safety timer\n' +
-                        '• Check nearby help'),
-                    'info'
-                );
-            },
-            
-            setupEventListeners() {
-                // Setup shake detection for military mode
-                this.setupShakeDetection();
+            testEnvironmentCapture() {
+                this.testCounters.photosTaken += 3; // Multiple photos per capture
                 
-                // Setup volume button simulation
-                this.setupVolumeSimulation();
-            },
-            
-            setupShakeDetection() {
-                let lastShake = 0;
+                // Simulate environment capture
+                this.addFeedMessage('ENVIRONMENT: Capturing random photos', 'camera');
+                this.addFeedMessage('3 photos taken with GPS coordinates', 'camera');
+                this.addFeedMessage('Photos encrypted and transmitted', 'encryption');
                 
-                window.addEventListener('devicemotion', (e) => {
-                    if (this.currentMode !== 'military') return;
-                    
-                    const acc = e.acceleration;
-                    if (!acc) return;
-                    
-                    const force = Math.abs(acc.x || 0) + Math.abs(acc.y || 0) + Math.abs(acc.z || 0);
-                    
-                    if (force > 20 && Date.now() - lastShake > 3000) {
-                        lastShake = Date.now();
-                        this.shakeAlert();
-                    }
-                });
-            },
-            
-            setupVolumeSimulation() {
-                let volumeCount = 0;
-                let lastVolumePress = 0;
+                this.animateCounter('photosTaken');
                 
-                document.addEventListener('keydown', (e) => {
-                    if (this.currentMode !== 'military') return;
-                    
-                    // Use 'V' key to simulate volume button
-                    if (e.key === 'v' || e.key === 'V') {
-                        const now = Date.now();
-                        
-                        if (now - lastVolumePress < 1000) {
-                            volumeCount++;
-                            
-                            if (volumeCount >= 3) {
-                                volumeCount = 0;
-                                this.volumeButtonAlert();
-                            }
-                        } else {
-                            volumeCount = 1;
-                        }
-                        
-                        lastVolumePress = now;
-                    }
-                });
+                const passed = Math.random() > 0.2; // 80% pass rate
+                if (passed) {
+                    this.testCounters.testsPassed++;
+                    this.addFeedMessage('✓ Environment capture test PASSED', 'success');
+                    this.showNotification('✅ ENVIRONMENT CAPTURE', 'Photos successfully captured and transmitted');
+                } else {
+                    this.testCounters.testsFailed++;
+                    this.addFeedMessage('✗ Environment capture test FAILED - Storage full', 'error');
+                    this.showNotification('⚠️ ENVIRONMENT CAPTURE', 'Storage capacity reached');
+                }
             },
             
-            setupDemoKeys() {
-                document.addEventListener('keydown', (e) => {
-                    // Quick mode switch with M and C keys
-                    if (e.key === 'm' || e.key === 'M') {
-                        this.switchMode('military');
-                    } else if (e.key === 'c' || e.key === 'C') {
-                        this.switchMode('civilian');
-                    }
-                    
-                    // Quick alert test with A key
-                    if (e.key === 'a' || e.key === 'A') {
-                        if (this.currentMode === 'military') {
-                            this.activateCombatMode();
-                        } else {
-                            this.civilianSOS();
-                        }
-                    }
+            testStealthAlert() {
+                this.testCounters.alertsSent++;
+                
+                // Simulate stealth alert
+                this.addFeedMessage('STEALTH ALERT: Volume button x3 activated', 'stealth');
+                this.addFeedMessage('Silent emergency protocol initiated', 'stealth');
+                this.addFeedMessage('No external indication - All systems covert', 'stealth');
+                
+                this.animateCounter('alertsSent');
+                
+                const passed = Math.random() > 0.25; // 75% pass rate
+                if (passed) {
+                    this.testCounters.testsPassed++;
+                    this.addFeedMessage('✓ Stealth alert test PASSED', 'success');
+                    this.showNotification('✅ STEALTH ALERT TEST', 'Covert emergency activated successfully');
+                } else {
+                    this.testCounters.testsFailed++;
+                    this.addFeedMessage('✗ Stealth alert test FAILED - Device locked', 'error');
+                    this.showNotification('⚠️ STEALTH ALERT TEST', 'Device security settings blocking');
+                }
+            },
+            
+            runAllTests() {
+                this.showNotification('🚀 RUNNING ALL TESTS', 'Starting comprehensive test suite...');
+                
+                const tests = [
+                    'military_alert',
+                    'civilian_sos', 
+                    'road_scan',
+                    'environment_capture',
+                    'stealth_alert'
+                ];
+                
+                let delay = 0;
+                tests.forEach(test => {
+                    setTimeout(() => {
+                        this.runTest(test);
+                    }, delay);
+                    delay += 1500; // 1.5 seconds between tests
                 });
                 
-                console.log('🎮 Demo Controls:\nM = Military Mode\nC = Civilian Mode\nA = Alert\nV x3 = Volume Button Alert');
+                setTimeout(() => {
+                    this.showNotification('📊 TEST SUITE COMPLETE', `All ${tests.length} tests completed. Check results.`);
+                }, delay + 1000);
+            },
+            
+            addFeedMessage(message, type = 'system') {
+                const feed = document.getElementById('liveFeed');
+                const now = new Date();
+                const timeString = now.toLocaleTimeString();
+                
+                const feedItem = document.createElement('div');
+                feedItem.className = 'feed-item';
+                feedItem.innerHTML = `
+                    <span class="feed-time">${timeString}</span>
+                    <span class="feed-message">${message}</span>
+                `;
+                
+                // Color code based on type
+                if (type === 'military') feedItem.style.borderLeft = '3px solid #D32F2F';
+                else if (type === 'civilian') feedItem.style.borderLeft = '3px solid #1565C0';
+                else if (type === 'success') feedItem.style.borderLeft = '3px solid #00FF00';
+                else if (type === 'error') feedItem.style.borderLeft = '3px solid #FF5555';
+                else if (type === 'gps') feedItem.style.borderLeft = '3px solid #FF9800';
+                else if (type === 'scan') feedItem.style.borderLeft = '3px solid #9C27B0';
+                
+                feed.insertBefore(feedItem, feed.firstChild);
+                
+                // Limit feed length
+                if (feed.children.length > 20) {
+                    feed.removeChild(feed.lastChild);
+                }
+            },
+            
+            updateAllCounters() {
+                // Update all counter displays
+                document.getElementById('alertsSent').textContent = this.testCounters.alertsSent;
+                document.getElementById('photosTaken').textContent = this.testCounters.photosTaken;
+                document.getElementById('scansCompleted').textContent = this.testCounters.scansCompleted;
+                document.getElementById('testsPassed').textContent = this.testCounters.testsPassed;
+                document.getElementById('testsFailed').textContent = this.testCounters.testsFailed;
+                document.getElementById('totalTests').textContent = this.testCounters.totalTests;
+                
+                // Calculate average response time
+                const avgTime = (1.2 + Math.random() * 0.8).toFixed(1);
+                document.getElementById('responseTime').textContent = `${avgTime}s`;
+            },
+            
+            calculateSuccessRate() {
+                if (this.testCounters.totalTests === 0) return '100%';
+                
+                const rate = (this.testCounters.testsPassed / this.testCounters.totalTests) * 100;
+                document.getElementById('successRate').textContent = `${Math.round(rate)}%`;
+                
+                // Color code based on rate
+                const successElement = document.getElementById('successRate');
+                if (rate >= 90) successElement.style.color = '#00FF00';
+                else if (rate >= 70) successElement.style.color = '#FF9800';
+                else successElement.style.color = '#FF5555';
+            },
+            
+            animateCounter(counterId) {
+                const element = document.getElementById(counterId);
+                element.style.transform = 'scale(1.3)';
+                element.style.color = '#FFFFFF';
+                
+                setTimeout(() => {
+                    element.style.transform = 'scale(1)';
+                    element.style.color = '';
+                }, 300);
+            },
+            
+            updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString();
+                document.getElementById('currentTime').textContent = timeString;
+                
+                // Update every second
+                setTimeout(() => this.updateTime(), 1000);
+            },
+            
+            startSessionTimer() {
+                const updateTimer = () => {
+                    const elapsed = Date.now() - this.sessionStartTime;
+                    const hours = Math.floor(elapsed / 3600000);
+                    const minutes = Math.floor((elapsed % 3600000) / 60000);
+                    const seconds = Math.floor((elapsed % 60000) / 1000);
+                    
+                    const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    document.getElementById('sessionTimer').textContent = timeString;
+                    
+                    setTimeout(updateTimer, 1000);
+                };
+                
+                updateTimer();
+            },
+            
+            switchToMode(mode) {
+                if (mode === 'military') {
+                    document.getElementById('militaryStatus').textContent = 'ACTIVE';
+                    document.getElementById('militaryStatus').className = 'result-status status-pass';
+                    this.addFeedMessage('Switched to MILITARY GRADE mode', 'military');
+                    this.showNotification('🎖️ MILITARY MODE', 'Advanced combat features enabled');
+                } else {
+                    document.getElementById('civilianStatus').textContent = 'ACTIVE';
+                    document.getElementById('civilianStatus').className = 'result-status status-pass';
+                    this.addFeedMessage('Switched to CIVILIAN GRADE mode', 'civilian');
+                    this.showNotification('👥 CIVILIAN MODE', 'Emergency response features active');
+                }
+            },
+            
+            submitFeedback() {
+                const feedback = document.getElementById('testerFeedback').value;
+                if (!feedback.trim()) {
+                    this.showNotification('📝 FEEDBACK', 'Please enter feedback before submitting');
+                    return;
+                }
+                
+                // In a real app, this would send to server
+                console.log('Tester Feedback:', feedback);
+                
+                this.addFeedMessage('Feedback submitted: ' + feedback.substring(0, 50) + '...', 'system');
+                document.getElementById('testerFeedback').value = '';
+                
+                this.showNotification('✅ FEEDBACK SUBMITTED', 'Thank you for your input!');
+            },
+            
+            showNotification(title, message) {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: rgba(30, 30, 30, 0.95);
+                    border-left: 5px solid var(--test-orange);
+                    color: white;
+                    padding: 15px 25px;
+                    border-radius: 8px;
+                    z-index: 10000;
+                    max-width: 400px;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+                    animation: slideIn 0.3s ease;
+                `;
+                
+                notification.innerHTML = `
+                    <div style="font-weight: bold; margin-bottom: 5px; color: var(--test-orange);">${title}</div>
+                    <div style="font-size: 14px; color: #CCC;">${message}</div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Remove after 5 seconds
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease forwards';
+                    setTimeout(() => notification.remove(), 300);
+                }, 5000);
+            },
+            
+            setupAutoTests() {
+                // Run random automatic tests every 30 seconds
+                setInterval(() => {
+                    if (Math.random() > 0.7) { // 30% chance
+                        const tests = ['military_alert', 'civilian_sos', 'road_scan'];
+                        const randomTest = tests[Math.floor(Math.random() * tests.length)];
+                        this.runTest(randomTest);
+                        this.addFeedMessage(`Auto-test: ${randomTest.replace('_', ' ').toUpperCase()}`, 'system');
+                    }
+                }, 30000);
+                
+                // Auto-update response time every 10 seconds
+                setInterval(() => {
+                    const current = parseFloat(document.getElementById('responseTime').textContent);
+                    const change = (Math.random() - 0.5) * 0.2; // +/- 0.1s
+                    const newTime = Math.max(0.5, Math.min(3.0, current + change)).toFixed(1);
+                    document.getElementById('responseTime').textContent = `${newTime}s`;
+                }, 10000);
             }
         };
         
         // ============================================
-        // GLOBAL FUNCTIONS FOR HTML
+        // INITIALIZE TESTING SYSTEM
         // ============================================
-        function switchMode(mode) {
-            GuardianPro.switchMode(mode);
+        document.addEventListener('DOMContentLoaded', () => {
+            TestingSystem.init();
+            
+            // Add CSS animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+        
+        // Global functions for button clicks
+        function runTest(testType) {
+            TestingSystem.runTest(testType);
         }
         
-        // Military Functions
-        function activateCombatMode() { GuardianPro.activateCombatMode(); }
-        function stealthScan() { GuardianPro.stealthScan(); }
-        function guideTroops() { GuardianPro.guideTroops(); }
-        function captureEnvironment() { GuardianPro.captureEnvironment(); }
-        function recordAudio() { GuardianPro.recordAudio(); }
-        function liveTracking() { GuardianPro.liveTracking(); }
-        function volumeButtonAlert() { GuardianPro.volumeButtonAlert(); }
-        function shakeAlert() { GuardianPro.shakeAlert(); }
-        function silentSOS() { GuardianPro.silentSOS(); }
-        function contactCommand() { GuardianPro.contactCommand(); }
-        function requestSupport() { GuardianPro.requestSupport(); }
-        function extractTeam() { GuardianPro.extractTeam(); }
+        function runAllTests() {
+            TestingSystem.runAllTests();
+        }
         
-        // Civilian Functions
-        function civilianSOS() { GuardianPro.civilianSOS(); }
-        function shareLocation() { GuardianPro.shareLocation(); }
-        function alertContacts() { GuardianPro.alertContacts(); }
-        function fakeCall() { GuardianPro.fakeCall(); }
-        function safetyCheck() { GuardianPro.safetyCheck(); }
-        function recordIncident() { GuardianPro.recordIncident(); }
-        function callPolice() { GuardianPro.showAlert('POLICE', 'Contacting nearest police station...', 'emergency'); }
-        function callAmbulance() { GuardianPro.showAlert('AMBULANCE', 'Dispatching nearest ambulance...', 'medical'); }
-        function roadsideHelp() { GuardianPro.showAlert('ROADSIDE HELP', 'Connecting to roadside assistance...', 'civilian'); }
-        function reportIncident() { GuardianPro.showAlert('INCIDENT REPORT', 'Reporting incident to authorities...', 'civilian'); }
-        function safeRoutes() { GuardianPro.showAlert('SAFE ROUTES', 'Calculating safest route home...', 'civilian'); }
-        function emergencyInfo() { GuardianPro.showAlert('EMERGENCY INFO', 'Showing emergency contacts and hospitals...', 'civilian'); }
+        function switchToMode(mode) {
+            TestingSystem.switchToMode(mode);
+        }
         
-        // Modal Functions
-        function closeModal() { GuardianPro.closeModal(); }
-        function additionalAction() { GuardianPro.additionalAction(); }
+        function submitFeedback() {
+            TestingSystem.submitFeedback();
+        }
         
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', () => {
-            GuardianPro.init();
+        // Demo keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // 1-5 for quick tests
+            if (e.key >= '1' && e.key <= '5') {
+                const tests = ['military_alert', 'civilian_sos', 'road_scan', 'environment_capture', 'stealth_alert'];
+                runTest(tests[parseInt(e.key) - 1]);
+            }
+            
+            // Space for all tests
+            if (e.key === ' ') {
+                runAllTests();
+            }
+            
+            // M/C for modes
+            if (e.key === 'm' || e.key === 'M') {
+                switchToMode('military');
+            }
+            if (e.key === 'c' || e.key === 'C') {
+                switchToMode('civilian');
+            }
         });
+        
+        console.log('🎮 Testing Controls:\n1-5 = Run specific test\nSpace = Run all tests\nM = Military mode\nC = Civilian mode');
     </script>
 </body>
 </html>
+    
