@@ -1,0 +1,9 @@
+"scripts": {
+  "start": "vite",
+  "build": "tsc && vite build",
+  "test": "jest",
+  "lint": "eslint src/**/*.{ts,tsx}",
+  "cap:android": "npx cap open android",
+  "cap:ios": "npx cap open ios",
+  "cap:sync": "npx cap sync"
+}
