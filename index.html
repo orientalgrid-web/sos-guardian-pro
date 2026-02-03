@@ -9,9 +9,11 @@
     
     <title>SOS-Guardian-Pro</title>
     
-    <!-- Mapbox for Satellite View -->
+    <!-- Mapbox for Satellite View & Routing -->
     <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.0/mapbox-gl-directions.js'></script>
+    <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.0/mapbox-gl-directions.css' type='text/css' />
     
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -25,6 +27,7 @@
             --stealth-twilio: #F22F46;
             --stealth-gray: #333333;
             --stealth-satellite: #1a5fb4;
+            --stealth-route: #FF6B35;
         }
 
         * {
@@ -231,6 +234,23 @@
             height: 18px;
         }
 
+        /* === TWILIO CONFIG SECTION === */
+        .twilio-config {
+            background: rgba(242, 47, 70, 0.1);
+            border: 1px solid var(--stealth-twilio);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .twilio-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--stealth-twilio);
+            margin-bottom: 15px;
+        }
+
         /* === EMERGENCY MODAL === */
         .emergency-modal {
             position: fixed;
@@ -299,7 +319,42 @@
             position: relative;
         }
 
-        .scan-info {
+        /* === ROUTE PLANNING MODAL === */
+        .route-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 6000;
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .route-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            color: white;
+            padding: 15px;
+            background: rgba(255, 107, 53, 0.2);
+            border-radius: 10px;
+            border: 1px solid var(--stealth-route);
+        }
+
+        #routeMap {
+            flex: 1;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid var(--stealth-route);
+            background: #000;
+            position: relative;
+        }
+
+        .route-controls {
             margin-top: 20px;
             padding: 15px;
             background: rgba(0,0,0,0.7);
@@ -307,24 +362,18 @@
             border: 1px solid var(--stealth-gray);
         }
 
-        .scan-status {
-            display: flex;
-            align-items: center;
+        .route-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 10px;
-            margin-bottom: 10px;
+            margin-top: 10px;
         }
 
-        .scan-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--stealth-text);
-            border-radius: 50%;
-            animation: scanPulse 2s infinite;
-        }
-
-        @keyframes scanPulse {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.5); }
+        .route-stat {
+            background: #222;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
         }
 
         /* === SCANNING OVERLAY === */
@@ -403,6 +452,12 @@
             animation: satelliteGlow 3s infinite;
         }
         
+        .status-dot.route { 
+            background: var(--stealth-route); 
+            box-shadow: 0 0 10px var(--stealth-route);
+            animation: routeGlow 3s infinite;
+        }
+        
         .status-label { 
             font-size: 12px; 
             color: #666; 
@@ -426,6 +481,17 @@
             50% { 
                 opacity: 1; 
                 box-shadow: 0 0 15px var(--stealth-satellite);
+            }
+        }
+
+        @keyframes routeGlow {
+            0%, 100% { 
+                opacity: 0.7; 
+                box-shadow: 0 0 5px var(--stealth-route);
+            }
+            50% { 
+                opacity: 1; 
+                box-shadow: 0 0 15px var(--stealth-route);
             }
         }
 
@@ -480,6 +546,26 @@
             background: #0c77e0;
             transform: translateY(-2px);
         }
+        
+        .btn-route { 
+            background: var(--stealth-route); 
+            color: white; 
+        }
+        
+        .btn-route:hover {
+            background: #FF8535;
+            transform: translateY(-2px);
+        }
+        
+        .btn-twilio { 
+            background: var(--stealth-twilio); 
+            color: white; 
+        }
+        
+        .btn-twilio:hover {
+            background: #D42A3D;
+            transform: translateY(-2px);
+        }
 
         /* === TEST MODE INDICATOR === */
         .test-mode {
@@ -507,7 +593,7 @@
             padding: 15px 25px;
             border-radius: 10px;
             border: 1px solid var(--stealth-accent);
-            z-index: 6000;
+            z-index: 7000;
             display: none;
             max-width: 90%;
             text-align: center;
@@ -541,6 +627,38 @@
             color: var(--stealth-text);
         }
 
+        /* === TAB SYSTEM === */
+        .tab-container {
+            display: flex;
+            background: #222;
+            border-radius: 10px;
+            padding: 5px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .tab.active {
+            background: var(--stealth-accent);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         /* === RESPONSIVE === */
         @media (max-width: 480px) {
             .app-grid {
@@ -561,7 +679,7 @@
                 padding: 25px;
             }
             
-            .satellite-header {
+            .satellite-header, .route-header {
                 flex-direction: column;
                 gap: 10px;
                 text-align: center;
@@ -573,6 +691,10 @@
                 right: 10px;
                 font-size: 10px;
             }
+            
+            .route-info {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -581,7 +703,7 @@
     <div class="stealth-loading" id="loadingScreen">
         <div class="stealth-spinner"></div>
         <div>SOS-Guardian-Pro</div>
-        <div style="font-size: 12px; color: #666;">Initializing Satellite Systems...</div>
+        <div style="font-size: 12px; color: #666;">Initializing Security Systems...</div>
     </div>
 
     <!-- Test Mode Indicator -->
@@ -611,9 +733,9 @@
                     <i class="fas fa-satellite"></i>
                     <div class="app-name">Sat Scan</div>
                 </div>
-                <div class="app-icon" onclick="showToast('Camera app would open')">
-                    <i class="fas fa-camera"></i>
-                    <div class="app-name">Camera</div>
+                <div class="app-icon" id="routePlanApp">
+                    <i class="fas fa-route"></i>
+                    <div class="app-name">Route Plan</div>
                 </div>
             </div>
         </div>
@@ -633,6 +755,8 @@
             <span class="status-label">BAT</span>
             <div class="status-dot" id="satelliteStatus"></div>
             <span class="status-label">SAT</span>
+            <div class="status-dot" id="routeStatus"></div>
+            <span class="status-label">ROUTE</span>
         </div>
     </div>
 
@@ -646,20 +770,29 @@
                 </button>
             </div>
             
-            <!-- Emergency Contacts -->
-            <div class="form-group">
-                <label class="form-label">Emergency Contact 1 (with country code)</label>
-                <input type="text" class="form-input" id="contact1" placeholder="+2348103365359">
+            <!-- Tab Navigation -->
+            <div class="tab-container">
+                <div class="tab active" onclick="switchTab('contacts')">Contacts</div>
+                <div class="tab" onclick="switchTab('twilio')">Twilio</div>
+                <div class="tab" onclick="switchTab('routes')">Routes</div>
+                <div class="tab" onclick="switchTab('settings')">Settings</div>
             </div>
             
-            <div class="form-group">
-                <label class="form-label">Emergency Contact 2 (with country code)</label>
-                <input type="text" class="form-input" id="contact2" placeholder="+2349088757570">
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Emergency Message</label>
-                <textarea class="form-input" id="emergencyMessage" rows="4">🚨 SOS-GUARDIAN-PRO ALERT! 
+            <!-- Contacts Tab -->
+            <div id="contactsTab" class="tab-content active">
+                <div class="form-group">
+                    <label class="form-label">Emergency Contact 1 (with country code)</label>
+                    <input type="text" class="form-input" id="contact1" placeholder="+2348103365359">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Emergency Contact 2 (with country code)</label>
+                    <input type="text" class="form-input" id="contact2" placeholder="+2349088757570">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Emergency Message</label>
+                    <textarea class="form-input" id="emergencyMessage" rows="4">🚨 SOS-GUARDIAN-PRO ALERT! 
 
 User requires immediate assistance.
 
@@ -668,34 +801,132 @@ User requires immediate assistance.
 🔋 Battery: {{BATTERY}}%
 📶 Network: {{NETWORK}}
 🛰️ Satellite Scan: {{SATELLITE_LINK}}
+🗺️ Route: {{ROUTE_INFO}}
 
 Please respond urgently.</textarea>
+                </div>
             </div>
             
-            <!-- Settings -->
-            <div class="checkbox-group">
-                <input type="checkbox" class="checkbox-input" id="testMode">
-                <label class="form-label" style="margin: 0;">Test Mode (No real alerts sent)</label>
+            <!-- Twilio Configuration Tab -->
+            <div id="twilioTab" class="tab-content">
+                <div class="twilio-config">
+                    <div class="twilio-header">
+                        <i class="fas fa-comment-sms"></i>
+                        <h3>Twilio SMS Configuration</h3>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Twilio Account SID</label>
+                        <input type="text" class="form-input" id="twilioSid" placeholder="AC4fb1c1b8af2739e2e06c3fb593eb664f">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Twilio Auth Token</label>
+                        <input type="password" class="form-input" id="twilioToken" placeholder="b0db4c5717d4f3db5edd7df987c979d2">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Twilio Phone Number</label>
+                        <input type="text" class="form-input" id="twilioNumber" placeholder="+12608297880">
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" class="checkbox-input" id="enableTwilio">
+                        <label class="form-label" style="margin: 0;">Enable Twilio SMS Delivery</label>
+                    </div>
+                    
+                    <button class="stealth-btn btn-twilio" onclick="testTwilioConnection()">
+                        <i class="fas fa-plug"></i> Test Twilio Connection
+                    </button>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.5); border-radius: 10px;">
+                    <p style="color: #666; font-size: 12px;">
+                        <i class="fas fa-info-circle"></i> 
+                        Twilio allows reliable SMS delivery. Get credentials from 
+                        <a href="https://www.twilio.com" target="_blank" style="color: var(--stealth-twilio);">twilio.com</a>
+                    </p>
+                </div>
             </div>
             
-            <div class="checkbox-group">
-                <input type="checkbox" class="checkbox-input" id="silentMode">
-                <label class="form-label" style="margin: 0;">Silent Mode (No countdown)</label>
+            <!-- Routes Tab -->
+            <div id="routesTab" class="tab-content">
+                <div class="form-group">
+                    <label class="form-label">Home Address</label>
+                    <input type="text" class="form-input" id="homeAddress" placeholder="Enter your home address">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Work Address</label>
+                    <input type="text" class="form-input" id="workAddress" placeholder="Enter your work address">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Frequent Route 1</label>
+                    <input type="text" class="form-input" id="route1" placeholder="e.g., Gym, Market, School">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Frequent Route 2</label>
+                    <input type="text" class="form-input" id="route2" placeholder="e.g., Hospital, Mall, Park">
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" class="checkbox-input" id="includeRouteInAlerts">
+                    <label class="form-label" style="margin: 0;">Include Route Information in Alerts</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" class="checkbox-input" id="monitorRouteDeviations">
+                    <label class="form-label" style="margin: 0;">Monitor Route Deviations</label>
+                </div>
+                
+                <button class="stealth-btn btn-route" onclick="saveRouteSettings()">
+                    <i class="fas fa-save"></i> Save Route Settings
+                </button>
             </div>
             
-            <div class="checkbox-group">
-                <input type="checkbox" class="checkbox-input" id="enableGPS">
-                <label class="form-label" style="margin: 0;">Include GPS Location</label>
-            </div>
-            
-            <div class="checkbox-group">
-                <input type="checkbox" class="checkbox-input" id="enableSatellite">
-                <label class="form-label" style="margin: 0;">Enable Satellite Scan</label>
+            <!-- Settings Tab -->
+            <div id="settingsTab" class="tab-content">
+                <div class="checkbox-group">
+                    <input type="checkbox" class="checkbox-input" id="testMode">
+                    <label class="form-label" style="margin: 0;">Test Mode (No real alerts sent)</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" class="checkbox-input" id="silentMode">
+                    <label class="form-label" style="margin: 0;">Silent Mode (No countdown)</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" class="checkbox-input" id="enableGPS">
+                    <label class="form-label" style="margin: 0;">Include GPS Location</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" class="checkbox-input" id="enableSatellite">
+                    <label class="form-label" style="margin: 0;">Enable Satellite Scan</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" class="checkbox-input" id="enableRoutePlanning">
+                    <label class="form-label" style="margin: 0;">Enable Route Planning</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" class="checkbox-input" id="autoLocationUpdate">
+                    <label class="form-label" style="margin: 0;">Auto Location Updates (Every 30s)</label>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">SOS Countdown (seconds)</label>
+                    <input type="number" class="form-input" id="sosCountdown" value="3" min="1" max="10">
+                </div>
             </div>
             
             <!-- Action Buttons -->
             <button class="stealth-btn btn-green" onclick="saveConfig()">
-                <i class="fas fa-save"></i> Save Configuration
+                <i class="fas fa-save"></i> Save All Configuration
             </button>
             
             <button class="stealth-btn btn-satellite" onclick="testAlert()">
@@ -708,8 +939,8 @@ Please respond urgently.</textarea>
             
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--stealth-gray);">
                 <p style="color: #666; font-size: 12px; text-align: center;">
-                    <i class="fas fa-shield-alt"></i> SOS Guardian Pro v4.0<br>
-                    Enhanced with Satellite Tracking
+                    <i class="fas fa-shield-alt"></i> SOS Guardian Pro v5.0<br>
+                    Complete Route & SMS Integration
                 </p>
             </div>
         </div>
@@ -757,7 +988,7 @@ Please respond urgently.</textarea>
         </div>
         
         <div id="satelliteMap">
-            <div class="map-loading" id="mapLoading">
+            <div class="map-loading" id="satelliteMapLoading">
                 <div class="stealth-spinner" style="width: 40px; height: 40px;"></div>
                 <div style="margin-top: 15px;">Loading satellite imagery...</div>
             </div>
@@ -767,20 +998,72 @@ Please respond urgently.</textarea>
             </div>
         </div>
         
-        <div class="scan-info">
-            <div class="scan-status">
-                <div class="scan-dot"></div>
-                <span style="color: var(--stealth-text); font-size: 14px;">
-                    <i class="fas fa-satellite-dish"></i> 
-                    <span id="scanStatusText">Ready to scan</span>
-                </span>
-            </div>
+        <div style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.7); border-radius: 10px;">
             <div style="color: #CCC; font-size: 12px; line-height: 1.4;">
                 <div><i class="fas fa-circle" style="color: #4CD964; font-size: 8px;"></i> <strong>Live View:</strong> Real-time satellite imagery</div>
                 <div><i class="fas fa-circle" style="color: #FF9500; font-size: 8px;"></i> <strong>Accuracy:</strong> <span id="accuracyText">High</span></div>
                 <div><i class="fas fa-circle" style="color: var(--stealth-satellite); font-size: 8px;"></i> <strong>Satellite:</strong> <span id="satelliteName">Sentinel-2B</span></div>
-                <div style="margin-top: 10px; color: #666; font-size: 11px;">
-                    <i class="fas fa-info-circle"></i> Powered by Mapbox Satellite & NASA Landsat
+            </div>
+        </div>
+    </div>
+
+    <!-- Route Planning Modal -->
+    <div class="route-modal" id="routeModal">
+        <div class="route-header">
+            <div>
+                <h2 style="color: white;">
+                    <i class="fas fa-route"></i> ROUTE PLANNER
+                </h2>
+                <p style="color: #CCC; font-size: 12px;">
+                    <i class="fas fa-directions"></i> 
+                    <span id="routeStatusText">Plan your route below</span>
+                </p>
+            </div>
+            <div>
+                <button class="stealth-btn btn-route" onclick="saveCurrentRoute()" style="width: auto; padding: 10px 15px; margin-right: 10px;">
+                    <i class="fas fa-save"></i> Save
+                </button>
+                <button class="stealth-btn btn-stealth" onclick="closeRoutePlan()" style="width: auto; padding: 10px 15px;">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+        
+        <div id="routeMap">
+            <div class="map-loading" id="routeMapLoading">
+                <div class="stealth-spinner" style="width: 40px; height: 40px;"></div>
+                <div style="margin-top: 15px;">Loading route planner...</div>
+            </div>
+        </div>
+        
+        <div class="route-controls">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                <div>
+                    <label style="color: #CCC; font-size: 12px; display: block; margin-bottom: 5px;">Start</label>
+                    <input type="text" id="routeStart" class="form-input" placeholder="Current location" style="font-size: 12px; padding: 8px;">
+                </div>
+                <div>
+                    <label style="color: #CCC; font-size: 12px; display: block; margin-bottom: 5px;">Destination</label>
+                    <input type="text" id="routeEnd" class="form-input" placeholder="Enter destination" style="font-size: 12px; padding: 8px;">
+                </div>
+            </div>
+            
+            <div class="route-info">
+                <div class="route-stat">
+                    <div style="color: #666; font-size: 10px;">Distance</div>
+                    <div id="routeDistance">-- km</div>
+                </div>
+                <div class="route-stat">
+                    <div style="color: #666; font-size: 10px;">Duration</div>
+                    <div id="routeDuration">-- min</div>
+                </div>
+                <div class="route-stat">
+                    <div style="color: #666; font-size: 10px;">ETA</div>
+                    <div id="routeETA">--:--</div>
+                </div>
+                <div class="route-stat">
+                    <div style="color: #666; font-size: 10px;">Route</div>
+                    <div id="routeType">Driving</div>
                 </div>
             </div>
         </div>
@@ -812,13 +1095,10 @@ Please respond urgently.</textarea>
 
         // Global Guardian Application
         const Guardian = {
-            // Configuration (User-facing only)
+            // Configuration
             config: {
+                // Contacts
                 contacts: ["+2348103365359", "+2349088757570"],
-                testMode: false,
-                silentMode: false,
-                enableGPS: true,
-                enableSatellite: true,
                 emergencyMessage: `🚨 SOS-GUARDIAN-PRO ALERT! 
 
 User requires immediate assistance.
@@ -828,30 +1108,70 @@ User requires immediate assistance.
 🔋 Battery: {{BATTERY}}%
 📶 Network: {{NETWORK}}
 🛰️ Satellite Scan: {{SATELLITE_LINK}}
+🗺️ Route: {{ROUTE_INFO}}
 
-Please respond urgently.`
-            },
-            
-            // Backend Configuration (Hidden from users)
-            backend: {
-                enabled: true,
-                apiEndpoint: "https://your-backend-server.com/send-sos", // Replace with your backend
-                fallbackEnabled: true
+Please respond urgently.`,
+                
+                // Twilio Configuration
+                twilio: {
+                    sid: "AC4fb1c1b8af2739e2e06c3fb593eb664f",
+                    token: "b0db4c5717d4f3db5edd7df987c979d2",
+                    number: "+12608297880",
+                    enabled: true
+                },
+                
+                // Route Planning
+                routes: {
+                    home: "",
+                    work: "",
+                    frequent1: "",
+                    frequent2: "",
+                    includeInAlerts: true,
+                    monitorDeviations: true
+                },
+                
+                // Settings
+                testMode: false,
+                silentMode: false,
+                enableGPS: true,
+                enableSatellite: true,
+                enableRoutePlanning: true,
+                autoLocationUpdate: true,
+                sosCountdown: 3
             },
             
             // Application state
             state: {
+                // Location & Sensors
                 currentLocation: null,
                 batteryLevel: 100,
                 networkStatus: true,
                 gpsStatus: false,
-                satelliteStatus: false,
+                satelliteStatus: true,
+                routeStatus: false,
+                
+                // Timers & Counters
                 sosCountdown: null,
                 lastSOSTime: 0,
-                map: null,
-                marker: null,
+                locationWatchId: null,
+                
+                // Map Instances
+                satelliteMap: null,
+                routeMap: null,
+                directions: null,
+                
+                // Scanning State
                 isScanning: false,
                 scanInterval: null,
+                
+                // Current Route
+                currentRoute: null,
+                savedRoutes: [],
+                
+                // Twilio Status
+                twilioConnected: false,
+                
+                // Satellite Names
                 satelliteNames: [
                     "Sentinel-2B", "Landsat 8", "GOES-16", "NOAA-20",
                     "TerraSAR-X", "WorldView-3", "PlanetScope", "SkySat"
@@ -860,7 +1180,7 @@ Please respond urgently.`
 
             // Initialize application
             async init() {
-                console.log('🚀 SOS Guardian Pro v4.0 Initializing...');
+                console.log('🚀 SOS Guardian Pro v5.0 Initializing...');
                 console.log('🗺️ Mapbox Token Verified:', mapboxgl.accessToken.substring(0, 20) + '...');
                 
                 // Load configuration
@@ -870,7 +1190,7 @@ Please respond urgently.`
                 setTimeout(() => {
                     document.getElementById('loadingScreen').style.display = 'none';
                     document.getElementById('phoneInterface').style.display = 'block';
-                    this.showToast('System Ready - Satellite Tracking Active', 'success');
+                    this.showToast('System Ready - Route Planning Active', 'success');
                     
                     // Initialize subsystems
                     this.initClock();
@@ -878,7 +1198,7 @@ Please respond urgently.`
                     this.initBatteryMonitoring();
                     this.initGPS();
                     this.initEventListeners();
-                    this.initSatelliteStatus();
+                    this.initStatusIndicators();
                     
                 }, 2000);
             },
@@ -886,13 +1206,23 @@ Please respond urgently.`
             // Load configuration from localStorage
             loadConfig() {
                 try {
-                    const savedConfig = localStorage.getItem('sos_config_v4');
+                    const savedConfig = localStorage.getItem('sos_config_v5');
                     if (savedConfig) {
                         this.config = JSON.parse(savedConfig);
                         this.updateConfigUI();
                     }
                 } catch (e) {
                     console.warn('Could not load config:', e);
+                }
+                
+                // Load saved routes
+                try {
+                    const savedRoutes = localStorage.getItem('sos_saved_routes');
+                    if (savedRoutes) {
+                        this.state.savedRoutes = JSON.parse(savedRoutes);
+                    }
+                } catch (e) {
+                    console.warn('Could not load routes:', e);
                 }
             },
 
@@ -905,20 +1235,39 @@ Please respond urgently.`
                         document.getElementById('contact2').value.trim()
                     ].filter(c => c.length > 0);
                     
+                    this.config.twilio.sid = document.getElementById('twilioSid').value.trim();
+                    this.config.twilio.token = document.getElementById('twilioToken').value.trim();
+                    this.config.twilio.number = document.getElementById('twilioNumber').value.trim();
+                    this.config.twilio.enabled = document.getElementById('enableTwilio').checked;
+                    
+                    this.config.routes.home = document.getElementById('homeAddress').value.trim();
+                    this.config.routes.work = document.getElementById('workAddress').value.trim();
+                    this.config.routes.frequent1 = document.getElementById('route1').value.trim();
+                    this.config.routes.frequent2 = document.getElementById('route2').value.trim();
+                    this.config.routes.includeInAlerts = document.getElementById('includeRouteInAlerts').checked;
+                    this.config.routes.monitorDeviations = document.getElementById('monitorRouteDeviations').checked;
+                    
                     this.config.testMode = document.getElementById('testMode').checked;
                     this.config.silentMode = document.getElementById('silentMode').checked;
                     this.config.enableGPS = document.getElementById('enableGPS').checked;
                     this.config.enableSatellite = document.getElementById('enableSatellite').checked;
+                    this.config.enableRoutePlanning = document.getElementById('enableRoutePlanning').checked;
+                    this.config.autoLocationUpdate = document.getElementById('autoLocationUpdate').checked;
+                    this.config.sosCountdown = parseInt(document.getElementById('sosCountdown').value) || 3;
+                    
                     this.config.emergencyMessage = document.getElementById('emergencyMessage').value;
                     
                     // Save to localStorage
-                    localStorage.setItem('sos_config_v4', JSON.stringify(this.config));
+                    localStorage.setItem('sos_config_v5', JSON.stringify(this.config));
                     
                     // Update UI
                     document.getElementById('testModeIndicator').style.display = 
                         this.config.testMode ? 'block' : 'none';
                     
-                    this.showToast('Configuration saved', 'success');
+                    // Update status indicators
+                    this.updateStatusIndicators();
+                    
+                    this.showToast('Configuration saved successfully', 'success');
                     console.log('✅ Config saved:', this.config);
                     
                 } catch (e) {
@@ -927,18 +1276,79 @@ Please respond urgently.`
                 }
             },
 
+            // Save route settings
+            saveRouteSettings() {
+                try {
+                    this.config.routes.home = document.getElementById('homeAddress').value.trim();
+                    this.config.routes.work = document.getElementById('workAddress').value.trim();
+                    this.config.routes.frequent1 = document.getElementById('route1').value.trim();
+                    this.config.routes.frequent2 = document.getElementById('route2').value.trim();
+                    this.config.routes.includeInAlerts = document.getElementById('includeRouteInAlerts').checked;
+                    this.config.routes.monitorDeviations = document.getElementById('monitorRouteDeviations').checked;
+                    
+                    localStorage.setItem('sos_config_v5', JSON.stringify(this.config));
+                    this.showToast('Route settings saved', 'success');
+                } catch (e) {
+                    console.error('Error saving route settings:', e);
+                    this.showToast('Error saving route settings', 'error');
+                }
+            },
+
             // Update configuration UI
             updateConfigUI() {
+                // Contacts
                 document.getElementById('contact1').value = this.config.contacts[0] || '';
                 document.getElementById('contact2').value = this.config.contacts[1] || '';
+                document.getElementById('emergencyMessage').value = this.config.emergencyMessage;
+                
+                // Twilio
+                document.getElementById('twilioSid').value = this.config.twilio.sid;
+                document.getElementById('twilioToken').value = this.config.twilio.token;
+                document.getElementById('twilioNumber').value = this.config.twilio.number;
+                document.getElementById('enableTwilio').checked = this.config.twilio.enabled;
+                
+                // Routes
+                document.getElementById('homeAddress').value = this.config.routes.home || '';
+                document.getElementById('workAddress').value = this.config.routes.work || '';
+                document.getElementById('route1').value = this.config.routes.frequent1 || '';
+                document.getElementById('route2').value = this.config.routes.frequent2 || '';
+                document.getElementById('includeRouteInAlerts').checked = this.config.routes.includeInAlerts;
+                document.getElementById('monitorRouteDeviations').checked = this.config.routes.monitorDeviations;
+                
+                // Settings
                 document.getElementById('testMode').checked = this.config.testMode;
                 document.getElementById('silentMode').checked = this.config.silentMode;
                 document.getElementById('enableGPS').checked = this.config.enableGPS;
                 document.getElementById('enableSatellite').checked = this.config.enableSatellite;
-                document.getElementById('emergencyMessage').value = this.config.emergencyMessage;
+                document.getElementById('enableRoutePlanning').checked = this.config.enableRoutePlanning;
+                document.getElementById('autoLocationUpdate').checked = this.config.autoLocationUpdate;
+                document.getElementById('sosCountdown').value = this.config.sosCountdown;
                 
                 document.getElementById('testModeIndicator').style.display = 
                     this.config.testMode ? 'block' : 'none';
+            },
+
+            // Switch tabs in config panel
+            switchTab(tabId) {
+                // Hide all tabs
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Deactivate all tab buttons
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Show selected tab
+                document.getElementById(tabId + 'Tab').classList.add('active');
+                
+                // Activate selected tab button
+                document.querySelectorAll('.tab').forEach(tab => {
+                    if (tab.textContent.toLowerCase().includes(tabId)) {
+                        tab.classList.add('active');
+                    }
+                });
             },
 
             // Initialize clock
@@ -1028,13 +1438,10 @@ Please respond urgently.`
                         document.getElementById('gpsStatus').className = 'status-dot active';
                         console.log('📍 GPS acquired:', position.coords);
                         
-                        // Update satellite scan location
-                        if (this.state.map) {
-                            this.updateMapLocation(position);
+                        // Start auto updates if enabled
+                        if (this.config.autoLocationUpdate) {
+                            this.startAutoLocationUpdates();
                         }
-                        
-                        // Update coordinates display
-                        this.updateCoordinatesDisplay(position);
                     },
                     (error) => {
                         console.warn('GPS error:', error.message);
@@ -1047,36 +1454,39 @@ Please respond urgently.`
                         maximumAge: 0
                     }
                 );
-                
-                // Watch for position changes
-                if (this.config.enableGPS) {
-                    navigator.geolocation.watchPosition(
-                        (position) => {
-                            this.state.currentLocation = position;
-                            this.state.gpsStatus = true;
-                            document.getElementById('gpsStatus').className = 'status-dot active';
-                            
-                            if (this.state.map) {
-                                this.updateMapLocation(position);
-                            }
-                            
-                            this.updateCoordinatesDisplay(position);
-                        },
-                        () => {
-                            this.state.gpsStatus = false;
-                            document.getElementById('gpsStatus').className = 'status-dot warning';
-                        }
-                    );
-                }
             },
 
-            // Initialize satellite status
-            initSatelliteStatus() {
-                // Simulate satellite connection status
-                this.state.satelliteStatus = true; // Always connected with your token
+            // Start auto location updates
+            startAutoLocationUpdates() {
+                if (this.state.locationWatchId) {
+                    navigator.geolocation.clearWatch(this.state.locationWatchId);
+                }
                 
-                const satelliteEl = document.getElementById('satelliteStatus');
-                satelliteEl.className = 'status-dot satellite active';
+                this.state.locationWatchId = navigator.geolocation.watchPosition(
+                    (position) => {
+                        this.state.currentLocation = position;
+                        this.state.gpsStatus = true;
+                        document.getElementById('gpsStatus').className = 'status-dot active';
+                        
+                        // Update maps if they're open
+                        if (this.state.satelliteMap) {
+                            this.updateSatelliteMapLocation(position);
+                        }
+                        
+                        if (this.state.routeMap && this.state.directions) {
+                            this.updateRouteMapLocation(position);
+                        }
+                    },
+                    () => {
+                        this.state.gpsStatus = false;
+                        document.getElementById('gpsStatus').className = 'status-dot warning';
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        maximumAge: 30000,
+                        timeout: 5000
+                    }
+                );
             },
 
             // Initialize event listeners
@@ -1095,6 +1505,11 @@ Please respond urgently.`
                 // Satellite Scan App
                 document.getElementById('satelliteScanApp').addEventListener('click', () => {
                     this.openSatelliteScan();
+                });
+                
+                // Route Plan App
+                document.getElementById('routePlanApp').addEventListener('click', () => {
+                    this.openRoutePlan();
                 });
                 
                 // Emergency Modal Buttons
@@ -1117,13 +1532,98 @@ Please respond urgently.`
                     if (e.key === 'Escape') {
                         this.cancelSOS();
                         this.closeSatelliteScan();
+                        this.closeRoutePlan();
                     }
                     
                     // S for satellite scan
                     if (e.key === 's' || e.key === 'S') {
                         this.openSatelliteScan();
                     }
+                    
+                    // R for route plan
+                    if (e.key === 'r' || e.key === 'R') {
+                        this.openRoutePlan();
+                    }
                 });
+            },
+
+            // Initialize status indicators
+            initStatusIndicators() {
+                // Satellite status
+                const satelliteEl = document.getElementById('satelliteStatus');
+                satelliteEl.className = 'status-dot satellite active';
+                
+                // Route status
+                const routeEl = document.getElementById('routeStatus');
+                routeEl.className = 'status-dot route active';
+                
+                // Twilio status check
+                this.checkTwilioStatus();
+            },
+
+            // Check Twilio status
+            async checkTwilioStatus() {
+                if (!this.config.twilio.enabled || !this.config.twilio.sid || !this.config.twilio.token) {
+                    this.state.twilioConnected = false;
+                    return;
+                }
+                
+                try {
+                    // Test Twilio connection
+                    const credentials = btoa(`${this.config.twilio.sid}:${this.config.twilio.token}`);
+                    const response = await fetch(
+                        `https://api.twilio.com/2010-04-01/Accounts/${this.config.twilio.sid}.json`,
+                        {
+                            headers: {
+                                'Authorization': `Basic ${credentials}`
+                            }
+                        }
+                    );
+                    
+                    this.state.twilioConnected = response.ok;
+                    
+                    if (this.state.twilioConnected) {
+                        console.log('✅ Twilio connection successful');
+                    } else {
+                        console.warn('⚠️ Twilio connection failed');
+                    }
+                } catch (error) {
+                    console.error('❌ Twilio check error:', error);
+                    this.state.twilioConnected = false;
+                }
+            },
+
+            // Test Twilio connection
+            async testTwilioConnection() {
+                if (!this.config.twilio.sid || !this.config.twilio.token) {
+                    this.showToast('Please enter Twilio credentials first', 'warning');
+                    return;
+                }
+                
+                this.showToast('Testing Twilio connection...', 'info');
+                
+                try {
+                    const credentials = btoa(`${this.config.twilio.sid}:${this.config.twilio.token}`);
+                    const response = await fetch(
+                        `https://api.twilio.com/2010-04-01/Accounts/${this.config.twilio.sid}.json`,
+                        {
+                            headers: {
+                                'Authorization': `Basic ${credentials}`
+                            }
+                        }
+                    );
+                    
+                    if (response.ok) {
+                        this.state.twilioConnected = true;
+                        this.showToast('✅ Twilio connection successful!', 'success');
+                    } else {
+                        this.state.twilioConnected = false;
+                        this.showToast('❌ Twilio connection failed', 'error');
+                    }
+                } catch (error) {
+                    this.state.twilioConnected = false;
+                    this.showToast('❌ Twilio connection error', 'error');
+                }
             },
 
             // Open configuration
@@ -1146,7 +1646,7 @@ Please respond urgently.`
                 document.getElementById('satelliteModal').style.display = 'flex';
                 
                 // Initialize map if not already done
-                if (!this.state.map) {
+                if (!this.state.satelliteMap) {
                     this.initSatelliteMap();
                 }
                 
@@ -1171,6 +1671,28 @@ Please respond urgently.`
                 this.stopScan();
             },
 
+            // Open route plan
+            openRoutePlan() {
+                if (!this.config.enableRoutePlanning) {
+                    this.showToast('Route planning is disabled in settings', 'warning');
+                    return;
+                }
+                
+                document.getElementById('routeModal').style.display = 'flex';
+                
+                // Initialize map if not already done
+                if (!this.state.routeMap) {
+                    this.initRouteMap();
+                }
+                
+                this.showToast('Route planner activated', 'success');
+            },
+
+            // Close route plan
+            closeRoutePlan() {
+                document.getElementById('routeModal').style.display = 'none';
+            },
+
             // Start scanning
             startScan() {
                 if (this.state.isScanning) {
@@ -1180,8 +1702,6 @@ Please respond urgently.`
                 
                 this.state.isScanning = true;
                 document.getElementById('scanningOverlay').style.display = 'block';
-                document.getElementById('scanStatusText').textContent = 'Scanning area...';
-                document.getElementById('scanStatusText').style.color = 'var(--stealth-text)';
                 
                 // Start simulated scan updates
                 this.state.scanInterval = setInterval(() => {
@@ -1190,13 +1710,8 @@ Please respond urgently.`
                         const lat = this.state.currentLocation.coords.latitude + (Math.random() - 0.5) * 0.001;
                         const lng = this.state.currentLocation.coords.longitude + (Math.random() - 0.5) * 0.001;
                         
-                        this.updateCoordinatesDisplay({
-                            coords: {
-                                latitude: lat,
-                                longitude: lng,
-                                accuracy: this.state.currentLocation.coords.accuracy
-                            }
-                        });
+                        document.getElementById('coordinatesDisplay').innerHTML = 
+                            `Lat: ${lat.toFixed(6)} | Lng: ${lng.toFixed(6)}`;
                     }
                 }, 1000);
                 
@@ -1207,8 +1722,6 @@ Please respond urgently.`
             stopScan() {
                 this.state.isScanning = false;
                 document.getElementById('scanningOverlay').style.display = 'none';
-                document.getElementById('scanStatusText').textContent = 'Ready to scan';
-                document.getElementById('scanStatusText').style.color = 'var(--stealth-text)';
                 
                 if (this.state.scanInterval) {
                     clearInterval(this.state.scanInterval);
@@ -1217,19 +1730,21 @@ Please respond urgently.`
                 
                 // Reset to actual location
                 if (this.state.currentLocation) {
-                    this.updateCoordinatesDisplay(this.state.currentLocation);
+                    const coords = this.state.currentLocation.coords;
+                    document.getElementById('coordinatesDisplay').innerHTML = 
+                        `Lat: ${coords.latitude.toFixed(6)} | Lng: ${coords.longitude.toFixed(6)}`;
                 }
             },
 
             // Initialize satellite map
             initSatelliteMap() {
                 try {
-                    console.log('🗺️ Initializing Mapbox with your token...');
+                    console.log('🗺️ Initializing Satellite Map...');
                     
                     // Default to Lagos coordinates if no GPS
                     const defaultCoords = { lng: 3.3792, lat: 6.5244 };
                     
-                    this.state.map = new mapboxgl.Map({
+                    this.state.satelliteMap = new mapboxgl.Map({
                         container: 'satelliteMap',
                         style: 'mapbox://styles/mapbox/satellite-streets-v12',
                         center: [defaultCoords.lng, defaultCoords.lat],
@@ -1240,111 +1755,146 @@ Please respond urgently.`
                     });
                     
                     // Hide loading when map is loaded
-                    this.state.map.on('load', () => {
-                        console.log('✅ Mapbox map loaded successfully');
-                        document.getElementById('mapLoading').style.display = 'none';
+                    this.state.satelliteMap.on('load', () => {
+                        console.log('✅ Satellite map loaded successfully');
+                        document.getElementById('satelliteMapLoading').style.display = 'none';
                         
-                        // Add 3D terrain
-                        this.state.map.addSource('mapbox-dem', {
+                        // Add terrain
+                        this.state.satelliteMap.addSource('mapbox-dem', {
                             'type': 'raster-dem',
                             'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
                             'tileSize': 512,
                             'maxzoom': 14
                         });
                         
-                        this.state.map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+                        this.state.satelliteMap.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
                         
-                        // Add sky layer for atmosphere
-                        this.state.map.addLayer({
-                            'id': 'sky',
-                            'type': 'sky',
-                            'paint': {
-                                'sky-type': 'atmosphere',
-                                'sky-atmosphere-sun': [0.0, 0.0],
-                                'sky-atmosphere-sun-intensity': 15
-                            }
-                        });
+                        // Add current location marker
+                        if (this.state.currentLocation) {
+                            this.updateSatelliteMapLocation(this.state.currentLocation);
+                        }
                     });
                     
                     // Add navigation controls
-                    this.state.map.addControl(new mapboxgl.NavigationControl());
-                    
-                    // Add scale control
-                    this.state.map.addControl(new mapboxgl.ScaleControl({
-                        maxWidth: 80,
-                        unit: 'metric'
-                    }));
-                    
-                    // Add geolocate control
-                    const geolocate = new mapboxgl.GeolocateControl({
-                        positionOptions: {
-                            enableHighAccuracy: true
-                        },
-                        trackUserLocation: true,
-                        showUserLocation: true,
-                        showAccuracyCircle: true
-                    });
-                    this.state.map.addControl(geolocate);
-                    
-                    // Create initial marker
-                    this.state.marker = new mapboxgl.Marker({
-                        color: '#FF3B30',
-                        draggable: false
-                    })
-                        .setLngLat([defaultCoords.lng, defaultCoords.lat])
-                        .addTo(this.state.map);
-                    
-                    // Update coordinates on map move
-                    this.state.map.on('move', () => {
-                        const center = this.state.map.getCenter();
-                        document.getElementById('coordinatesDisplay').innerHTML = 
-                            `Lat: ${center.lat.toFixed(6)} | Lng: ${center.lng.toFixed(6)}`;
-                    });
+                    this.state.satelliteMap.addControl(new mapboxgl.NavigationControl());
                     
                 } catch (error) {
-                    console.error('❌ Error initializing map:', error);
-                    document.getElementById('mapLoading').innerHTML = `
+                    console.error('❌ Error initializing satellite map:', error);
+                    document.getElementById('satelliteMapLoading').innerHTML = `
                         <div style="text-align: center;">
                             <i class="fas fa-exclamation-triangle" style="font-size: 40px; color: #FFA500;"></i>
-                            <div style="margin-top: 15px; color: #FFA500;">Map loading failed</div>
-                            <div style="margin-top: 10px; font-size: 11px; color: #666;">
-                                Check your Mapbox token and internet connection
-                            </div>
+                            <div style="margin-top: 15px; color: #FFA500;">Satellite map loading failed</div>
                         </div>
                     `;
                     this.showToast('Satellite map unavailable', 'error');
                 }
             },
 
-            // Update map location
-            updateMapLocation(position) {
-                if (!this.state.map) return;
+            // Initialize route map
+            initRouteMap() {
+                try {
+                    console.log('🗺️ Initializing Route Map...');
+                    
+                    // Default to Lagos coordinates
+                    const defaultCoords = { lng: 3.3792, lat: 6.5244 };
+                    
+                    this.state.routeMap = new mapboxgl.Map({
+                        container: 'routeMap',
+                        style: 'mapbox://styles/mapbox/streets-v11',
+                        center: [defaultCoords.lng, defaultCoords.lat],
+                        zoom: 13
+                    });
+                    
+                    // Hide loading when map is loaded
+                    this.state.routeMap.on('load', () => {
+                        console.log('✅ Route map loaded successfully');
+                        document.getElementById('routeMapLoading').style.display = 'none';
+                        
+                        // Initialize directions
+                        this.state.directions = new MapboxDirections({
+                            accessToken: mapboxgl.accessToken,
+                            unit: 'metric',
+                            profile: 'mapbox/driving',
+                            controls: {
+                                instructions: true,
+                                profileSwitcher: true
+                            },
+                            flyTo: true
+                        });
+                        
+                        // Add directions to map
+                        this.state.routeMap.addControl(this.state.directions, 'top-left');
+                        
+                        // Listen for route changes
+                        this.state.directions.on('route', (event) => {
+                            this.updateRouteInfo(event.route);
+                        });
+                        
+                        // Set current location as start if available
+                        if (this.state.currentLocation) {
+                            const coords = this.state.currentLocation.coords;
+                            this.state.directions.setOrigin([coords.longitude, coords.latitude]);
+                            document.getElementById('routeStart').value = 'Current Location';
+                        }
+                        
+                        // Auto-fill destination if user has saved routes
+                        if (this.config.routes.home) {
+                            document.getElementById('routeEnd').value = this.config.routes.home;
+                            this.state.directions.setDestination(this.config.routes.home);
+                        }
+                    });
+                    
+                    // Add geolocate control
+                    const geolocate = new mapboxgl.GeolocateControl({
+                        positionOptions: {
+                            enableHighAccuracy: true
+                        },
+                        trackUserLocation: true
+                    });
+                    this.state.routeMap.addControl(geolocate);
+                    
+                } catch (error) {
+                    console.error('❌ Error initializing route map:', error);
+                    document.getElementById('routeMapLoading').innerHTML = `
+                        <div style="text-align: center;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 40px; color: #FFA500;"></i>
+                            <div style="margin-top: 15px; color: #FFA500;">Route map loading failed</div>
+                        </div>
+                    `;
+                    this.showToast('Route map unavailable', 'error');
+                }
+            },
+
+            // Update satellite map location
+            updateSatelliteMapLocation(position) {
+                if (!this.state.satelliteMap) return;
                 
                 const coords = position.coords;
                 const lngLat = [coords.longitude, coords.latitude];
                 
-                // Fly to new location smoothly
-                this.state.map.flyTo({
+                // Fly to new location
+                this.state.satelliteMap.flyTo({
                     center: lngLat,
                     zoom: 17,
-                    essential: true,
                     duration: 2000
                 });
                 
-                // Update marker
-                if (this.state.marker) {
-                    this.state.marker.setLngLat(lngLat);
-                }
-                
                 // Update coordinates display
-                this.updateCoordinatesDisplay(position);
-            },
-
-            // Update coordinates display
-            updateCoordinatesDisplay(position) {
-                const coords = position.coords;
                 document.getElementById('coordinatesDisplay').innerHTML = 
                     `Lat: ${coords.latitude.toFixed(6)} | Lng: ${coords.longitude.toFixed(6)}`;
+                
+                // Update location text
+                document.getElementById('currentLocationText').textContent = 
+                    `${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(6)}`;
+            },
+
+            // Update route map location
+            updateRouteMapLocation(position) {
+                if (!this.state.routeMap || !this.state.directions) return;
+                
+                const coords = position.coords;
+                this.state.directions.setOrigin([coords.longitude, coords.latitude]);
+                document.getElementById('routeStart').value = 'Current Location';
             },
 
             // Update location display
@@ -1353,7 +1903,66 @@ Please respond urgently.`
                     const coords = this.state.currentLocation.coords;
                     document.getElementById('currentLocationText').textContent = 
                         `${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(6)}`;
+                    
+                    document.getElementById('coordinatesDisplay').innerHTML = 
+                        `Lat: ${coords.latitude.toFixed(6)} | Lng: ${coords.longitude.toFixed(6)}`;
                 }
+            },
+
+            // Update route information
+            updateRouteInfo(route) {
+                if (!route || route.length === 0) return;
+                
+                const firstRoute = route[0];
+                this.state.currentRoute = firstRoute;
+                
+                // Update display
+                document.getElementById('routeDistance').textContent = 
+                    `${(firstRoute.distance / 1000).toFixed(1)} km`;
+                
+                document.getElementById('routeDuration').textContent = 
+                    `${Math.round(firstRoute.duration / 60)} min`;
+                
+                // Calculate ETA
+                const now = new Date();
+                const eta = new Date(now.getTime() + firstRoute.duration * 1000);
+                document.getElementById('routeETA').textContent = 
+                    eta.getHours().toString().padStart(2, '0') + ':' + 
+                    eta.getMinutes().toString().padStart(2, '0');
+                
+                // Update route type
+                const profile = this.state.directions ? this.state.directions.getProfile() : 'driving';
+                document.getElementById('routeType').textContent = 
+                    profile.replace('mapbox/', '').charAt(0).toUpperCase() + 
+                    profile.replace('mapbox/', '').slice(1);
+                
+                document.getElementById('routeStatusText').textContent = 'Route calculated';
+            },
+
+            // Save current route
+            saveCurrentRoute() {
+                if (!this.state.currentRoute) {
+                    this.showToast('No route to save. Please plan a route first.', 'warning');
+                    return;
+                }
+                
+                const routeName = prompt('Enter a name for this route:', 'My Route');
+                if (!routeName) return;
+                
+                const savedRoute = {
+                    name: routeName,
+                    route: this.state.currentRoute,
+                    timestamp: new Date().toISOString(),
+                    start: document.getElementById('routeStart').value,
+                    end: document.getElementById('routeEnd').value
+                };
+                
+                this.state.savedRoutes.push(savedRoute);
+                
+                // Save to localStorage
+                localStorage.setItem('sos_saved_routes', JSON.stringify(this.state.savedRoutes));
+                
+                this.showToast(`Route "${routeName}" saved successfully`, 'success');
             },
 
             // Trigger SOS
@@ -1383,7 +1992,7 @@ Please respond urgently.`
                 const msgEl = document.getElementById('modalMsg');
                 
                 modal.style.display = 'flex';
-                let countdown = 3;
+                let countdown = this.config.sosCountdown;
                 
                 countdownEl.textContent = countdown;
                 msgEl.textContent = `Emergency alert will trigger in ${countdown} seconds...`;
@@ -1418,7 +2027,7 @@ Please respond urgently.`
                 this.showToast('SOS cancelled', 'info');
             },
 
-            // Send emergency alert via backend
+            // Send emergency alert via Twilio or backend
             async sendEmergencyAlert() {
                 // Hide modal
                 document.getElementById('emergencyModal').style.display = 'none';
@@ -1426,13 +2035,14 @@ Please respond urgently.`
                 // Collect emergency data
                 const emergencyData = await this.collectEmergencyData();
                 
-                // Create message with satellite link
+                // Create message with all information
                 let message = this.config.emergencyMessage
                     .replace('{{LOCATION}}', emergencyData.location)
                     .replace('{{TIME}}', emergencyData.time)
                     .replace('{{BATTERY}}', emergencyData.battery)
                     .replace('{{NETWORK}}', emergencyData.network)
-                    .replace('{{SATELLITE_LINK}}', emergencyData.satelliteLink);
+                    .replace('{{SATELLITE_LINK}}', emergencyData.satelliteLink)
+                    .replace('{{ROUTE_INFO}}', emergencyData.routeInfo);
                 
                 if (this.config.testMode) {
                     // Test mode
@@ -1445,9 +2055,8 @@ Please respond urgently.`
                 }
                 
                 // Show sending status
-                this.showToast('Sending emergency alerts via secure backend...', 'info');
+                this.showToast('Sending emergency alerts...', 'info');
                 
-                // Send via backend (Twilio integrated in backend)
                 let successCount = 0;
                 let failCount = 0;
                 
@@ -1456,21 +2065,37 @@ Please respond urgently.`
                     if (!contact || contact.trim().length === 0) continue;
                     
                     try {
-                        // Send via backend API
-                        const result = await this.sendViaBackend(contact, message);
+                        let sent = false;
                         
-                        if (result.success) {
-                            successCount++;
-                            console.log(`✅ Alert sent to ${contact} via backend`);
-                        } else {
-                            // Fallback to SMS
-                            if (this.backend.fallbackEnabled) {
+                        // Try Twilio first if enabled and connected
+                        if (this.config.twilio.enabled && this.state.twilioConnected) {
+                            try {
+                                const result = await this.sendViaTwilio(contact, message);
+                                if (result.success) {
+                                    sent = true;
+                                    successCount++;
+                                    console.log(`✅ Twilio SMS sent to ${contact}`);
+                                }
+                            } catch (twilioError) {
+                                console.warn(`❌ Twilio failed for ${contact}:`, twilioError);
+                            }
+                        }
+                        
+                        // Fallback to browser SMS
+                        if (!sent) {
+                            try {
                                 await this.sendViaSMSFallback(contact, message);
+                                sent = true;
                                 successCount++;
-                                console.log(`📱 SMS fallback sent to ${contact}`);
-                            } else {
+                                console.log(`📱 Browser SMS sent to ${contact}`);
+                            } catch (smsError) {
+                                console.error(`❌ SMS fallback failed for ${contact}:`, smsError);
                                 failCount++;
                             }
+                        }
+                        
+                        if (!sent) {
+                            failCount++;
                         }
                         
                         // Small delay between sends
@@ -1497,39 +2122,41 @@ Please respond urgently.`
                 this.logAlert('EMERGENCY', message, this.config.contacts);
             },
 
-            // Send via backend API (with Twilio integration)
-            async sendViaBackend(contact, message) {
+            // Send via Twilio
+            async sendViaTwilio(to, message) {
                 try {
-                    // In production, replace with your actual backend endpoint
-                    // Example:
-                    // const response = await fetch(this.backend.apiEndpoint, {
-                    //     method: 'POST',
-                    //     headers: {
-                    //         'Content-Type': 'application/json',
-                    //     },
-                    //     body: JSON.stringify({
-                    //         to: contact,
-                    //         message: message,
-                    //         timestamp: new Date().toISOString()
-                    //     })
-                    // });
+                    const credentials = btoa(`${this.config.twilio.sid}:${this.config.twilio.token}`);
                     
-                    // For demo purposes, simulate backend success (90% success rate)
-                    const success = Math.random() > 0.1;
+                    const formData = new URLSearchParams();
+                    formData.append('To', to);
+                    formData.append('From', this.config.twilio.number);
+                    formData.append('Body', message);
                     
-                    if (success) {
-                        // Simulate successful backend SMS via Twilio
-                        console.log(`📤 Backend sent to ${contact}: "${message.substring(0, 50)}..."`);
+                    const response = await fetch(
+                        `https://api.twilio.com/2010-04-01/Accounts/${this.config.twilio.sid}/Messages.json`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Basic ${credentials}`,
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: formData
+                        }
+                    );
+                    
+                    if (!response.ok) {
+                        throw new Error(`Twilio API error: ${response.status}`);
                     }
                     
+                    const data = await response.json();
                     return {
-                        success: success,
-                        method: 'backend',
-                        timestamp: new Date().toISOString()
+                        success: true,
+                        sid: data.sid,
+                        status: data.status
                     };
                     
                 } catch (error) {
-                    console.error('Backend API error:', error);
+                    console.error('Twilio SMS error:', error);
                     return { success: false, error: error.message };
                 }
             },
@@ -1551,6 +2178,7 @@ Please respond urgently.`
                 const now = new Date();
                 let location = "Location unavailable";
                 let satelliteLink = "Satellite scan disabled";
+                let routeInfo = "No route information";
                 
                 if (this.config.enableGPS && this.state.currentLocation) {
                     const coords = this.state.currentLocation.coords;
@@ -1559,29 +2187,42 @@ Please respond urgently.`
                     // Generate satellite view link
                     if (this.config.enableSatellite) {
                         satelliteLink = `https://www.google.com/maps/@${coords.latitude},${coords.longitude},17z/data=!3m1!1e3`;
-                        
-                        // Try to get approximate address
-                        try {
-                            const response = await fetch(
-                                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.latitude}&lon=${coords.longitude}&zoom=18&addressdetails=1`
-                            );
-                            if (response.ok) {
-                                const data = await response.json();
-                                if (data.display_name) {
-                                    const address = data.display_name.split(',').slice(0, 3).join(',');
-                                    location += `\n📍 ${address}`;
-                                }
-                            }
-                        } catch (e) {
-                            // Ignore reverse geocoding errors
-                        }
                     }
+                    
+                    // Get approximate address
+                    try {
+                        const response = await fetch(
+                            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.latitude}&lon=${coords.longitude}&zoom=18&addressdetails=1`
+                        );
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.display_name) {
+                                const address = data.display_name.split(',').slice(0, 3).join(',');
+                                location += `\n📍 ${address}`;
+                            }
+                        }
+                    } catch (e) {
+                        // Ignore reverse geocoding errors
+                    }
+                }
+                
+                // Add route information if available
+                if (this.config.routes.includeInAlerts && this.state.currentRoute) {
+                    routeInfo = `Route: ${document.getElementById('routeStart').value} to ${document.getElementById('routeEnd').value}`;
+                    routeInfo += `\nDistance: ${(this.state.currentRoute.distance / 1000).toFixed(1)} km`;
+                    routeInfo += `\nETA: ${document.getElementById('routeETA').textContent}`;
+                } else if (this.config.routes.home || this.config.routes.work) {
+                    routeInfo = "Common routes configured: ";
+                    if (this.config.routes.home) routeInfo += "Home, ";
+                    if (this.config.routes.work) routeInfo += "Work, ";
+                    routeInfo = routeInfo.slice(0, -2);
                 }
                 
                 return {
                     time: now.toLocaleString(),
                     location: location,
                     satelliteLink: satelliteLink,
+                    routeInfo: routeInfo,
                     battery: this.state.batteryLevel,
                     network: this.state.networkStatus ? 'Online' : 'Offline',
                     timestamp: now.toISOString()
@@ -1600,7 +2241,7 @@ Please respond urgently.`
                         contacts: contacts.length,
                         message: message.substring(0, 100) + '...',
                         testMode: this.config.testMode,
-                        method: 'backend'
+                        method: this.state.twilioConnected ? 'Twilio' : 'SMS'
                     });
                     
                     // Keep last 50 logs
@@ -1646,7 +2287,7 @@ Please respond urgently.`
                                 <div style="color: #AAA; font-size: 12px; margin-bottom: 5px;">
                                     To: ${log.contacts} contact(s) | 
                                     ${log.testMode ? 'TEST MODE' : 'REAL ALERT'} |
-                                    Method: ${log.method || 'Backend'}
+                                    Method: ${log.method || 'SMS'}
                                 </div>
                                 <div style="color: #CCC; font-size: 13px;">
                                     ${log.message}
@@ -1741,6 +2382,10 @@ Please respond urgently.`
             Guardian.testAlert();
         }
 
+        function testTwilioConnection() {
+            Guardian.testTwilioConnection();
+        }
+
         function showLogs() {
             Guardian.showLogs();
         }
@@ -1761,8 +2406,28 @@ Please respond urgently.`
             Guardian.closeSatelliteScan();
         }
 
+        function openRoutePlan() {
+            Guardian.openRoutePlan();
+        }
+
+        function closeRoutePlan() {
+            Guardian.closeRoutePlan();
+        }
+
         function startScan() {
             Guardian.startScan();
+        }
+
+        function saveCurrentRoute() {
+            Guardian.saveCurrentRoute();
+        }
+
+        function saveRouteSettings() {
+            Guardian.saveRouteSettings();
+        }
+
+        function switchTab(tabId) {
+            Guardian.switchTab(tabId);
         }
 
         // Initialize application
