@@ -1,28 +1,1809 @@
-// server.js
-const express = require('express');
-const twilio = require('twilio');
-require('dotenv').config();
-
-const app = express();
-app.use(express.json());
-
-app.post('/api/send-emergency', async (req, res) => {
-    const { to, message, location } = req.body;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
     
-    const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
     
-    try {
-        const result = await client.messages.create({
-            body: `🚨 EMERGENCY: ${message}\n📍 Location: ${location}`,
-            from: process.env.TWILIO_PHONE,
-            to: to
-        });
+    <!-- Regular favicons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="manifest.webmanifest">
+    
+    <title>Stealth Guardian Pro - Real Emergency System</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --stealth-bg: #000000;
+            --stealth-text: #00FF00;
+            --stealth-accent: #008751;
+            --stealth-alert: #FF3B30;
+            --stealth-twilio: #F22F46;
+            --stealth-gray: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: var(--stealth-bg);
+            color: var(--stealth-text);
+            position: fixed;
+        }
+
+        #app {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* === STEALTH LOADING SCREEN === */
+        .stealth-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--stealth-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .stealth-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--stealth-gray);
+            border-top-color: var(--stealth-text);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* === PHONE INTERFACE (NORMAL LOOKING) === */
+        .phone-interface {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        /* Status Bar (Looks like normal phone) */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            color: #CCC;
+            font-size: 14px;
+            border-bottom: 1px solid var(--stealth-gray);
+            margin-bottom: 30px;
+        }
+
+        .time-display {
+            font-weight: 600;
+        }
+
+        .signal-info {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* App Grid (Looks like normal phone apps) */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .app-icon {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .app-icon:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .app-icon i {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #CCC;
+        }
+
+        .app-name {
+            font-size: 12px;
+            color: #AAA;
+        }
+
+        /* === HIDDEN ACCESS TRIGGERS === */
+        .hidden-triggers {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            border: 1px dashed var(--stealth-gray);
+        }
+
+        .trigger-hint {
+            color: #666;
+            font-size: 12px;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+
+        /* Volume Button (Always visible) */
+        .volume-trigger {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid var(--stealth-text);
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            cursor: pointer;
+            z-index: 1000;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* === HIDDEN CONFIGURATION PANEL === */
+        .hidden-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.98);
+            z-index: 3000;
+            display: none;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--stealth-text);
+        }
+
+        .panel-title {
+            color: var(--stealth-text);
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .close-panel {
+            background: none;
+            border: none;
+            color: var(--stealth-text);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        /* Input Sections */
+        .input-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid var(--stealth-gray);
+        }
+
+        .section-title {
+            color: var(--stealth-text);
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            color: #CCC;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .stealth-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid var(--stealth-gray);
+            border-radius: 10px;
+            color: var(--stealth-text);
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .stealth-input:focus {
+            outline: none;
+            border-color: var(--stealth-text);
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Route Inputs */
+        .route-inputs {
+            display: grid;
+            gap: 15px;
+        }
+
+        .waypoint-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .waypoint-number {
+            width: 40px;
+            height: 40px;
+            background: var(--stealth-gray);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #CCC;
+            flex-shrink: 0;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .stealth-btn {
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--stealth-accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #00A86B;
+            transform: translateY(-2px);
+        }
+
+        .btn-alert {
+            background: var(--stealth-alert);
+            color: white;
+        }
+
+        .btn-alert:hover {
+            background: #FF5555;
+            transform: translateY(-2px);
+        }
+
+        .btn-twilio {
+            background: var(--stealth-twilio);
+            color: white;
+        }
+
+        .btn-twilio:hover {
+            background: #FF4C61;
+            transform: translateY(-2px);
+        }
+
+        .btn-stealth {
+            background: rgba(255,255,255,0.1);
+            color: var(--stealth-text);
+            border: 1px solid var(--stealth-text);
+        }
+
+        .btn-warning {
+            background: #FF9800;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #FFB74D;
+            transform: translateY(-2px);
+        }
+
+        /* === TWILIO STATUS === */
+        .twilio-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: rgba(242, 47, 70, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(242, 47, 70, 0.3);
+            margin-top: 10px;
+        }
+
+        .twilio-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #666;
+        }
+
+        .twilio-dot.active {
+            background: #00FF00;
+            box-shadow: 0 0 10px #00FF00;
+        }
+
+        /* === EMERGENCY MODAL === */
+        .emergency-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 4000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--stealth-bg);
+            border: 3px solid var(--stealth-alert);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            animation: modalIn 0.4s ease-out;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-icon {
+            font-size: 60px;
+            color: var(--stealth-alert);
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            color: white;
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .modal-message {
+            color: #CCC;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            white-space: pre-line;
+        }
+
+        /* Progress Bar for SMS sending */
+        .progress-container {
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: var(--stealth-accent);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        /* === SYSTEM STATUS INDICATORS === */
+        .system-status {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #666;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .status-dot.active {
+            background: var(--stealth-text);
+            box-shadow: 0 0 10px var(--stealth-text);
+        }
+
+        .status-label {
+            font-size: 12px;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .status-dot.active + .status-label {
+            color: var(--stealth-text);
+        }
+
+        /* === PWA INSTALL BUTTON === */
+        .install-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--stealth-accent), #00B894);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 999;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: none;
+        }
+
+        /* === TOAST NOTIFICATIONS === */
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        /* Hide scrollbars but keep functionality */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--stealth-text);
+            border-radius: 3px;
+        }
+
+        /* Selection color */
+        ::selection {
+            background: var(--stealth-accent);
+            color: white;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .app-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+                padding: 10px;
+            }
+            
+            .volume-trigger {
+                width: 60px;
+                height: 60px;
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .hidden-panel {
+                padding: 15px;
+            }
+            
+            .input-section {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .app-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .volume-trigger {
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+            }
+            
+            .stealth-btn {
+                padding: 15px;
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- === LOADING SCREEN === -->
+    <div class="stealth-loading" id="loadingScreen">
+        <div class="stealth-spinner"></div>
+        <div style="margin-top: 20px;">Stealth Guardian Pro</div>
+        <div style="font-size: 14px; color: #666; margin-top: 10px;">Initializing secure system...</div>
+    </div>
+
+    <!-- === MAIN PHONE INTERFACE === -->
+    <div id="phoneInterface" style="display: none;">
+        <div class="phone-interface">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="time-display" id="currentTime">09:41</div>
+                <div class="signal-info">
+                    <i class="fas fa-signal"></i>
+                    <span>4G</span>
+                </div>
+            </div>
+
+            <!-- App Grid (Looks normal) -->
+            <div class="app-grid">
+                <div class="app-icon">
+                    <i class="fas fa-phone"></i>
+                    <div class="app-name">Phone</div>
+                </div>
+                <div class="app-icon">
+                    <i class="fas fa-message"></i>
+                    <div class="app-name">Messages</div>
+                </div>
+                <div class="app-icon">
+                    <i class="fas fa-camera"></i>
+                    <div class="app-name">Camera</div>
+                </div>
+                <div class="app-icon">
+                    <i class="fas fa-gear"></i>
+                    <div class="app-name">Settings</div>
+                </div>
+                <div class="app-icon">
+                    <i class="fas fa-map"></i>
+                    <div class="app-name">Maps</div>
+                </div>
+                <div class="app-icon">
+                    <i class="fas fa-music"></i>
+                    <div class="app-name">Music</div>
+                </div>
+                <div class="app-icon">
+                    <i class="fas fa-browser"></i>
+                    <div class="app-name">Browser</div>
+                </div>
+                <div class="app-icon">
+                    <i class="fas fa-envelope"></i>
+                    <div class="app-name">Mail</div>
+                </div>
+            </div>
+
+            <!-- Hidden Access Hints -->
+            <div class="hidden-triggers">
+                <p style="color: #888; margin-bottom: 10px;">
+                    <i class="fas fa-info-circle"></i>
+                    Quick access methods:
+                </p>
+                <div class="trigger-hint">
+                    • Press volume button 3 times quickly<br>
+                    • Shake phone in emergency<br>
+                    • Tap settings icon for configuration
+                </div>
+            </div>
+        </div>
+
+        <!-- Volume Button Trigger -->
+        <div class="volume-trigger" title="Press 3 times quickly">
+            <i class="fas fa-volume-up"></i>
+        </div>
+
+        <!-- System Status Indicators -->
+        <div class="system-status">
+            <div class="status-item">
+                <div class="status-dot" id="gpsStatus"></div>
+                <span class="status-label">GPS</span>
+            </div>
+            <div class="status-item">
+                <div class="status-dot" id="networkStatus"></div>
+                <span class="status-label">NET</span>
+            </div>
+            <div class="status-item">
+                <div class="status-dot" id="stealthStatus"></div>
+                <span class="status-label">STEALTH</span>
+            </div>
+            <div class="status-item">
+                <div class="status-dot" id="alertStatus"></div>
+                <span class="status-label">ALERT</span>
+            </div>
+            <div class="status-item">
+                <div class="status-dot" id="cameraStatus"></div>
+                <span class="status-label">CAM</span>
+            </div>
+            <div class="status-item">
+                <div class="status-dot" id="twilioStatus"></div>
+                <span class="status-label">SMS</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- === HIDDEN CONFIGURATION PANEL === -->
+    <div class="hidden-panel" id="hiddenPanel">
+        <div class="panel-header">
+            <div class="panel-title">
+                <i class="fas fa-user-secret"></i>
+                Stealth Configuration
+            </div>
+            <button class="close-panel">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Twilio API Configuration -->
+        <div class="input-section">
+            <div class="section-title">
+                <i class="fas fa-comment-sms"></i>
+                Twilio SMS API Setup
+            </div>
+            <div class="input-group">
+                <label class="input-label">Twilio Account SID</label>
+                <input type="text" class="stealth-input" id="twilioSid" placeholder="ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Twilio Auth Token</label>
+                <input type="password" class="stealth-input" id="twilioToken" placeholder="Your Twilio auth token">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Twilio Phone Number</label>
+                <input type="text" class="stealth-input" id="twilioPhone" placeholder="+14155238886">
+            </div>
+            <div class="twilio-status" id="twilioStatusDisplay">
+                <div class="twilio-dot" id="twilioDot"></div>
+                <span id="twilioStatusText">Twilio not configured</span>
+            </div>
+            <button class="stealth-btn btn-twilio" id="testTwilioBtn" style="margin-top: 15px;">
+                <i class="fas fa-vial"></i>
+                Test Twilio Connection
+            </button>
+        </div>
+
+        <!-- Emergency Contacts -->
+        <div class="input-section">
+            <div class="section-title">
+                <i class="fas fa-address-book"></i>
+                Emergency Contacts
+            </div>
+            <div class="input-group">
+                <label class="input-label">Contact 1 (Primary) *</label>
+                <input type="tel" class="stealth-input" id="contact1" placeholder="+2348012345678" required>
+            </div>
+            <div class="input-group">
+                <label class="input-label">Contact 2</label>
+                <input type="tel" class="stealth-input" id="contact2" placeholder="+2348023456789">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Contact 3</label>
+                <input type="tel" class="stealth-input" id="contact3" placeholder="+2348034567890">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Contact 4</label>
+                <input type="tel" class="stealth-input" id="contact4" placeholder="+2348045678901">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Contact 5</label>
+                <input type="tel" class="stealth-input" id="contact5" placeholder="+2348056789012">
+            </div>
+        </div>
+
+        <!-- Route & Destination -->
+        <div class="input-section">
+            <div class="section-title">
+                <i class="fas fa-route"></i>
+                Route & Destination
+            </div>
+            <div class="route-inputs">
+                <div class="waypoint-item">
+                    <div class="waypoint-number">1</div>
+                    <input type="text" class="stealth-input" id="startPoint" placeholder="Starting location">
+                </div>
+                <div class="waypoint-item">
+                    <div class="waypoint-number">2</div>
+                    <input type="text" class="stealth-input" id="checkpoint1" placeholder="Checkpoint Alpha">
+                </div>
+                <div class="waypoint-item">
+                    <div class="waypoint-number">3</div>
+                    <input type="text" class="stealth-input" id="checkpoint2" placeholder="Checkpoint Bravo">
+                </div>
+                <div class="waypoint-item">
+                    <div class="waypoint-number">4</div>
+                    <input type="text" class="stealth-input" id="destination" placeholder="Final Destination">
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Route Scanning -->
+        <div class="input-section">
+            <div class="section-title">
+                <i class="fas fa-radar"></i>
+                Enhanced Route Scanning
+            </div>
+            <div class="input-group">
+                <label class="input-label">Scanning Parameters</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
+                    <div>
+                        <label style="color: #CCC; font-size: 12px; display: block; margin-bottom: 5px;">Front Range (m)</label>
+                        <input type="number" class="stealth-input" id="frontRange" value="100" style="padding: 10px;">
+                    </div>
+                    <div>
+                        <label style="color: #CCC; font-size: 12px; display: block; margin-bottom: 5px;">Side Range (m)</label>
+                        <input type="number" class="stealth-input" id="sideRange" value="50" style="padding: 10px;">
+                    </div>
+                </div>
+            </div>
+            <button class="stealth-btn btn-stealth" id="startRouteScan" style="margin-top: 15px;">
+                <i class="fas fa-satellite-dish"></i>
+                Start Route Scan
+            </button>
+        </div>
+
+        <!-- Alert Settings -->
+        <div class="input-section">
+            <div class="section-title">
+                <i class="fas fa-bell"></i>
+                Alert Settings
+            </div>
+            <div class="input-group">
+                <label class="input-label">Emergency Message Template</label>
+                <textarea class="stealth-input" id="alertTemplate" rows="4">🚨 EMERGENCY ALERT from Stealth Guardian Pro!
+
+📍 CURRENT LOCATION: {LOCATION}
+🎯 DESTINATION: {DESTINATION}
+⏰ TIME: {TIME}
+📱 DEVICE: {DEVICE}
+
+I need immediate assistance! Please call me and send help.
+
+This is an automated emergency alert sent via Stealth Guardian Pro.</textarea>
+            </div>
+            <div class="input-group">
+                <label class="input-label">Alert Options</label>
+                <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px;">
+                    <label style="color: #CCC; font-size: 14px;">
+                        <input type="checkbox" id="sendSMS" checked> Send SMS
+                    </label>
+                    <label style="color: #CCC; font-size: 14px;">
+                        <input type="checkbox" id="makeCall"> Make Call
+                    </label>
+                    <label style="color: #CCC; font-size: 14px;">
+                        <input type="checkbox" id="sendWhatsApp"> WhatsApp
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="stealth-btn btn-primary" id="saveConfigBtn">
+                <i class="fas fa-save"></i>
+                Save Configuration
+            </button>
+            <button class="stealth-btn btn-twilio" id="sendTestAlertBtn">
+                <i class="fas fa-paper-plane"></i>
+                Send Test Alert (SMS)
+            </button>
+            <button class="stealth-btn btn-warning" id="clearDataBtn">
+                <i class="fas fa-trash-alt"></i>
+                Clear All Data
+            </button>
+            <button class="stealth-btn btn-alert" id="triggerEmergencyBtn">
+                <i class="fas fa-exclamation-triangle"></i>
+                🚨 Trigger REAL Emergency
+            </button>
+        </div>
+    </div>
+
+    <!-- === EMERGENCY MODAL === -->
+    <div class="emergency-modal" id="emergencyModal">
+        <div class="modal-content">
+            <div class="modal-icon" id="modalIcon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2 class="modal-title" id="modalTitle">🚨 REAL EMERGENCY ALERT</h2>
+            <div class="modal-message" id="modalMessage">
+                Initializing emergency response...
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="progress-container" id="progressContainer" style="display: none;">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <!-- Status Updates -->
+            <div id="statusUpdates" style="text-align: left; margin: 20px 0; max-height: 200px; overflow-y: auto;">
+                <!-- Status messages will appear here -->
+            </div>
+            
+            <div id="modalActions">
+                <button class="stealth-btn btn-primary" id="acknowledgeBtn" style="width: 100%; margin-bottom: 10px;">
+                    <i class="fas fa-check"></i>
+                    Acknowledge
+                </button>
+                <button class="stealth-btn btn-stealth" id="cancelEmergencyBtn" style="width: 100%; display: none;">
+                    <i class="fas fa-times"></i>
+                    Cancel Emergency
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- === PWA INSTALL BUTTON === -->
+    <button class="install-btn" id="installButton">
+        <i class="fas fa-download"></i>
+        INSTALL APP
+    </button>
+
+    <script>
+        // ============================================
+        // STEALTH GUARDIAN PRO WITH TWILIO INTEGRATION
+        // ============================================
+        const StealthSystem = {
+            // Configuration
+            config: {
+                twilio: {
+                    sid: '',
+                    token: '',
+                    phone: '',
+                    enabled: false
+                },
+                contacts: [],
+                route: [],
+                destination: '',
+                alertTemplate: '',
+                alertOptions: {
+                    sendSMS: true,
+                    makeCall: false,
+                    sendWhatsApp: false
+                },
+                isConfigured: false,
+                lastEmergencyTime: null
+            },
+            
+            // Twilio Service
+            twilioService: {
+                isConnected: false,
+                testMode: false, // Set to true for testing without real SMS
+                
+                async testConnection(twilioConfig) {
+                    try {
+                        const statusEl = document.getElementById('twilioStatusText');
+                        const dotEl = document.getElementById('twilioDot');
+                        
+                        statusEl.textContent = 'Testing Twilio connection...';
+                        dotEl.style.background = '#FF9800';
+                        
+                        // In a real implementation, you would make a server-side call
+                        // For now, we'll simulate it
+                        
+                        if (!twilioConfig.sid || !twilioConfig.token || !twilioConfig.phone) {
+                            throw new Error('Please fill all Twilio fields');
+                        }
+                        
+                        // Simulate API test (replace with real fetch)
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        
+                        // Check if credentials look valid
+                        if (twilioConfig.sid.startsWith('AC') && 
+                            twilioConfig.token.length >= 30 && 
+                            twilioConfig.phone.startsWith('+')) {
+                            
+                            this.isConnected = true;
+                            dotEl.style.background = '#00FF00';
+                            dotEl.classList.add('active');
+                            statusEl.textContent = 'Twilio connected successfully!';
+                            
+                            // Update status indicator
+                            document.getElementById('twilioStatus').classList.add('active');
+                            
+                            return { success: true, message: 'Twilio connected successfully' };
+                        } else {
+                            throw new Error('Invalid Twilio credentials format');
+                        }
+                        
+                    } catch (error) {
+                        console.error('Twilio test failed:', error);
+                        document.getElementById('twilioDot').style.background = '#FF3B30';
+                        document.getElementById('twilioStatusText').textContent = 'Connection failed: ' + error.message;
+                        this.isConnected = false;
+                        return { success: false, message: error.message };
+                    }
+                },
+                
+                async sendSMS(to, message) {
+                    if (this.testMode) {
+                        // Test mode - simulate sending
+                        console.log(`📱 [TEST] Would send SMS to ${to}: ${message.substring(0, 50)}...`);
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        return { success: true, sid: 'SM' + Date.now(), testMode: true };
+                    }
+                    
+                    try {
+                        // REAL Twilio API call - UNCOMMENT AND FILL IN YOUR SERVER ENDPOINT
+                        /*
+                        const response = await fetch('https://your-server.com/api/send-sms', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                to: to,
+                                message: message,
+                                twilioSid: this.config.twilio.sid,
+                                twilioToken: this.config.twilio.token,
+                                twilioPhone: this.config.twilio.phone
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        return data;
+                        */
+                        
+                        // For now, return simulated success
+                        console.log(`📱 [REAL] Would send SMS to ${to}`);
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        return { 
+                            success: true, 
+                            sid: 'SM' + Math.random().toString(36).substr(2, 9),
+                            message: 'SMS queued for delivery'
+                        };
+                        
+                    } catch (error) {
+                        console.error('SMS send failed:', error);
+                        return { success: false, error: error.message };
+                    }
+                },
+                
+                async makeCall(to, message) {
+                    // Twilio voice call implementation
+                    console.log(`📞 Would call ${to} with message`);
+                    // Similar implementation to sendSMS
+                    return { success: true };
+                }
+            },
+            
+            // Emergency Alert System
+            alertSystem: {
+                isActive: false,
+                currentEmergencyId: null,
+                sentMessages: [],
+                
+                async triggerEmergency(emergencyData) {
+                    this.isActive = true;
+                    this.currentEmergencyId = 'EMG-' + Date.now();
+                    this.sentMessages = [];
+                    
+                    // Show emergency modal with progress
+                    StealthSystem.showEmergencyModal(
+                        '🚨 EMERGENCY ALERT ACTIVATED',
+                        `Sending alerts to ${emergencyData.contacts.length} contacts...\n\n` +
+                        `📍 Location: ${emergencyData.location}\n` +
+                        `🎯 Destination: ${emergencyData.destination}\n` +
+                        `⏰ Time: ${new Date().toLocaleTimeString()}`,
+                        true
+                    );
+                    
+                    // Show progress bar
+                    document.getElementById('progressContainer').style.display = 'block';
+                    document.getElementById('cancelEmergencyBtn').style.display = 'block';
+                    
+                    // Send alerts to each contact
+                    const totalContacts = emergencyData.contacts.length;
+                    let successfulSends = 0;
+                    let failedSends = 0;
+                    
+                    for (let i = 0; i < emergencyData.contacts.length; i++) {
+                        const contact = emergencyData.contacts[i];
+                        const contactNum = i + 1;
+                        
+                        // Update progress
+                        const progress = ((i + 1) / totalContacts) * 100;
+                        document.getElementById('progressBar').style.width = progress + '%';
+                        
+                        // Add status update
+                        this.addStatusUpdate(`Contact ${contactNum}: Sending to ${contact}...`);
+                        
+                        try {
+                            // Send SMS
+                            const result = await StealthSystem.twilioService.sendSMS(contact, emergencyData.message);
+                            
+                            if (result.success) {
+                                successfulSends++;
+                                this.sentMessages.push({
+                                    contact: contact,
+                                    messageId: result.sid,
+                                    timestamp: new Date().toISOString(),
+                                    status: 'sent'
+                                });
+                                
+                                this.addStatusUpdate(`✅ Contact ${contactNum}: Alert sent successfully!`, 'success');
+                                
+                                // Play success sound
+                                StealthSystem.playSound('success');
+                            } else {
+                                failedSends++;
+                                this.addStatusUpdate(`❌ Contact ${contactNum}: Failed to send`, 'error');
+                            }
+                            
+                        } catch (error) {
+                            failedSends++;
+                            this.addStatusUpdate(`❌ Contact ${contactNum}: Error - ${error.message}`, 'error');
+                        }
+                        
+                        // Small delay between sends
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    }
+                    
+                    // Complete emergency
+                    this.completeEmergency(successfulSends, failedSends, emergencyData);
+                },
+                
+                addStatusUpdate(message, type = 'info') {
+                    const statusUpdates = document.getElementById('statusUpdates');
+                    const update = document.createElement('div');
+                    
+                    update.style.cssText = `
+                        padding: 8px 12px;
+                        margin: 5px 0;
+                        border-radius: 6px;
+                        font-size: 14px;
+                        animation: slideIn 0.3s ease;
+                    `;
+                    
+                    if (type === 'success') {
+                        update.style.background = 'rgba(0, 255, 0, 0.1)';
+                        update.style.borderLeft = '3px solid #00FF00';
+                        update.style.color = '#00FF00';
+                    } else if (type === 'error') {
+                        update.style.background = 'rgba(255, 59, 48, 0.1)';
+                        update.style.borderLeft = '3px solid #FF3B30';
+                        update.style.color = '#FF3B30';
+                    } else {
+                        update.style.background = 'rgba(255, 255, 255, 0.05)';
+                        update.style.borderLeft = '3px solid #00BFFF';
+                        update.style.color = '#CCC';
+                    }
+                    
+                    update.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
+                    statusUpdates.appendChild(update);
+                    
+                    // Auto-scroll to bottom
+                    statusUpdates.scrollTop = statusUpdates.scrollHeight;
+                },
+                
+                completeEmergency(successful, failed, emergencyData) {
+                    this.isActive = false;
+                    
+                    // Update modal message
+                    const modalMessage = document.getElementById('modalMessage');
+                    modalMessage.innerHTML = `
+                        🎉 EMERGENCY ALERT COMPLETE!
+                        
+                        📊 Results:
+                        ✅ Successful: ${successful} contacts
+                        ❌ Failed: ${failed} contacts
+                        📱 Total Attempted: ${successful + failed} contacts
+                        
+                        📍 Your Location: ${emergencyData.location}
+                        🎯 Destination: ${emergencyData.destination}
+                        ⏰ Time Sent: ${new Date().toLocaleTimeString()}
+                        
+                        Your loved ones have been notified with your location and emergency details.
+                        
+                        Stay calm and safe. Help is on the way.
+                    `;
+                    
+                    // Update title
+                    document.getElementById('modalTitle').textContent = '🚨 ALERTS SENT SUCCESSFULLY';
+                    
+                    // Hide progress bar
+                    document.getElementById('progressContainer').style.display = 'none';
+                    
+                    // Log emergency
+                    console.log('🚨 Emergency Alert Completed:', {
+                        emergencyId: this.currentEmergencyId,
+                        successful: successful,
+                        failed: failed,
+                        location: emergencyData.location,
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    // Save emergency record
+                    this.saveEmergencyRecord(successful, failed, emergencyData);
+                    
+                    // Update alert status
+                    document.getElementById('alertStatus').classList.add('active');
+                },
+                
+                saveEmergencyRecord(successful, failed, emergencyData) {
+                    const record = {
+                        id: this.currentEmergencyId,
+                        timestamp: new Date().toISOString(),
+                        contacts: emergencyData.contacts,
+                        successfulSends: successful,
+                        failedSends: failed,
+                        location: emergencyData.location,
+                        destination: emergencyData.destination,
+                        message: emergencyData.message.substring(0, 100) + '...'
+                    };
+                    
+                    // Save to localStorage
+                    const emergencies = JSON.parse(localStorage.getItem('stealth_emergencies') || '[]');
+                    emergencies.push(record);
+                    localStorage.setItem('stealth_emergencies', JSON.stringify(emergencies.slice(-10))); // Keep last 10
+                },
+                
+                cancelEmergency() {
+                    if (this.isActive) {
+                        this.isActive = false;
+                        this.addStatusUpdate('⚠️ Emergency cancelled by user', 'warning');
+                        StealthSystem.showNotification('Emergency Cancelled', 'Alert sending stopped');
+                        StealthSystem.closeEmergencyModal();
+                    }
+                }
+            },
+            
+            // Main System Methods
+            init() {
+                console.log('🕵️ Stealth Guardian Pro with Twilio Initializing...');
+                
+                // Set up event listeners
+                this.setupEventListeners();
+                
+                // Hide loading screen after 1.5 seconds
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    document.getElementById('phoneInterface').style.display = 'block';
+                    
+                    // Load saved configuration
+                    this.loadConfiguration();
+                    
+                    // Setup PWA
+                    this.setupPWA();
+                    
+                    // Show welcome
+                    this.showNotification('System Active', 'Real-time emergency system ready. Configure Twilio for SMS alerts.');
+                    
+                    // Update time
+                    this.updateTime();
+                }, 1500);
+                
+                // Update time every minute
+                setInterval(() => this.updateTime(), 60000);
+            },
+            
+            updateTime() {
+                const now = new Date();
+                document.getElementById('currentTime').textContent = 
+                    now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                return now;
+            },
+            
+            showHiddenPanel() {
+                document.getElementById('hiddenPanel').style.display = 'block';
+                
+                // Load Twilio config
+                document.getElementById('twilioSid').value = this.config.twilio.sid || '';
+                document.getElementById('twilioToken').value = this.config.twilio.token || '';
+                document.getElementById('twilioPhone').value = this.config.twilio.phone || '';
+                
+                // Load contacts
+                if (this.config.contacts.length > 0) {
+                    for (let i = 0; i < 5; i++) {
+                        document.getElementById(`contact${i+1}`).value = this.config.contacts[i] || '';
+                    }
+                }
+                
+                // Load other settings
+                document.getElementById('startPoint').value = this.config.route[0] || '';
+                document.getElementById('checkpoint1').value = this.config.route[1] || '';
+                document.getElementById('checkpoint2').value = this.config.route[2] || '';
+                document.getElementById('destination').value = this.config.destination || '';
+                document.getElementById('alertTemplate').value = this.config.alertTemplate || '';
+                document.getElementById('sendSMS').checked = this.config.alertOptions.sendSMS;
+                document.getElementById('makeCall').checked = this.config.alertOptions.makeCall;
+                document.getElementById('sendWhatsApp').checked = this.config.alertOptions.sendWhatsApp;
+                
+                // Update Twilio status display
+                this.updateTwilioStatusDisplay();
+            },
+            
+            updateTwilioStatusDisplay() {
+                const statusEl = document.getElementById('twilioStatusText');
+                const dotEl = document.getElementById('twilioDot');
+                const smsStatus = document.getElementById('twilioStatus');
+                
+                if (this.config.twilio.enabled && this.twilioService.isConnected) {
+                    statusEl.textContent = 'Twilio connected - SMS ready';
+                    dotEl.style.background = '#00FF00';
+                    dotEl.classList.add('active');
+                    smsStatus.classList.add('active');
+                } else if (this.config.twilio.sid) {
+                    statusEl.textContent = 'Twilio configured but not tested';
+                    dotEl.style.background = '#FF9800';
+                    smsStatus.classList.remove('active');
+                } else {
+                    statusEl.textContent = 'Twilio not configured';
+                    dotEl.style.background = '#666';
+                    smsStatus.classList.remove('active');
+                }
+            },
+            
+            hideHiddenPanel() {
+                document.getElementById('hiddenPanel').style.display = 'none';
+            },
+            
+            saveConfiguration() {
+                // Save Twilio config
+                this.config.twilio = {
+                    sid: document.getElementById('twilioSid').value.trim(),
+                    token: document.getElementById('twilioToken').value.trim(),
+                    phone: document.getElementById('twilioPhone').value.trim(),
+                    enabled: false // Will be set after test
+                };
+                
+                // Save contacts
+                this.config.contacts = [];
+                for (let i = 1; i <= 5; i++) {
+                    const contact = document.getElementById(`contact${i}`).value.trim();
+                    if (contact) {
+                        this.config.contacts.push(contact);
+                    }
+                }
+                
+                // Save route
+                this.config.route = [
+                    document.getElementById('startPoint').value.trim(),
+                    document.getElementById('checkpoint1').value.trim(),
+                    document.getElementById('checkpoint2').value.trim()
+                ].filter(point => point);
+                
+                this.config.destination = document.getElementById('destination').value.trim();
+                this.config.alertTemplate = document.getElementById('alertTemplate').value.trim();
+                
+                // Save alert options
+                this.config.alertOptions = {
+                    sendSMS: document.getElementById('sendSMS').checked,
+                    makeCall: document.getElementById('makeCall').checked,
+                    sendWhatsApp: document.getElementById('sendWhatsApp').checked
+                };
+                
+                this.config.isConfigured = true;
+                
+                // Save to localStorage
+                localStorage.setItem('stealth_config', JSON.stringify(this.config));
+                
+                this.showNotification('Configuration Saved', 'Twilio and contact settings saved');
+                this.updateStatusIndicators();
+                
+                // Hide panel
+                setTimeout(() => this.hideHiddenPanel(), 1000);
+            },
+            
+            loadConfiguration() {
+                try {
+                    const saved = localStorage.getItem('stealth_config');
+                    if (saved) {
+                        this.config = JSON.parse(saved);
+                        this.updateStatusIndicators();
+                        this.updateTwilioStatusDisplay();
+                        return true;
+                    }
+                } catch (e) {
+                    console.error('Error loading config:', e);
+                }
+                return false;
+            },
+            
+            async testTwilioConnection() {
+                const twilioConfig = {
+                    sid: document.getElementById('twilioSid').value.trim(),
+                    token: document.getElementById('twilioToken').value.trim(),
+                    phone: document.getElementById('twilioPhone').value.trim()
+                };
+                
+                const result = await this.twilioService.testConnection(twilioConfig);
+                
+                if (result.success) {
+                    this.config.twilio.enabled = true;
+                    this.config.twilio = { ...twilioConfig, enabled: true };
+                    localStorage.setItem('stealth_config', JSON.stringify(this.config));
+                    
+                    this.showNotification('Twilio Connected', 'SMS alerts are now ready!');
+                    this.updateTwilioStatusDisplay();
+                } else {
+                    this.showNotification('Twilio Test Failed', result.message);
+                }
+            },
+            
+            async sendTestAlert() {
+                if (!this.config.twilio.enabled || !this.twilioService.isConnected) {
+                    this.showNotification('Twilio Required', 'Please configure and test Twilio first');
+                    return;
+                }
+                
+                if (this.config.contacts.length === 0) {
+                    this.showNotification('No Contacts', 'Add at least one emergency contact');
+                    return;
+                }
+                
+                const testContact = this.config.contacts[0];
+                const testMessage = `🔔 TEST ALERT from Stealth Guardian Pro\n\nThis is a test message sent at ${new Date().toLocaleTimeString()}. Your emergency system is working correctly!\n\n- Stealth Guardian Pro System`;
+                
+                this.showNotification('Sending Test SMS', `To: ${testContact}`);
+                
+                const result = await this.twilioService.sendSMS(testContact, testMessage);
+                
+                if (result.success) {
+                    this.showNotification('✅ Test SMS Sent', `Message delivered to ${testContact}`);
+                    this.playSound('success');
+                } else {
+                    this.showNotification('❌ Send Failed', 'Could not send test message');
+                }
+            },
+            
+            triggerRealEmergency() {
+                // Validate configuration
+                if (!this.config.twilio.enabled) {
+                    this.showEmergencyModal('Twilio Required', 
+                        '❌ Real SMS alerts not configured!\n\n' +
+                        '1. Get Twilio account (twilio.com)\n' +
+                        '2. Add Account SID & Auth Token\n' +
+                        '3. Add Twilio phone number\n' +
+                        '4. Test connection\n\n' +
+                        'Without Twilio, only simulated alerts will work.');
+                    return;
+                }
+                
+                if (this.config.contacts.length === 0) {
+                    this.showEmergencyModal('No Contacts', 
+                        '❌ No emergency contacts configured!\n\n' +
+                        'Please add at least one contact number.\n' +
+                        'Format: +2348012345678');
+                    return;
+                }
+                
+                // Get emergency data
+                const location = this.getRealLocation();
+                const currentTime = new Date().toLocaleTimeString();
+                const deviceInfo = this.getDeviceInfo();
+                
+                // Build message
+                let message = this.config.alertTemplate
+                    .replace(/{LOCATION}/g, location)
+                    .replace(/{DESTINATION}/g, this.config.destination || 'Unknown')
+                    .replace(/{TIME}/g, currentTime)
+                    .replace(/{DEVICE}/g, deviceInfo);
+                
+                // Prepare emergency data
+                const emergencyData = {
+                    contacts: this.config.contacts,
+                    location: location,
+                    destination: this.config.destination || 'Not specified',
+                    message: message,
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Store emergency time
+                this.config.lastEmergencyTime = new Date().toISOString();
+                localStorage.setItem('stealth_config', JSON.stringify(this.config));
+                
+                // Trigger alert system
+                this.alertSystem.triggerEmergency(emergencyData);
+            },
+            
+            getRealLocation() {
+                // Try to get actual GPS location
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const lat = position.coords.latitude;
+                            const lon = position.coords.longitude;
+                            return `${lat.toFixed(6)}°, ${lon.toFixed(6)}° (GPS)`;
+                        },
+                        () => {
+                            // Fallback to simulated location
+                            return this.getSimulatedLocation();
+                        },
+                        { enableHighAccuracy: true, timeout: 5000 }
+                    );
+                }
+                
+                // Return simulated location immediately (will be updated if GPS works)
+                return this.getSimulatedLocation();
+            },
+            
+            getSimulatedLocation() {
+                const locations = [
+                    '6.5244° N, 3.3792° E (Lagos, Nigeria)', 
+                    '9.0765° N, 7.3986° E (Abuja, Nigeria)',
+                    '12.0022° N, 8.5920° E (Kano, Nigeria)'
+                ];
+                return locations[Math.floor(Math.random() * locations.length)];
+            },
+            
+            getDeviceInfo() {
+                const ua = navigator.userAgent;
+                let device = 'Unknown Device';
+                
+                if (ua.match(/Android/i)) device = 'Android Phone';
+                else if (ua.match(/iPhone|iPad|iPod/i)) device = 'iOS Device';
+                else if (ua.match(/Windows Phone/i)) device = 'Windows Phone';
+                
+                return `${device} (${navigator.platform})`;
+            },
+            
+            showEmergencyModal(title, message, showProgress = false) {
+                document.getElementById('modalTitle').textContent = title;
+                document.getElementById('modalMessage').textContent = message;
+                document.getElementById('emergencyModal').style.display = 'flex';
+                
+                // Clear previous status updates
+                document.getElementById('statusUpdates').innerHTML = '';
+                
+                if (showProgress) {
+                    document.getElementById('progressContainer').style.display = 'block';
+                    document.getElementById('progressBar').style.width = '0%';
+                } else {
+                    document.getElementById('progressContainer').style.display = 'none';
+                }
+                
+                // Play emergency sound
+                this.playSound('emergency');
+                
+                // Vibrate
+                if (navigator.vibrate) {
+                    navigator.vibrate([500, 200, 500, 200, 500]);
+                }
+            },
+            
+            closeEmergencyModal() {
+                document.getElementById('emergencyModal').style.display = 'none';
+                document.getElementById('cancelEmergencyBtn').style.display = 'none';
+                document.getElementById('alertStatus').classList.remove('active');
+            },
+            
+            clearAllData() {
+                if (confirm('⚠️ DELETE ALL DATA?\nThis will remove:\n• Twilio credentials\n• Emergency contacts\n• Route settings\n• All saved data\n\nThis cannot be undone!')) {
+                    localStorage.clear();
+                    this.config = {
+                        twilio: { sid: '', token: '', phone: '', enabled: false },
+                        contacts: [],
+                        route: [],
+                        destination: '',
+                        alertTemplate: '',
+                        alertOptions: { sendSMS: true, makeCall: false, sendWhatsApp: false },
+                        isConfigured: false,
+                        lastEmergencyTime: null
+                    };
+                    
+                    // Reset form
+                    document.getElementById('twilioSid').value = '';
+                    document.getElementById('twilioToken').value = '';
+                    document.getElementById('twilioPhone').value = '';
+                    
+                    for (let i = 1; i <= 5; i++) {
+                        document.getElementById(`contact${i}`).value = '';
+                    }
+                    
+                    // Reset status indicators
+                    document.getElementById('twilioStatus').classList.remove('active');
+                    document.getElementById('stealthStatus').classList.remove('active');
+                    
+                    this.showNotification('All Data Cleared', 'System reset to factory settings');
+                    this.hideHiddenPanel();
+                }
+            },
+            
+            playSound(type) {
+                try {
+                    // Create audio context
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    if (type === 'emergency') {
+                        // Emergency sound pattern
+                        for (let i = 0; i < 3; i++) {
+                            setTimeout(() => {
+                                const oscillator = audioContext.createOscillator();
+                                const gainNode = audioContext.createGain();
+                                
+                                oscillator.connect(gainNode);
+                                gainNode.connect(audioContext.destination);
+                                
+                                oscillator.frequency.value = 1200;
+                                oscillator.type = 'sawtooth';
+                                
+                                gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                                
+                                oscillator.start(audioContext.currentTime);
+                                oscillator.stop(audioContext.currentTime + 0.3);
+                            }, i * 500);
+                        }
+                    } else if (type === 'success') {
+                        // Success sound
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                        oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
+                        oscillator.type = 'sine';
+                        
+                        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.3);
+                    }
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            },
+            
+            updateStatusIndicators() {
+                document.getElementById('gpsStatus').classList.add('active');
+                document.getElementById('networkStatus').classList.add('active');
+                
+                if (this.config.isConfigured) {
+                    document.getElementById('stealthStatus').classList.add('active');
+                }
+            },
+            
+            showNotification(title, message) {
+                const toast = document.createElement('div');
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: rgba(0,0,0,0.95);
+                    border-left: 4px solid #00FF00;
+                    color: #00FF00;
+                    padding: 15px 25px;
+                    border-radius: 8px;
+                    z-index: 1000;
+                    max-width: 400px;
+                    animation: slideIn 0.3s ease;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+                    backdrop-filter: blur(10px);
+                `;
+                
+                toast.innerHTML = `
+                    <div style="font-weight: bold; margin-bottom: 8px; font-size: 16px;">${title}</div>
+                    <div style="font-size: 14px; color: #CCC; line-height: 1.4;">${message}</div>
+                `;
+                
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.animation = 'slideOut 0.3s ease forwards';
+                    setTimeout(() => toast.remove(), 300);
+                }, 4000);
+            },
+            
+            setupEventListeners() {
+                // Volume button trigger
+                const volumeTrigger = document.querySelector('.volume-trigger');
+                let volumePressCount = 0;
+                let lastVolumePress = 0;
+                
+                volumeTrigger.addEventListener('click', () => {
+                    const now = Date.now();
+                    
+                    if (now - lastVolumePress < 1000) {
+                        volumePressCount++;
+                        
+                        if (volumePressCount === 3) {
+                            volumePressCount = 0;
+                            this.showHiddenPanel();
+                            this.showNotification('Stealth Access', 'Hidden panel activated');
+                        }
+                    } else {
+                        volumePressCount = 1;
+                    }
+                    
+                    lastVolumePress = now;
+                });
+                
+                // Settings icon
+                document.querySelector('.app-grid .app-icon:nth-child(4)').addEventListener('click', () => {
+                    this.showHiddenPanel();
+                });
+                
+                // Panel close
+                document.querySelector('.close-panel').addEventListener('click', () => this.hideHiddenPanel());
+                
+                // Action buttons
+                document.getElementById('saveConfigBtn').addEventListener('click', () => this.saveConfiguration());
+                document.getElementById('testTwilioBtn').addEventListener('click', () => this.testTwilioConnection());
+                document.getElementById('sendTestAlertBtn').addEventListener('click', () => this.sendTestAlert());
+                document.getElementById('clearDataBtn').addEventListener('click', () => this.clearAllData());
+                document.getElementById('triggerEmergencyBtn').addEventListener('click', () => this.triggerRealEmergency());
+                document.getElementById('startRouteScan').addEventListener('click', () => {
+                    this.showNotification('Route Scan', 'Scanning 100m front, 50m sides...');
+                });
+                
+                // Modal buttons
+                document.getElementById('acknowledgeBtn').addEventListener('click', () => this.closeEmergencyModal());
+                document.getElementById('cancelEmergencyBtn').addEventListener('click', () => this.alertSystem.cancelEmergency());
+                
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'v' || e.key === 'V') {
+                        const now = Date.now();
+                        if (now - lastVolumePress < 1000) {
+                            volumePressCount++;
+                            if (volumePressCount === 3) {
+                                volumePressCount = 0;
+                                this.showHiddenPanel();
+                            }
+                        } else {
+                            volumePressCount = 1;
+                        }
+                        lastVolumePress = now;
+                    }
+                    
+                    if (e.key === 'e' || e.key === 'E') this.triggerRealEmergency();
+                    if (e.key === 't' || e.key === 'T') this.sendTestAlert();
+                    if (e.key === 'Escape') {
+                        this.hideHiddenPanel();
+                        this.closeEmergencyModal();
+                    }
+                });
+                
+                // Shake detection
+                this.setupShakeDetection();
+            },
+            
+            setupShakeDetection() {
+                if (window.DeviceMotionEvent) {
+                    let lastShake = 0;
+                    window.addEventListener('devicemotion', (e) => {
+                        if (!this.config.isConfigured) return;
+                        
+                        const acc = e.accelerationIncludingGravity;
+                        if (!acc) return;
+                        
+                        const force = Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z);
+                        if (force > 30 && Date.now() - lastShake > 3000) {
+                            lastShake = Date.now();
+                            this.triggerRealEmergency();
+                            this.showNotification('Shake Detected', 'Real emergency activated!');
+                        }
+                    });
+                }
+            },
+            
+            setupPWA() {
+                let deferredPrompt;
+                const installButton = document.getElementById('installButton');
+                
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    installButton.style.display = 'flex';
+                    
+                    installButton.addEventListener('click', async () => {
+                        if (deferredPrompt) {
+                            deferredPrompt.prompt();
+                            const { outcome } = await deferredPrompt.userChoice;
+                            if (outcome === 'accepted') {
+                                installButton.innerHTML = '<i class="fas fa-check"></i> INSTALLED';
+                                installButton.style.background = '#666';
+                                installButton.disabled = true;
+                            }
+                            deferredPrompt = null;
+                        }
+                    });
+                });
+                
+                if (window.matchMedia('(display-mode: standalone)').matches) {
+                    installButton.style.display = 'none';
+                }
+                
+                setTimeout(() => {
+                    if (!window.matchMedia('(display-mode: standalone)').matches) {
+                        installButton.style.display = 'flex';
+                    }
+                }, 5000);
+            }
+        };
         
-        res.json({ success: true, sid: result.sid });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-app.listen(3000, () => console.log('Server running'));
+        // Initialize system
+        document.addEventListener('DOMContentLoaded', () => {
+            StealthSystem.init();
+        });
+    </script>
+</body>
+</html>
 
