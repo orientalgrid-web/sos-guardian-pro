@@ -2,7 +2,7 @@
   "name": "SafeRoute - Emergency Guardian",
   "short_name": "SafeRoute",
   "description": "Your personal safety companion for every journey",
-  "start_url": "/",
+  "start_url": "./index.html",
   "display": "standalone",
   "display_override": ["window-controls-overlay"],
   "orientation": "portrait",
@@ -11,49 +11,49 @@
   "categories": ["navigation", "safety", "utilities"],
   "icons": [
     {
-      "src": "icons/icon-72x72.png",
+      "src": "./icons/icon-72x72.png",
       "sizes": "72x72",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icons/icon-96x96.png",
+      "src": "./icons/icon-96x96.png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icons/icon-128x128.png",
+      "src": "./icons/icon-128x128.png",
       "sizes": "128x128",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icons/icon-144x144.png",
+      "src": "./icons/icon-144x144.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icons/icon-152x152.png",
+      "src": "./icons/icon-152x152.png",
       "sizes": "152x152",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icons/icon-192x192.png",
+      "src": "./icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icons/icon-384x384.png",
+      "src": "./icons/icon-384x384.png",
       "sizes": "384x384",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icons/icon-512x512.png",
+      "src": "./icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -61,14 +61,14 @@
   ],
   "screenshots": [
     {
-      "src": "screenshots/screenshot1.png",
+      "src": "./screenshots/screenshot1.png",
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Emergency Contacts Screen"
     },
     {
-      "src": "screenshots/screenshot2.png",
+      "src": "./screenshots/screenshot2.png",
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
@@ -80,10 +80,10 @@
       "name": "New Emergency",
       "short_name": "Emergency",
       "description": "Activate emergency mode",
-      "url": "/?emergency=true",
+      "url": "./index.html?emergency=true",
       "icons": [
         {
-          "src": "icons/emergency-96x96.png",
+          "src": "./icons/emergency-96x96.png",
           "sizes": "96x96",
           "type": "image/png"
         }
@@ -93,37 +93,23 @@
       "name": "Start Tracking",
       "short_name": "Track",
       "description": "Start journey tracking",
-      "url": "/?tracking=true",
+      "url": "./index.html?tracking=true",
       "icons": [
         {
-          "src": "icons/tracking-96x96.png",
+          "src": "./icons/tracking-96x96.png",
           "sizes": "96x96",
           "type": "image/png"
         }
       ]
     }
   ],
-  "edge_side_panel": {
-    "preferred_width": 400
-  },
-  "launch_handler": {
-    "client_mode": ["focus-existing", "auto"]
-  },
-  "handle_links": "preferred",
   "protocol_handlers": [
     {
       "protocol": "web+saferoute",
-      "url": "/?emergency=%s"
+      "url": "./index.html?emergency=%s"
     }
   ],
-  "permissions": [
-    "geolocation",
-    "notifications",
-    "background-sync",
-    "periodic-background-sync"
-  ],
-  "id": "/?source=pwa",
-  "scope": "/",
-  "prefer_related_applications": false,
-  "related_applications": []
+  "id": "./index.html",
+  "scope": "./",
+  "prefer_related_applications": false
 }
