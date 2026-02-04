@@ -1,9 +1,22 @@
-"scripts": {
-  "start": "vite",
-  "build": "tsc && vite build",
-  "test": "jest",
-  "lint": "eslint src/**/*.{ts,tsx}",
-  "cap:android": "npx cap open android",
-  "cap:ios": "npx cap open ios",
-  "cap:sync": "npx cap sync"
+{
+  "name": "sos-guardian-pro",
+  "version": "1.0.0",
+  "description": "Personal Safety Companion with Emergency SOS",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve",
+    "build": "echo 'No build required'"
+  },
+  "keywords": ["safety", "emergency", "gps", "tracking", "sos"],
+  "author": "SOS Guardian Team",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "serve": "^14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/orientalgrid-web/sos-guardian-pro.git"
+  },
+  "homepage": "https://orientalgrid-web.github.io/sos-guardian-pro/"
 }
