@@ -1,22 +1,24 @@
 {
-  "name": "sos-guardian-pro",
-  "version": "1.0.0",
-  "description": "Personal Safety Companion with Emergency SOS",
-  "main": "index.html",
-  "scripts": {
-    "start": "serve",
-    "build": "echo 'No build required'"
-  },
-  "keywords": ["safety", "emergency", "gps", "tracking", "sos"],
-  "author": "SOS Guardian Team",
-  "license": "MIT",
-  "dependencies": {},
-  "devDependencies": {
-    "serve": "^14.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/orientalgrid-web/sos-guardian-pro.git"
-  },
-  "homepage": "https://orientalgrid-web.github.io/sos-guardian-pro/"
+  "name": "SafeRoute",
+  "short_name": "SafeRoute",
+  "description": "Emergency Safety App",
+  "start_url": "/sos-guardian-pro/",
+  "display": "standalone",
+  "background_color": "#0A192F",
+  "theme_color": "#0066FF",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/color/192/000000/shield.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://img.icons8.com/color/512/000000/shield.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
 }
