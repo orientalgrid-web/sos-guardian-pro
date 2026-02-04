@@ -1,5 +1,5 @@
 // Service Worker for SafeRoute App
-const CACHE_NAME = 'saferoute-v1.0';
+const CACHE_NAME = 'saferoute-v1';
 const urlsToCache = [
   '/sos-guardian-pro/',
   '/sos-guardian-pro/index.html',
@@ -11,7 +11,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Cache opened');
+        console.log('Opened cache');
         return cache.addAll(urlsToCache);
       })
   );
@@ -22,7 +22,7 @@ self.addEventListener('activate', event => {
   console.log('Service Worker activated');
 });
 
-// Fetch events
+// Fetch Strategy
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
