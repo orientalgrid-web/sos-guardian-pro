@@ -1,7 +1,7 @@
 {
   "name": "SafeRoute",
   "short_name": "SafeRoute",
-  "description": "Emergency Safety App",
+  "description": "Emergency Safety App with GPS Tracking",
   "start_url": "/sos-guardian-pro/",
   "display": "standalone",
   "background_color": "#0A192F",
@@ -9,14 +9,16 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://cdn.jsdelivr.net/npm/@mdi/svg@6.9.96/svg/shield-check.svg",
+      "src": "https://cdn-icons-png.flaticon.com/512/3095/3095110.png",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "https://cdn.jsdelivr.net/npm/@mdi/svg@6.9.96/svg/shield-check.svg",
+      "src": "https://cdn-icons-png.flaticon.com/512/3095/3095110.png",
       "sizes": "512x512",
-      "type": "image/svg+xml"
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
