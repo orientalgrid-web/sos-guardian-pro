@@ -6,6 +6,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
     <title>SafeRoute - Emergency Guardian</title>
     
     <!-- Mapbox for Live Satellite -->
@@ -388,112 +392,18 @@
         }
 
         /* Buttons */
-        <!-- In your HTML file, replace lines 391-410 with this: -->
-<script>
-    // SafeRoute Application
-    const SafeRoute = {
-        // ... existing code ...
-        
-        // Start tracking
-        startTracking() {
-            if (!this.config.route.start || !this.config.route.end) {
-                this.showToast('Please save your route first', 'warning');
-                return;
-            }
-            
-            if (!this.state.currentLocation) {
-                this.showToast('Waiting for GPS location...', 'info');
-                return;
-            }
-            
-            this.state.isTracking = !this.state.isTracking;
-            const button = document.getElementById('trackButton');
-            
-            if (this.state.isTracking) {
-                button.innerHTML = '<i class="fas fa-stop"></i> Stop Tracking';
-                button.style.background = 'var(--danger-red)';
-                
-                document.getElementById('trackingStatus').innerHTML = 
-                    '<i class="fas fa-circle" style="color: var(--safety-green); animation: pulse 1s infinite;"></i><span>LIVE TRACKING</span>';
-                
-                this.initMap();
-                this.showToast('Live tracking started!', 'success');
-            } else {
-                button.innerHTML = '<i class="fas fa-play"></i> Start Tracking';
-                button.style.background = 'var(--primary-blue)';
-                
-                document.getElementById('trackingStatus').innerHTML = 
-                    '<i class="fas fa-circle" style="color: var(--text-dim);"></i><span>READY</span>';
-                
-                this.showToast('Tracking stopped', 'info');
-            }
-        },
-
-        // Initialize map with Mapbox
-        initMap() {
-            if (this.state.map) return;
-            
-            try {
-                // YOUR MAPBOX TOKEN HERE - REPLACE THIS!
-                mapboxgl.accessToken = 'pk.eyJ1Ijoic2FmZXJvdXRlIiwiYSI6ImNsdGk5cGM4bDA2b24ya28yOTR6eHVrY2sifQ.vnAMFVZzTksYQrdJ6GgnRg';
-                
-                this.state.map = new mapboxgl.Map({
-                    container: 'trackingMap',
-                    style: 'mapbox://styles/mapbox/satellite-streets-v11',
-                    center: this.state.currentLocation ? 
-                           [this.state.currentLocation.lng, this.state.currentLocation.lat] : 
-                           [0, 0],
-                    zoom: 14,
-                    interactive: true
-                });
-                
-                // Add navigation controls
-                this.state.map.addControl(new mapboxgl.NavigationControl());
-                
-                // Add marker
-                this.state.mapMarker = new mapboxgl.Marker({ 
-                    color: '#FF3366',
-                    draggable: false 
-                })
-                .setLngLat([this.state.currentLocation.lng, this.state.currentLocation.lat])
-                .addTo(this.state.map);
-                
-                // Add popup
-                this.state.mapMarker.setPopup(
-                    new mapboxgl.Popup({ offset: 25 })
-                        .setHTML('<h3>Your Location</h3><p>Live tracking active</p>')
-                );
-                
-            } catch (error) {
-                console.error('Mapbox error:', error);
-                this.showToast('Map loading issue - using fallback', 'warning');
-                this.useFallbackMap();
-            }
-        },
-
-        // Fallback if Mapbox fails
-        useFallbackMap() {
-            const mapDiv = document.getElementById('trackingMap');
-            const lat = this.state.currentLocation.lat;
-            const lng = this.state.currentLocation.lng;
-            
-            mapDiv.innerHTML = `
-                <div style="width:100%; height:100%; background:#112240; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                    <i class="fas fa-map-marked-alt" style="font-size:48px; color:var(--primary-blue); margin-bottom:20px;"></i>
-                    <div style="color:var(--text-light); font-size:18px; font-weight:600; margin-bottom:10px;">Live Location</div>
-                    <div style="color:var(--text-dim); font-size:14px; margin-bottom:5px;">Latitude: ${lat.toFixed(6)}</div>
-                    <div style="color:var(--text-dim); font-size:14px; margin-bottom:5px;">Longitude: ${lng.toFixed(6)}</div>
-                    <div style="color:var(--safety-green); font-size:12px; margin-top:15px;">
-                        <i class="fas fa-info-circle"></i> GPS tracking active
-                    </div>
-                </div>
-            `;
-        },
-        
-        // ... rest of the code ...
-    };
-</script>
+        .btn {
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             gap: 10px;
+            transition: all 0.3s ease;
         }
 
         .btn-primary {
@@ -1020,7 +930,6 @@
                 }
                 
                 this.showToast('Test message would be sent to your contacts', 'info');
-                // In production: Send actual test SMS via backend
             },
 
             // Start tracking
@@ -1063,7 +972,7 @@
                 if (this.state.map) return;
                 
                 try {
-                    // Use Mapbox token (simplified for subscriber)
+                    // Mapbox token
                     mapboxgl.accessToken = 'pk.eyJ1IjoiZWtlaWRpbWF1Y2hlY2h1a3d1IiwiYSI6ImNtbDYxZ3NvazA2cDYza3NjOXlwNmx0aXcifQ.agDhj-euUG6sEyMTiDsQAA';
                     
                     this.state.map = new mapboxgl.Map({
@@ -1172,7 +1081,7 @@
                 // Show success message
                 this.showToast(`Alert sent to ${validContacts.length} contact(s)`, 'success');
                 
-                // Log the action (in production, this would call your backend)
+                // Log the action
                 console.log('Emergency alert sent:', {
                     contacts: validContacts,
                     message: message,
@@ -1385,3 +1294,4 @@ Please check on me immediately!`;
     </script>
 </body>
 </html>
+             
