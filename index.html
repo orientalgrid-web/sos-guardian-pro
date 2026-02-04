@@ -16,6 +16,9 @@
     <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
     
+    <!-- Stripe for Payments -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
@@ -24,6 +27,7 @@
             --safety-green: #00CC88;
             --warning-orange: #FF9900;
             --danger-red: #FF3366;
+            --premium-gold: #FFD700;
             --dark-bg: #0A192F;
             --card-bg: #112240;
             --text-light: #E6F1FF;
@@ -181,6 +185,32 @@
             flex: 1;
             overflow-y: auto;
             padding: 20px;
+        }
+
+        /* Ad Banner */
+        .ad-banner {
+            background: linear-gradient(135deg, #1A2F4F, #0A192F);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ad-text {
+            flex: 1;
+        }
+
+        .ad-text h4 {
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .ad-text p {
+            color: var(--text-dim);
+            font-size: 14px;
         }
 
         /* Route Setup Card */
@@ -365,6 +395,85 @@
             font-family: 'Courier New', monospace;
         }
 
+        /* Premium Card */
+        .premium-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(0, 102, 255, 0.1));
+        }
+
+        .premium-features {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        .premium-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+        }
+
+        .pricing-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .pricing-option {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pricing-option.popular {
+            border-color: var(--safety-green);
+            background: rgba(0, 204, 136, 0.1);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--safety-green);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .price {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-light);
+            margin: 10px 0;
+        }
+
+        .price span {
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+
+        .plan-name {
+            color: var(--text-dim);
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
         /* Emergency Button */
         .emergency-button {
             position: fixed;
@@ -451,6 +560,23 @@
             transform: translateY(-2px);
         }
 
+        .btn-premium {
+            background: linear-gradient(135deg, var(--premium-gold), #FFAA00);
+            color: #000;
+            font-weight: 700;
+        }
+
+        .remove-ads-btn {
+            background: var(--danger-red);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
         /* Emergency Modal */
         .emergency-modal {
             position: fixed;
@@ -506,6 +632,119 @@
             font-size: 16px;
         }
 
+        /* Payment Modal */
+        .payment-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 25, 47, 0.95);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .payment-content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .payment-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .payment-method {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .payment-method.selected {
+            border-color: var(--primary-blue);
+            background: rgba(0, 102, 255, 0.1);
+        }
+
+        .payment-icon {
+            font-size: 24px;
+            color: var(--primary-blue);
+        }
+
+        .payment-details h4 {
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .payment-details p {
+            color: var(--text-dim);
+            font-size: 14px;
+        }
+
+        .card-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text-light);
+            font-size: 16px;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .card-row {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .card-row input {
+            flex: 1;
+        }
+
+        /* Success Modal */
+        .success-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 25, 47, 0.95);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .success-content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            border: 3px solid var(--safety-green);
+        }
+
+        .success-icon {
+            font-size: 64px;
+            color: var(--safety-green);
+            margin-bottom: 20px;
+        }
+
         /* Simple Toast */
         .toast {
             position: fixed;
@@ -523,8 +762,27 @@
             text-align: center;
         }
 
+        /* Upgrade Button */
+        .upgrade-button {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: linear-gradient(135deg, var(--premium-gold), #FFAA00);
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+        }
+
         /* Responsive */
-        @media (max-width: 480px) {
+        @media (max-width: 768px) {
             .welcome-logo {
                 font-size: 32px;
             }
@@ -551,6 +809,23 @@
             
             .tracking-info {
                 grid-template-columns: 1fr;
+            }
+            
+            .pricing-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .ad-banner {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .upgrade-button {
+                bottom: 20px;
+                left: 20px;
+                padding: 10px 20px;
+                font-size: 14px;
             }
         }
 
@@ -603,8 +878,8 @@
                     <i class="fas fa-shield-alt"></i>
                 </div>
                 <div class="feature-text">
-                    <h4>One-Tap Emergency</h4>
-                    <p>Shake phone or tap button for help</p>
+                    <h4>Premium Features</h4>
+                    <p>Unlock advanced safety with Premium</p>
                 </div>
             </div>
         </div>
@@ -619,6 +894,7 @@
         <div class="app-header">
             <div class="header-title">
                 <i class="fas fa-map-marker-alt"></i> SafeRoute
+                <span id="premiumBadge" style="display: none; margin-left: 10px; background: var(--premium-gold); color: #000; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600;">PREMIUM</span>
             </div>
             <div class="header-status">
                 <div class="status-item">
@@ -633,6 +909,17 @@
         </div>
         
         <div class="content-area">
+            <!-- Ad Banner (shown to free users) -->
+            <div class="ad-banner" id="adBanner" style="display: none;">
+                <div class="ad-text">
+                    <h4>Upgrade to Premium</h4>
+                    <p>Remove ads and unlock all safety features</p>
+                </div>
+                <button class="remove-ads-btn" onclick="SafeRoute.showPricing()">
+                    Remove Ads - $4.99/mo
+                </button>
+            </div>
+            
             <!-- Route Setup Card -->
             <div class="route-card slide-in">
                 <div class="card-title">
@@ -671,6 +958,7 @@
                 <div class="card-title">
                     <i class="fas fa-user-friends"></i>
                     <span>Emergency Contacts</span>
+                    <span id="contactLimit" style="margin-left: auto; font-size: 14px; color: var(--text-dim);">2/2 contacts</span>
                 </div>
                 <div class="contacts-list">
                     <div class="contact-item">
@@ -694,9 +982,24 @@
                             <i class="fas fa-edit"></i>
                         </div>
                     </div>
+                    
+                    <!-- Premium Contacts (only shown to premium users) -->
+                    <div class="contact-item premium-only" style="display: none;">
+                        <div class="contact-avatar">C</div>
+                        <div class="contact-info">
+                            <div class="contact-name" id="contact3Name">Add Emergency Contact</div>
+                            <div class="contact-number" id="contact3Number">Tap to add phone number</div>
+                        </div>
+                        <div class="contact-action" onclick="SafeRoute.editContact(3)">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                    </div>
                 </div>
                 <button class="btn btn-secondary" onclick="SafeRoute.testMessage()">
                     <i class="fas fa-paper-plane"></i> Send Test Message
+                </button>
+                <button class="btn btn-premium" onclick="SafeRoute.showPricing()" id="addContactBtn" style="margin-top: 10px;">
+                    <i class="fas fa-plus"></i> Add More Contacts (Premium)
                 </button>
             </div>
             
@@ -737,12 +1040,82 @@
                 <button class="btn btn-primary" onclick="SafeRoute.startTracking()" id="trackButton">
                     <i class="fas fa-play"></i> Start Tracking
                 </button>
+                <button class="btn btn-premium" onclick="SafeRoute.showPricing()" id="advancedTrackingBtn" style="margin-top: 10px;">
+                    <i class="fas fa-rocket"></i> Advanced Tracking (Premium)
+                </button>
+            </div>
+            
+            <!-- Premium Card -->
+            <div class="premium-card slide-in" id="premiumCard">
+                <div class="card-title">
+                    <i class="fas fa-crown"></i>
+                    <span>SafeRoute Premium</span>
+                </div>
+                
+                <div class="premium-features">
+                    <div class="premium-feature">
+                        <i class="fas fa-check-circle" style="color: var(--safety-green);"></i>
+                        <span>Unlimited Emergency Contacts (5+ contacts)</span>
+                    </div>
+                    <div class="premium-feature">
+                        <i class="fas fa-check-circle" style="color: var(--safety-green);"></i>
+                        <span>Advanced GPS Tracking with History</span>
+                    </div>
+                    <div class="premium-feature">
+                        <i class="fas fa-check-circle" style="color: var(--safety-green);"></i>
+                        <span>No Ads - Clean Experience</span>
+                    </div>
+                    <div class="premium-feature">
+                        <i class="fas fa-check-circle" style="color: var(--safety-green);"></i>
+                        <span>Priority Emergency Response</span>
+                    </div>
+                    <div class="premium-feature">
+                        <i class="fas fa-check-circle" style="color: var(--safety-green);"></i>
+                        <span>24/7 Emergency Support Line</span>
+                    </div>
+                </div>
+                
+                <div class="pricing-options">
+                    <div class="pricing-option">
+                        <div class="price">$4.99<span>/month</span></div>
+                        <div class="plan-name">Monthly Plan</div>
+                        <button class="btn btn-primary" onclick="SafeRoute.selectPlan('monthly', 4.99)">
+                            Subscribe
+                        </button>
+                    </div>
+                    
+                    <div class="pricing-option popular">
+                        <div class="popular-badge">MOST POPULAR</div>
+                        <div class="price">$49.99<span>/year</span></div>
+                        <div class="plan-name">Yearly Plan (Save 17%)</div>
+                        <button class="btn btn-success" onclick="SafeRoute.selectPlan('yearly', 49.99)">
+                            Subscribe
+                        </button>
+                    </div>
+                    
+                    <div class="pricing-option">
+                        <div class="price">$149.99</div>
+                        <div class="plan-name">Lifetime Access</div>
+                        <button class="btn btn-secondary" onclick="SafeRoute.selectPlan('lifetime', 149.99)">
+                            Purchase
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px; color: var(--text-dim); font-size: 12px;">
+                    <i class="fas fa-lock"></i> Secure payment. Cancel anytime.
+                </div>
             </div>
         </div>
         
         <!-- Emergency Button -->
         <button class="emergency-button" onclick="SafeRoute.activateEmergency()">
             <i class="fas fa-shield-alt"></i>
+        </button>
+        
+        <!-- Upgrade Button for free users -->
+        <button class="upgrade-button" id="upgradeButton" style="display: none;">
+            <i class="fas fa-crown"></i> Upgrade to Premium
         </button>
     </div>
 
@@ -768,11 +1141,119 @@
         </div>
     </div>
 
+    <!-- Payment Modal -->
+    <div class="payment-modal" id="paymentModal">
+        <div class="payment-content">
+            <div class="card-title">
+                <i class="fas fa-credit-card"></i>
+                <span>Complete Payment</span>
+            </div>
+            
+            <div style="text-align: center; margin: 20px 0;">
+                <div style="font-size: 24px; font-weight: 700; color: var(--text-light);" id="selectedPlan">
+                    Monthly Plan
+                </div>
+                <div style="font-size: 32px; font-weight: 900; color: var(--safety-green); margin: 10px 0;" id="selectedPrice">
+                    $4.99
+                </div>
+                <div style="color: var(--text-dim); font-size: 14px;" id="selectedPeriod">
+                    Billed monthly
+                </div>
+            </div>
+            
+            <div class="payment-methods" id="paymentMethods">
+                <div class="payment-method selected" onclick="SafeRoute.selectPaymentMethod('card')">
+                    <div class="payment-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="payment-details">
+                        <h4>Credit/Debit Card</h4>
+                        <p>Pay with Visa, Mastercard, or American Express</p>
+                    </div>
+                </div>
+                
+                <div class="payment-method" onclick="SafeRoute.selectPaymentMethod('paypal')">
+                    <div class="payment-icon">
+                        <i class="fab fa-paypal"></i>
+                    </div>
+                    <div class="payment-details">
+                        <h4>PayPal</h4>
+                        <p>Pay with your PayPal account</p>
+                    </div>
+                </div>
+                
+                <div class="payment-method" onclick="SafeRoute.selectPaymentMethod('googlepay')">
+                    <div class="payment-icon">
+                        <i class="fab fa-google-pay"></i>
+                    </div>
+                    <div class="payment-details">
+                        <h4>Google Pay</h4>
+                        <p>Fast payment with Google Pay</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="cardDetails" style="display: block;">
+                <input type="text" class="card-input" id="cardNumber" placeholder="Card Number" maxlength="19">
+                <div class="card-row">
+                    <input type="text" class="card-input" id="cardExpiry" placeholder="MM/YY" maxlength="5">
+                    <input type="text" class="card-input" id="cardCVC" placeholder="CVC" maxlength="3">
+                </div>
+                <input type="text" class="card-input" id="cardName" placeholder="Name on Card">
+            </div>
+            
+            <div id="paypalDetails" style="display: none;">
+                <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 12px; margin: 20px 0;">
+                    <i class="fab fa-paypal" style="font-size: 48px; color: #0070BA;"></i>
+                    <p style="margin-top: 15px; color: var(--text-dim);">You'll be redirected to PayPal to complete your payment</p>
+                </div>
+            </div>
+            
+            <div id="googlepayDetails" style="display: none;">
+                <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 12px; margin: 20px 0;">
+                    <i class="fab fa-google-pay" style="font-size: 48px; color: #4285F4;"></i>
+                    <p style="margin-top: 15px; color: var(--text-dim);">You'll be redirected to Google Pay to complete your payment</p>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 15px; margin-top: 30px;">
+                <button class="btn btn-secondary" onclick="SafeRoute.cancelPayment()" style="flex: 1;">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button class="btn btn-success" onclick="SafeRoute.processPayment()" style="flex: 1;">
+                    <i class="fas fa-lock"></i> Complete Payment
+                </button>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px; color: var(--text-dim); font-size: 12px;">
+                <i class="fas fa-shield-alt"></i> Your payment is secure and encrypted
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-modal" id="successModal">
+        <div class="success-content">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--text-light); margin-bottom: 10px;">
+                Payment Successful!
+            </div>
+            <div style="color: var(--text-dim); margin-bottom: 30px;">
+                You are now a SafeRoute Premium member
+            </div>
+            <button class="btn btn-success" onclick="SafeRoute.closeSuccess()">
+                <i class="fas fa-rocket"></i> Start Using Premium
+            </button>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
     <script>
-        // SafeRoute Application - Subscriber Friendly Version
+        // SafeRoute Application with Payment System
         const SafeRoute = {
             config: {
                 route: {
@@ -783,10 +1264,12 @@
                     { name: '', number: '' },
                     { name: '', number: '' }
                 ],
-                settings: {
-                    shakeToActivate: true,
-                    volumeToActivate: true,
-                    countdownSeconds: 5
+                isPremium: false,
+                payment: {
+                    selectedPlan: null,
+                    selectedPrice: null,
+                    selectedPeriod: null,
+                    paymentMethod: 'card'
                 }
             },
             
@@ -808,6 +1291,9 @@
                 // Load saved data
                 this.loadData();
                 
+                // Check premium status
+                this.checkPremiumStatus();
+                
                 // Initialize systems
                 this.initClock();
                 this.initNetwork();
@@ -823,6 +1309,9 @@
                 document.getElementById('welcomeScreen').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'flex';
                 this.showToast('Welcome to SafeRoute!', 'success');
+                
+                // Update UI based on premium status
+                this.updatePremiumUI();
             },
 
             // Load saved data
@@ -833,6 +1322,7 @@
                         const data = JSON.parse(saved);
                         this.config.route = data.route || this.config.route;
                         this.config.contacts = data.contacts || this.config.contacts;
+                        this.config.isPremium = data.isPremium || false;
                         
                         // Update UI
                         document.getElementById('startPoint').value = this.config.route.start;
@@ -851,11 +1341,188 @@
                 try {
                     localStorage.setItem('saferoute_data', JSON.stringify({
                         route: this.config.route,
-                        contacts: this.config.contacts
+                        contacts: this.config.contacts,
+                        isPremium: this.config.isPremium
                     }));
                 } catch (e) {
                     console.error('Error saving data:', e);
                 }
+            },
+
+            // Check premium status
+            checkPremiumStatus() {
+                const premiumExpiry = localStorage.getItem('premium_expiry');
+                if (premiumExpiry) {
+                    const expiryDate = new Date(premiumExpiry);
+                    if (expiryDate > new Date()) {
+                        this.config.isPremium = true;
+                    } else {
+                        // Premium expired
+                        this.config.isPremium = false;
+                        localStorage.removeItem('premium_expiry');
+                    }
+                }
+            },
+
+            // Update UI based on premium status
+            updatePremiumUI() {
+                if (this.config.isPremium) {
+                    // Hide ad banner
+                    document.getElementById('adBanner').style.display = 'none';
+                    // Show premium badge
+                    document.getElementById('premiumBadge').style.display = 'inline';
+                    // Hide upgrade button
+                    document.getElementById('upgradeButton').style.display = 'none';
+                    // Show premium features
+                    document.querySelectorAll('.premium-only').forEach(el => {
+                        el.style.display = 'flex';
+                    });
+                    // Update contact limit
+                    document.getElementById('contactLimit').textContent = '2/5 contacts';
+                    // Change premium card message
+                    document.querySelector('.premium-card .card-title span').textContent = 'SafeRoute Premium - Active';
+                    document.querySelector('.premium-card .card-title i').style.color = 'var(--premium-gold)';
+                    // Hide premium-only buttons
+                    document.getElementById('addContactBtn').style.display = 'none';
+                    document.getElementById('advancedTrackingBtn').style.display = 'none';
+                } else {
+                    // Show ad banner
+                    document.getElementById('adBanner').style.display = 'flex';
+                    // Hide premium badge
+                    document.getElementById('premiumBadge').style.display = 'none';
+                    // Show upgrade button
+                    document.getElementById('upgradeButton').style.display = 'flex';
+                    // Hide premium features
+                    document.querySelectorAll('.premium-only').forEach(el => {
+                        el.style.display = 'none';
+                    });
+                    // Update contact limit
+                    document.getElementById('contactLimit').textContent = '2/2 contacts';
+                }
+            },
+
+            // Show pricing options
+            showPricing() {
+                // In a real app, this would show the pricing modal
+                // For demo, scroll to premium card
+                document.querySelector('.premium-card').scrollIntoView({ behavior: 'smooth' });
+            },
+
+            // Select plan
+            selectPlan(plan, price) {
+                this.config.payment.selectedPlan = plan;
+                this.config.payment.selectedPrice = price;
+                
+                // Update modal
+                document.getElementById('selectedPlan').textContent = 
+                    plan === 'monthly' ? 'Monthly Plan' : 
+                    plan === 'yearly' ? 'Yearly Plan' : 'Lifetime Access';
+                document.getElementById('selectedPrice').textContent = `$${price}`;
+                document.getElementById('selectedPeriod').textContent = 
+                    plan === 'lifetime' ? 'One-time payment' : 
+                    plan === 'yearly' ? 'Billed yearly' : 'Billed monthly';
+                
+                // Show payment modal
+                document.getElementById('paymentModal').style.display = 'flex';
+            },
+
+            // Select payment method
+            selectPaymentMethod(method) {
+                this.config.payment.paymentMethod = method;
+                
+                // Update UI
+                document.querySelectorAll('.payment-method').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                event.currentTarget.classList.add('selected');
+                
+                // Show corresponding details
+                document.getElementById('cardDetails').style.display = 'none';
+                document.getElementById('paypalDetails').style.display = 'none';
+                document.getElementById('googlepayDetails').style.display = 'none';
+                
+                if (method === 'card') {
+                    document.getElementById('cardDetails').style.display = 'block';
+                } else if (method === 'paypal') {
+                    document.getElementById('paypalDetails').style.display = 'block';
+                } else if (method === 'googlepay') {
+                    document.getElementById('googlepayDetails').style.display = 'block';
+                }
+            },
+
+            // Process payment (demo version)
+            processPayment() {
+                const method = this.config.payment.paymentMethod;
+                
+                // Validate card details if card payment
+                if (method === 'card') {
+                    const cardNumber = document.getElementById('cardNumber').value;
+                    const cardExpiry = document.getElementById('cardExpiry').value;
+                    const cardCVC = document.getElementById('cardCVC').value;
+                    const cardName = document.getElementById('cardName').value;
+                    
+                    if (!cardNumber || !cardExpiry || !cardCVC || !cardName) {
+                        this.showToast('Please fill all card details', 'warning');
+                        return;
+                    }
+                    
+                    // Simple card number validation
+                    if (cardNumber.replace(/\s/g, '').length < 16) {
+                        this.showToast('Please enter a valid card number', 'warning');
+                        return;
+                    }
+                }
+                
+                // Show processing message
+                this.showToast('Processing payment...', 'info');
+                
+                // Simulate payment processing
+                setTimeout(() => {
+                    // Mark user as premium
+                    this.config.isPremium = true;
+                    
+                    // Set expiry date based on plan
+                    const expiryDate = new Date();
+                    if (this.config.payment.selectedPlan === 'monthly') {
+                        expiryDate.setMonth(expiryDate.getMonth() + 1);
+                    } else if (this.config.payment.selectedPlan === 'yearly') {
+                        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+                    } else if (this.config.payment.selectedPlan === 'lifetime') {
+                        expiryDate.setFullYear(expiryDate.getFullYear() + 100); // 100 years = lifetime
+                    }
+                    
+                    // Save premium status
+                    localStorage.setItem('premium_expiry', expiryDate.toISOString());
+                    this.saveData();
+                    
+                    // Hide payment modal
+                    document.getElementById('paymentModal').style.display = 'none';
+                    
+                    // Show success modal
+                    document.getElementById('successModal').style.display = 'flex';
+                    
+                    // Log payment (in real app, this would go to your server)
+                    console.log('Payment successful:', {
+                        plan: this.config.payment.selectedPlan,
+                        price: this.config.payment.selectedPrice,
+                        method: this.config.payment.paymentMethod,
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                }, 2000);
+            },
+
+            // Cancel payment
+            cancelPayment() {
+                document.getElementById('paymentModal').style.display = 'none';
+                this.showToast('Payment cancelled', 'info');
+            },
+
+            // Close success modal
+            closeSuccess() {
+                document.getElementById('successModal').style.display = 'none';
+                this.updatePremiumUI();
+                this.showToast('Welcome to SafeRoute Premium!', 'success');
             },
 
             // Save route
@@ -892,11 +1559,23 @@
 
             // Edit contact
             editContact(index) {
-                const name = prompt(`Enter name for Contact ${index}:`, this.config.contacts[index-1].name);
+                // Check if premium required for 3rd+ contact
+                if (index >= 3 && !this.config.isPremium) {
+                    this.showToast('Upgrade to Premium to add more contacts', 'warning');
+                    this.showPricing();
+                    return;
+                }
+                
+                const name = prompt(`Enter name for Contact ${index}:`, this.config.contacts[index-1]?.name || '');
                 if (name === null) return;
                 
-                const number = prompt(`Enter phone number for ${name}:`, this.config.contacts[index-1].number);
+                const number = prompt(`Enter phone number for ${name}:`, this.config.contacts[index-1]?.number || '');
                 if (number === null) return;
+                
+                // Ensure array has enough elements
+                while (this.config.contacts.length < index) {
+                    this.config.contacts.push({ name: '', number: '' });
+                }
                 
                 this.config.contacts[index-1] = { name, number };
                 this.saveData();
@@ -910,11 +1589,14 @@
                 const nameEl = document.getElementById(`contact${index}Name`);
                 const numberEl = document.getElementById(`contact${index}Number`);
                 
-                if (contact.name) {
+                if (contact && contact.name) {
                     nameEl.textContent = contact.name;
                     numberEl.textContent = contact.number || 'No number';
-                    document.querySelectorAll('.contact-avatar')[index-1].textContent = contact.name.charAt(0).toUpperCase();
-                } else {
+                    const avatar = document.querySelectorAll('.contact-avatar')[index-1];
+                    if (avatar) {
+                        avatar.textContent = contact.name.charAt(0).toUpperCase();
+                    }
+                } else if (nameEl) {
                     nameEl.textContent = 'Add Emergency Contact';
                     numberEl.textContent = 'Tap to add phone number';
                 }
@@ -929,7 +1611,12 @@
                     return;
                 }
                 
-                this.showToast('Test message would be sent to your contacts', 'info');
+                if (this.config.isPremium) {
+                    this.showToast('Test message sent to all contacts', 'success');
+                } else {
+                    this.showToast('Test message would be sent to your contacts', 'info');
+                    this.showToast('Upgrade to Premium for real SMS alerts', 'info');
+                }
             },
 
             // Start tracking
@@ -973,7 +1660,7 @@
                 
                 try {
                     // Mapbox token
-                    mapboxgl.accessToken = 'pk.eyJ1IjoiZWtlaWRpbWF1Y2hlY2h1a3d1IiwiYSI6ImNtbDYxZ3NvazA2cDYza3NjOXlwNmx0aXcifQ.agDhj-euUG6sEyMTiDsQAA';
+                    mapboxgl.accessToken = 'pk.eyJ1IjoiZWtlaWRpbWF1Y2h1a3d1IiwiYSI6ImNtbDYxZ3NvazA2cDYza3NjOXlwNmx0aXcifQ.agDhj-euUG6sEyMTiDsQAA';
                     
                     this.state.map = new mapboxgl.Map({
                         container: 'trackingMap',
@@ -1078,15 +1765,20 @@
                 // Create emergency message
                 const message = this.createEmergencyMessage();
                 
-                // Show success message
-                this.showToast(`Alert sent to ${validContacts.length} contact(s)`, 'success');
+                if (this.config.isPremium) {
+                    this.showToast(`Premium: Alert sent to ${validContacts.length} contact(s)`, 'success');
+                } else {
+                    this.showToast(`Demo: Alert would be sent to ${validContacts.length} contact(s)`, 'info');
+                    this.showToast('Upgrade to Premium for real alerts', 'info');
+                }
                 
                 // Log the action
                 console.log('Emergency alert sent:', {
                     contacts: validContacts,
                     message: message,
                     location: this.state.currentLocation,
-                    time: new Date().toISOString()
+                    time: new Date().toISOString(),
+                    premium: this.config.isPremium
                 });
             },
 
@@ -1185,8 +1877,6 @@ Please check on me immediately!`;
                 let lastTime = 0;
                 
                 window.addEventListener('devicemotion', (event) => {
-                    if (!this.config.settings.shakeToActivate) return;
-                    
                     const acc = event.accelerationIncludingGravity;
                     if (!acc) return;
                     
@@ -1271,7 +1961,7 @@ Please check on me immediately!`;
             }
         };
 
-        // SERVICE WORKER REGISTRATION - ADDED HERE
+        // SERVICE WORKER REGISTRATION
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('sw.js')
@@ -1304,6 +1994,25 @@ Please check on me immediately!`;
                 SafeRoute.updateContactDisplay(2);
             }
         }, 1000);
+
+        // Card input formatting
+        document.getElementById('cardNumber')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.replace(/(.{4})/g, '$1 ').trim();
+            e.target.value = value.substring(0, 19);
+        });
+
+        document.getElementById('cardExpiry')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2);
+            }
+            e.target.value = value.substring(0, 5);
+        });
+
+        document.getElementById('cardCVC')?.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 3);
+        });
     </script>
 </body>
 </html>
