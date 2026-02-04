@@ -21,5 +21,28 @@
       "type": "image/png",
       "purpose": "any"
     }
+  ],
+  "screenshots": [
+    {
+      "src": "https://via.placeholder.com/1280x720/0A192F/0066FF?text=SafeRoute+GPS+Live+Tracking",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Live GPS Tracking"
+    },
+    {
+      "src": "https://via.placeholder.com/750x1334/0A192F/00CC88?text=SafeRoute+Emergency+SOS",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Emergency SOS"
+    },
+    {
+      "src": "https://via.placeholder.com/750x1334/0A192F/FF9900?text=SafeRoute+Route+Planning",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Route Planning"
+    }
   ]
 }
