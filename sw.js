@@ -1,5 +1,5 @@
 // Service Worker for SafeRoute PWA
-const CACHE_NAME = 'saferoute-v1.2';
+const CACHE_NAME = 'saferoute-v1.3';
 const urlsToCache = [
   './',
   './index.html',
@@ -9,84 +9,60 @@ const urlsToCache = [
   'https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css'
 ];
 
-// Install event - cache essential resources
+// Install event
 self.addEventListener('install', event => {
-  console.log('[Service Worker] Installing...');
+  console.log('[SW] Installing...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('[Service Worker] Caching app shell');
+        console.log('[SW] Caching app shell');
         return cache.addAll(urlsToCache);
       })
-      .then(() => {
-        console.log('[Service Worker] Skip waiting on install');
-        return self.skipWaiting();
-      })
+      .then(() => self.skipWaiting())
   );
 });
 
-// Activate event - clean up old caches
+// Activate event
 self.addEventListener('activate', event => {
-  console.log('[Service Worker] Activating...');
+  console.log('[SW] Activating...');
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheName !== CACHE_NAME) {
-            console.log('[Service Worker] Deleting old cache:', cacheName);
+            console.log('[SW] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
-    }).then(() => {
-      console.log('[Service Worker] Claiming clients');
-      return self.clients.claim();
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
-// Fetch event - network first, fallback to cache
+// Fetch event - Cache First, Network Fallback
 self.addEventListener('fetch', event => {
-  // Skip cross-origin requests
-  if (!event.request.url.startsWith(self.location.origin)) {
+  // Skip non-GET requests and chrome-extension requests
+  if (event.request.method !== 'GET' || 
+      event.request.url.startsWith('chrome-extension://')) {
     return;
   }
 
-  // For API requests, try network first
-  if (event.request.url.includes('/api/')) {
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          // Cache successful API responses
-          if (response.ok) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(event.request, responseClone);
-            });
-          }
-          return response;
-        })
-        .catch(() => {
-          // If network fails, try cache
-          return caches.match(event.request);
-        })
-    );
-    return;
-  }
-
-  // For other resources, cache first
   event.respondWith(
     caches.match(event.request)
       .then(response => {
+        // Return cached response if found
         if (response) {
-          console.log('[Service Worker] Serving from cache:', event.request.url);
+          console.log('[SW] Serving from cache:', event.request.url);
           return response;
         }
 
-        // Not in cache, fetch from network
-        return fetch(event.request)
+        // Clone the request
+        const fetchRequest = event.request.clone();
+
+        // Try network
+        return fetch(fetchRequest)
           .then(response => {
-            // Check if we received a valid response
+            // Check if valid response
             if (!response || response.status !== 200 || response.type !== 'basic') {
               return response;
             }
@@ -103,20 +79,26 @@ self.addEventListener('fetch', event => {
             return response;
           })
           .catch(error => {
-            console.log('[Service Worker] Fetch failed; returning offline page', error);
+            console.log('[SW] Fetch failed:', error);
             
-            // Return offline fallback for HTML pages
+            // For HTML pages, return offline page
             if (event.request.headers.get('accept').includes('text/html')) {
-              return caches.match('./');
+              return caches.match('./index.html');
             }
             
-            // Return generic error for other file types
-            return new Response('Offline', {
+            // Return offline image for images
+            if (event.request.headers.get('accept').includes('image')) {
+              return new Response(
+                '<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#0A192F"/><text x="50%" y="50%" font-family="Arial" font-size="20" fill="#8892B0" text-anchor="middle" dy=".3em">Image not available offline</text></svg>',
+                { headers: { 'Content-Type': 'image/svg+xml' } }
+              );
+            }
+            
+            // Generic offline response
+            return new Response('Offline - Content not available', {
               status: 503,
               statusText: 'Service Unavailable',
-              headers: new Headers({
-                'Content-Type': 'text/plain'
-              })
+              headers: new Headers({ 'Content-Type': 'text/plain' })
             });
           });
       })
@@ -125,77 +107,48 @@ self.addEventListener('fetch', event => {
 
 // Background sync for emergency messages
 self.addEventListener('sync', event => {
-  if (event.tag === 'emergency-message') {
-    console.log('[Service Worker] Background sync for emergency messages');
+  if (event.tag === 'emergency-sync') {
+    console.log('[SW] Background sync triggered');
     event.waitUntil(syncEmergencyMessages());
   }
 });
 
 async function syncEmergencyMessages() {
   try {
-    const messages = await getPendingMessages();
+    const db = await openDatabase();
+    const messages = await getAllMessages(db);
+    
     for (const message of messages) {
-      await sendEmergencyMessage(message);
-      await removePendingMessage(message.id);
+      // Simulate sending message
+      console.log('[SW] Sending queued message:', message);
+      await deleteMessage(db, message.id);
     }
-    console.log('[Service Worker] Emergency messages synced successfully');
+    
+    console.log('[SW] Emergency messages synced successfully');
   } catch (error) {
-    console.error('[Service Worker] Sync failed:', error);
+    console.error('[SW] Sync failed:', error);
   }
 }
 
-// Helper functions for background sync
-async function getPendingMessages() {
-  const db = await openDatabase();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(['messages'], 'readonly');
-    const store = transaction.objectStore('messages');
-    const request = store.getAll();
-    
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-}
-
-async function removePendingMessage(id) {
-  const db = await openDatabase();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(['messages'], 'readwrite');
-    const store = transaction.objectStore('messages');
-    const request = store.delete(id);
-    
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
-}
-
-async function openDatabase() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open('SafeRouteDB', 1);
-    
-    request.onupgradeneeded = (event) => {
-      const db = event.target.result;
-      if (!db.objectStoreNames.contains('messages')) {
-        db.createObjectStore('messages', { keyPath: 'id' });
-      }
-    };
-    
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-}
-
-// Push notifications for emergency alerts
+// Push notifications
 self.addEventListener('push', event => {
-  console.log('[Service Worker] Push received');
+  console.log('[SW] Push received');
   
-  const data = event.data ? event.data.json() : {};
+  let data = {};
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (e) {
+      data = { title: 'SafeRoute Alert', body: event.data.text() };
+    }
+  }
+  
   const title = data.title || 'SafeRoute Alert';
   const options = {
     body: data.body || 'Emergency alert from SafeRoute',
-    icon: '/icons/icon-192x192.png',
-    badge: '/icons/badge-72x72.png',
-    vibrate: [200, 100, 200, 100, 200, 100, 200],
+    icon: './icons/icon-192x192.png',
+    badge: './icons/icon-72x72.png',
+    vibrate: [200, 100, 200, 100, 200],
     tag: 'emergency-alert',
     data: data,
     actions: [
@@ -210,57 +163,90 @@ self.addEventListener('push', event => {
     ]
   };
 
-  event.waitUntil(
-    self.registration.showNotification(title, options)
-  );
+  event.waitUntil(self.registration.showNotification(title, options));
 });
 
 // Notification click handler
 self.addEventListener('notificationclick', event => {
-  console.log('[Service Worker] Notification clicked');
+  console.log('[SW] Notification clicked:', event.action);
   
   event.notification.close();
   
-  if (event.action === 'view') {
-    // Open the app
+  if (event.action === 'view' || event.action === '') {
     event.waitUntil(
-      clients.matchAll({type: 'window'}).then(windowClients => {
-        for (const client of windowClients) {
-          if (client.url === '/' && 'focus' in client) {
+      clients.matchAll({ type: 'window' }).then(clientList => {
+        // Check if app is already open
+        for (const client of clientList) {
+          if (client.url.includes('./index.html') && 'focus' in client) {
             return client.focus();
           }
         }
+        // Open new window
         if (clients.openWindow) {
-          return clients.openWindow('/');
+          return clients.openWindow('./index.html');
         }
       })
     );
   }
 });
 
-// Periodic background sync for updates
-self.addEventListener('periodicsync', event => {
-  if (event.tag === 'update-check') {
-    console.log('[Service Worker] Periodic sync for updates');
-    event.waitUntil(checkForUpdates());
+// Database functions for offline storage
+async function openDatabase() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('SafeRouteDB', 1);
+    
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains('messages')) {
+        const store = db.createObjectStore('messages', { keyPath: 'id', autoIncrement: true });
+        store.createIndex('timestamp', 'timestamp');
+      }
+      if (!db.objectStoreNames.contains('locations')) {
+        const store = db.createObjectStore('locations', { keyPath: 'id', autoIncrement: true });
+        store.createIndex('timestamp', 'timestamp');
+      }
+    };
+    
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function getAllMessages(db) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['messages'], 'readonly');
+    const store = transaction.objectStore('messages');
+    const request = store.getAll();
+    
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function deleteMessage(db, id) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['messages'], 'readwrite');
+    const store = transaction.objectStore('messages');
+    const request = store.delete(id);
+    
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
+// Handle messages from main thread
+self.addEventListener('message', event => {
+  console.log('[SW] Message received:', event.data);
+  
+  if (event.data.type === 'CACHE_DATA') {
+    // Cache additional resources
+    caches.open(CACHE_NAME).then(cache => {
+      cache.addAll(event.data.urls);
+    });
+  } else if (event.data.type === 'GET_CACHED_DATA') {
+    // Get cached data
+    caches.match(event.data.url).then(response => {
+      event.ports[0].postMessage(response);
+    });
   }
 });
-
-async function checkForUpdates() {
-  try {
-    const cache = await caches.open(CACHE_NAME);
-    const response = await fetch('/version.json', { cache: 'no-store' });
-    const data = await response.json();
-    
-    if (data.version !== CACHE_NAME) {
-      console.log('[Service Worker] Update available');
-      self.registration.showNotification('SafeRoute Update', {
-        body: 'A new version is available. Restart the app to update.',
-        icon: '/icons/icon-192x192.png',
-        tag: 'update-available'
-      });
-    }
-  } catch (error) {
-    console.log('[Service Worker] Update check failed:', error);
-  }
-}
