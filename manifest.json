@@ -1,48 +1,129 @@
 {
-  "id": "saferoute-app",
-  "name": "SafeRoute",
+  "name": "SafeRoute - Emergency Guardian",
   "short_name": "SafeRoute",
-  "description": "Emergency Safety App with GPS Tracking",
-  "start_url": "/sos-guardian-pro/",
+  "description": "Your personal safety companion for every journey",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#0A192F",
-  "theme_color": "#0066FF",
+  "display_override": ["window-controls-overlay"],
   "orientation": "portrait",
+  "theme_color": "#0A192F",
+  "background_color": "#0A192F",
+  "categories": ["navigation", "safety", "utilities"],
   "icons": [
     {
-      "src": "https://img.icons8.com/color/192/000000/shield.png",
-      "sizes": "192x192",
+      "src": "icons/icon-72x72.png",
+      "sizes": "72x72",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "https://img.icons8.com/color/512/000000/shield.png",
+      "src": "icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ],
   "screenshots": [
     {
-      "src": "https://via.placeholder.com/1280x720/0A192F/0066FF?text=SafeRoute+GPS+Live+Tracking",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Live GPS Tracking"
-    },
-    {
-      "src": "https://via.placeholder.com/750x1334/0A192F/00CC88?text=SafeRoute+Emergency+SOS",
-      "sizes": "750x1334",
+      "src": "screenshots/screenshot1.png",
+      "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Emergency SOS"
+      "label": "Emergency Contacts Screen"
     },
     {
-      "src": "https://via.placeholder.com/750x1334/0A192F/FF9900?text=SafeRoute+Route+Planning",
-      "sizes": "750x1334",
+      "src": "screenshots/screenshot2.png",
+      "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Route Planning"
+      "label": "Live Tracking Screen"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "New Emergency",
+      "short_name": "Emergency",
+      "description": "Activate emergency mode",
+      "url": "/?emergency=true",
+      "icons": [
+        {
+          "src": "icons/emergency-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Start Tracking",
+      "short_name": "Track",
+      "description": "Start journey tracking",
+      "url": "/?tracking=true",
+      "icons": [
+        {
+          "src": "icons/tracking-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": ["focus-existing", "auto"]
+  },
+  "handle_links": "preferred",
+  "protocol_handlers": [
+    {
+      "protocol": "web+saferoute",
+      "url": "/?emergency=%s"
+    }
+  ],
+  "permissions": [
+    "geolocation",
+    "notifications",
+    "background-sync",
+    "periodic-background-sync"
+  ],
+  "id": "/?source=pwa",
+  "scope": "/",
+  "prefer_related_applications": false,
+  "related_applications": []
 }
