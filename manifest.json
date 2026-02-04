@@ -1,31 +1,21 @@
 {
-  "name": "SOS Guardian Pro",
-  "short_name": "SOS Guardian",
-  "description": "Emergency Safety App with GPS Tracking",
+  "name": "SafeRoute - Emergency Guardian",
+  "short_name": "SafeRoute",
+  "description": "Personal Safety Companion with Emergency SOS",
   "start_url": "/sos-guardian-pro/",
   "display": "standalone",
-  "background_color": "#667eea",
-  "theme_color": "#764ba2",
+  "background_color": "#0A192F",
+  "theme_color": "#0066FF",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://orientalgrid-web.github.io/sos-guardian-pro/icon-192.png",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGjSURBVHgB7d2xSgNBEIbhd0OioIVYWGhhodh4B3b2FqKFhXoHXoKt2Nja2XoN2gRC0N1kVyUI+j3wV7OF3TfZbDaz2QO8tGEhVlT3Qo2/5Wb3i43vQ9f39ro8/6r3J56+HVte69JWLX45L/XW8w1HPfDxTQ5+UYvfcqTL+9HxTU4p/gsg+zIh6gK4N7q8Ly1fQ/DXduYB4Jd/A9LytdD3f23ZvYG0fA34n9DyVdi9gbR8DfD/pOVrsP8N0vI1wP8DLV+F/TuUlq8B/m/S8tXQ96nlb6Hla6HvU8vfQsvXQt+nlr+F3wG00Pep5W/hHwG00Pep5W/hFwG00Pep5W/hx6C00Pep5W9hFz8t9H1q+Vv43ZAW+j61/C0MQWmh71PL38IXgbTQ96nlb+GrgFr4LogW/g5QC38KoIV/F0ALf0KihR5ELfQgauEPY7TQg6iFcxC1cA6iFs5B1MI5iFo4B1EL5yBq4RxELZyDqIVzELVwDqIWzkHUwjmIWjgHUQvnIGrhHEQtnIOohXMQtXAOohbOQdTCOYhaOAdRC+cgauEcRC2cg6iFcxC1cA6iFs5B1MI5iFo4B1EL5yBq4RxELZyDqIVzELXwLwMp4V8HUsK/E6CEfzFICf96kBL+DUEl/DvCSvjXBJXwbwop4R8WUsI/MqSEf3BYCf/goBL+8YGV8I8QrIR/iGgl/GNEK+EfJloJ/0jRSvhHi1bCP1y0Ev7xopXwjxithH/IaCX8Y0Yr4R80Wgn/sNFK+EeOVsI/drQS/sGjlfAPH62EfwRpJfyjSCvhH0ZaCf9A0kr4h5JWwj+WtBL+waSV8I8mrYR/OGkl/ONJK+EfUFoJ/4jSSvjHlFbCP6i0Ev5RpZXwjyuthH9gaSX8Q0sr4R9bWgn/4NJK+EeXVsI/vLQS/vGllfCPMK2Ef4hpJfyDTCvhH2VaCf8400r4B5pWwj/StBL+oaZvq8OH6/snU1Pz0x8AAAAASUVORK5CYII=",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
-      "src": "https://orientalgrid-web.github.io/sos-guardian-pro/icon-512.png",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGjSURBVHgB7d2xSgNBEIbhd0OioIVYWGhhodh4B3b2FqKFhXoHXoKt2Nja2XoN2gRC0N1kVyUI+j3wV7OF3TfZbDaz2QO8tGEhVlT3Qo2/5Wb3i43vQ9f39ro8/6r3J56+HVte69JWLX45L/XW8w1HPfDxTQ5+UYvfcqTL+9HxTU4p/gsg+zIh6gK4N7q8Ly1fQ/DXduYB4Jd/A9LytdD3f23ZvYG0fA34n9DyVdi9gbR8DfD/pOVrsP8N0vI1wP8DLV+F/TuUlq8B/m/S8tXQ96nlb6Hla6HvU8vfQsvXQt+nlr+F3wG00Pep5W/hHwG00Pep5W/hFwG00Pep5W/hx6C00Pep5W9hFz8t9H1q+Vv43ZAW+j61/C0MQWmh71PL38IXgbTQ96nlb+GrgFr4LogW/g5QC38KoIV/F0ALf0KihR5ELfQgauEPY7TQg6iFcxC1cA6iFs5B1MI5iFo4B1EL5yBq4RxELZyDqIVzELVwDqIWzkHUwjmIWjgHUQvnIGrhHEQtnIOohXMQtXAOohbOQdTCOYhaOAdRC+cgauEcRC2cg6iFcxC1cA6iFs5B1MI5iFo4B1EL5yBq4RxELZyDqIVzELXwLwMp4V8HUsK/E6CEfzFICf96kBL+DUEl/DvCSvjXBJXwbwop4R8WUsI/MqSEf3BYCf/goBL+8YGV8I8QrIR/iGgl/GNEK+EfJloJ/0jRSvhHi1bCP1y0Ev7xopXwjxithH/IaCX8Y0Yr4R80Wgn/sNFK+EeOVsI/drQS/sGjlfAPH62EfwRpJfyjSCvhH0ZaCf9A0kr4h5JWwj+WtBL+waSV8I8mrYR/OGkl/ONJK+EfUFoJ/4jSSvjHlFbCP6i0Ev5RpZXwjyuthH9gaSX8Q0sr4R9bWgn/4NJK+EeXVsI/vLQS/vGllfCPMK2Ef4hpJfyDTCvhH2VaCf8400r4B5pWwj/StBL+oaZvq8OH6/snU1Pz0x8AAAAASUVORK5CYII=",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "categories": ["navigation", "productivity", "utilities"],
-  "screenshots": [
-    {
-      "src": "https://orientalgrid-web.github.io/sos-guardian-pro/screenshot1.png",
-      "sizes": "1280x720",
       "type": "image/png"
     }
   ]
