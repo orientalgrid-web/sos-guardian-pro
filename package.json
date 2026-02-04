@@ -1,12 +1,14 @@
 {
-  "name": "SafeRoute",
+  "id": "/sos-guardian-pro/",
+  "name": "SafeRoute - Emergency Guardian",
   "short_name": "SafeRoute",
-  "description": "Emergency Safety App with GPS Tracking",
+  "description": "Personal Safety App with GPS Tracking & Emergency SOS",
   "start_url": "/sos-guardian-pro/",
   "display": "standalone",
   "background_color": "#0A192F",
   "theme_color": "#0066FF",
   "orientation": "portrait",
+  "categories": ["navigation", "productivity", "utilities"],
   "icons": [
     {
       "src": "https://img.icons8.com/color/192/000000/shield.png",
@@ -23,16 +25,18 @@
   ],
   "screenshots": [
     {
-      "src": "https://via.placeholder.com/1280x720/0A192F/0066FF?text=SafeRoute+GPS+Tracking",
+      "src": "https://via.placeholder.com/1280x720/0A192F/0066FF?text=SafeRoute+GPS+Live+Tracking",
       "sizes": "1280x720",
       "type": "image/png",
-      "form_factor": "wide"
+      "form_factor": "wide",
+      "label": "Live GPS Tracking"
     },
     {
-      "src": "https://via.placeholder.com/750x1334/0A192F/0066FF?text=SafeRoute+Emergency+SOS",
+      "src": "https://via.placeholder.com/750x1334/0A192F/00CC88?text=SafeRoute+Emergency+SOS+Button",
       "sizes": "750x1334",
       "type": "image/png",
-      "form_factor": "narrow"
+      "form_factor": "narrow",
+      "label": "Emergency SOS"
     }
   ]
 }
