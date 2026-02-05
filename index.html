@@ -2,67 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json" crossorigin="use-credentials">
+    <link rel="manifest" href="manifest.json">
     
     <!-- Theme Color -->
     <meta name="theme-color" content="#0A192F">
-    <meta name="msapplication-TileColor" content="#0A192F">
     
     <!-- Apple PWA Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="SafeRoute">
     
-    <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" href="/icons/icon-180x180.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-167x167.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180x180.png">
-    
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png">
-    <link rel="shortcut icon" href="/icons/icon-96x96.png">
-    
-    <!-- Microsoft Tiles -->
-    <meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
-    <meta name="msapplication-config" content="/browserconfig.xml">
-    
-    <!-- Open Graph / Social Meta Tags -->
-    <meta property="og:title" content="SafeRoute Nigeria - Emergency Guardian">
-    <meta property="og:description" content="Your personal safety companion for every journey in Nigeria. Emergency alerts, live GPS tracking, and shake detection.">
-    <meta property="og:image" content="/screenshots/wide.png">
-    <meta property="og:url" content="https://saferoute.ng">
-    <meta property="og:type" content="website">
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="SafeRoute Nigeria - Emergency Guardian">
-    <meta name="twitter:description" content="Your personal safety companion for every journey in Nigeria">
-    <meta name="twitter:image" content="/screenshots/wide.png">
+    <link rel="icon" href="icon-192.png" type="image/png">
     
     <!-- App Title -->
     <title>SafeRoute Nigeria - Emergency Guardian</title>
     
     <!-- External Resources -->
-    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet'>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <style>
-        /* Your existing CSS styles here */
-    </style>
-</head>
     <style>
         :root {
             --primary-blue: #0066FF;
             --safety-green: #00CC88;
             --warning-orange: #FF9900;
             --danger-red: #FF3366;
-            --premium-gold: #FFD700;
             --dark-bg: #0A192F;
             --card-bg: #112240;
             --text-light: #E6F1FF;
@@ -74,16 +42,13 @@
             padding: 0;
             box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            -webkit-tap-highlight-color: transparent;
         }
 
         html, body {
             width: 100%;
             height: 100%;
-            overflow: hidden;
             background: var(--dark-bg);
             color: var(--text-light);
-            position: fixed;
         }
 
         /* Splash Screen */
@@ -99,7 +64,6 @@
             align-items: center;
             justify-content: center;
             z-index: 9999;
-            transition: opacity 0.5s ease;
         }
 
         .splash-logo {
@@ -200,9 +164,7 @@
             background: var(--card-bg);
             padding: 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            text-align: center;
         }
 
         .header-title {
@@ -218,10 +180,10 @@
         }
 
         /* Cards */
-        .route-card, .contacts-card, .tracking-card, .premium-card {
+        .card {
             background: var(--card-bg);
             border-radius: 16px;
-            padding: 25px;
+            padding: 20px;
             margin-bottom: 20px;
         }
 
@@ -239,7 +201,6 @@
 
         .premium-card {
             border: 2px solid rgba(255, 215, 0, 0.3);
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(0, 102, 255, 0.1));
         }
 
         .card-title {
@@ -249,6 +210,33 @@
             margin-bottom: 20px;
             color: var(--text-light);
             font-size: 18px;
+        }
+
+        /* Inputs */
+        .route-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .route-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: var(--text-light);
+            font-size: 16px;
+        }
+
+        .route-input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .route-actions {
+            display: flex;
+            gap: 15px;
         }
 
         /* Buttons */
@@ -263,25 +251,31 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            transition: all 0.3s ease;
+            transition: opacity 0.3s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
         }
 
         .btn-primary {
             background: var(--primary-blue);
             color: white;
-            flex: 1;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
         }
 
         .btn-success {
             background: var(--safety-green);
             color: white;
-            width: 100%;
         }
 
         .btn-danger {
             background: var(--danger-red);
             color: white;
-            width: 100%;
         }
 
         /* Emergency Button */
@@ -300,14 +294,109 @@
             font-size: 24px;
             cursor: pointer;
             z-index: 100;
-            animation: emergencyPulse 2s infinite;
+            animation: pulse 2s infinite;
             border: none;
             box-shadow: 0 10px 30px rgba(255, 51, 102, 0.4);
         }
 
-        @keyframes emergencyPulse {
+        @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.1); }
+        }
+
+        /* Contacts */
+        .contacts-list {
+            margin-bottom: 20px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        .contact-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-name {
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .contact-number {
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+
+        .contact-action {
+            color: var(--primary-blue);
+            cursor: pointer;
+        }
+
+        /* Map */
+        #trackingMap {
+            width: 100%;
+            height: 200px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            background: #000;
+        }
+
+        /* Tracking Info */
+        .tracking-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        /* Premium Features */
+        .premium-features {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .premium-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-light);
         }
 
         /* Toast */
@@ -369,10 +458,10 @@
             width: 100%;
             text-align: center;
             border: 3px solid var(--danger-red);
-            animation: emergencyGlow 1s infinite;
+            animation: glow 1s infinite;
         }
 
-        @keyframes emergencyGlow {
+        @keyframes glow {
             0%, 100% { box-shadow: 0 0 30px rgba(255, 51, 102, 0.3); }
             50% { box-shadow: 0 0 50px rgba(255, 51, 102, 0.5); }
         }
@@ -382,7 +471,6 @@
             font-weight: 900;
             color: var(--danger-red);
             margin: 20px 0;
-            text-shadow: 0 0 20px rgba(255, 51, 102, 0.5);
         }
 
         /* Responsive */
@@ -393,6 +481,14 @@
                 bottom: 20px;
                 right: 20px;
                 font-size: 20px;
+            }
+            
+            .route-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
             }
         }
     </style>
@@ -407,42 +503,36 @@
     <!-- Welcome Screen -->
     <div class="welcome-screen" id="welcomeScreen">
         <div class="welcome-logo">SafeRoute</div>
-        <div class="welcome-tagline">Your personal safety companion for every journey</div>
+        <div class="welcome-tagline">Your personal safety companion</div>
         
         <div class="welcome-features">
             <div class="feature-item">
-                <div class="feature-icon">
-                    <i class="fas fa-route"></i>
-                </div>
+                <div class="feature-icon"><i class="fas fa-route"></i></div>
                 <div class="feature-text">
                     <h4>Route Tracking</h4>
-                    <p>Monitor your journey with live satellite view</p>
+                    <p>Monitor your journey with GPS</p>
                 </div>
             </div>
             
             <div class="feature-item">
-                <div class="feature-icon">
-                    <i class="fas fa-user-friends"></i>
-                </div>
+                <div class="feature-icon"><i class="fas fa-user-friends"></i></div>
                 <div class="feature-text">
                     <h4>Emergency Contacts</h4>
-                    <p>Alert loved ones instantly if needed</p>
+                    <p>Alert loved ones instantly</p>
                 </div>
             </div>
             
             <div class="feature-item">
-                <div class="feature-icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
+                <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
                 <div class="feature-text">
-                    <h4>Premium Features</h4>
-                    <p>Unlock advanced safety with Premium</p>
+                    <h4>Shake Detection</h4>
+                    <p>Shake phone for emergency</p>
                 </div>
             </div>
         </div>
         
         <button class="btn btn-success" onclick="SafeRoute.startApp()">
-            <i class="fas fa-play"></i> Start Your Safe Journey
+            <i class="fas fa-play"></i> Start Safe Journey
         </button>
     </div>
 
@@ -450,7 +540,7 @@
     <div class="main-app" id="mainApp">
         <div class="app-header">
             <div class="header-title">
-                <i class="fas fa-map-marker-alt"></i> SafeRoute
+                <i class="fas fa-shield-alt"></i> SafeRoute Nigeria
             </div>
         </div>
         
@@ -460,28 +550,15 @@
                 <i class="fas fa-mobile-alt"></i> Shakes: <span id="shakeCount">0/6</span>
             </div>
             
-            <!-- Route Setup Card -->
-            <div class="route-card">
+            <!-- Route Setup -->
+            <div class="card route-card">
                 <div class="card-title">
                     <i class="fas fa-route"></i>
-                    <span>Your Journey Route</span>
+                    <span>Your Journey</span>
                 </div>
                 <div class="route-inputs">
-                    <div class="input-group">
-                        <div class="input-icon">
-                            <i class="fas fa-map-pin"></i>
-                        </div>
-                        <input type="text" class="route-input" id="startPoint" 
-                               placeholder="Where are you starting from?">
-                    </div>
-                    
-                    <div class="input-group">
-                        <div class="input-icon">
-                            <i class="fas fa-flag-checkered"></i>
-                        </div>
-                        <input type="text" class="route-input" id="endPoint" 
-                               placeholder="Where are you going to?">
-                    </div>
+                    <input type="text" class="route-input" id="startPoint" placeholder="Starting point">
+                    <input type="text" class="route-input" id="endPoint" placeholder="Destination">
                 </div>
                 <div class="route-actions">
                     <button class="btn btn-secondary" onclick="SafeRoute.useCurrentLocation()">
@@ -493,18 +570,18 @@
                 </div>
             </div>
             
-            <!-- Emergency Contacts Card -->
-            <div class="contacts-card">
+            <!-- Emergency Contacts -->
+            <div class="card contacts-card">
                 <div class="card-title">
                     <i class="fas fa-user-friends"></i>
                     <span>Emergency Contacts</span>
                 </div>
                 <div class="contacts-list">
                     <div class="contact-item">
-                        <div class="contact-avatar">A</div>
+                        <div class="contact-avatar" id="contact1Avatar">A</div>
                         <div class="contact-info">
-                            <div class="contact-name" id="contact1Name">Add Emergency Contact</div>
-                            <div class="contact-number" id="contact1Number">Tap to add phone number</div>
+                            <div class="contact-name" id="contact1Name">Add Contact 1</div>
+                            <div class="contact-number" id="contact1Number">Tap to add number</div>
                         </div>
                         <div class="contact-action" onclick="SafeRoute.editContact(1)">
                             <i class="fas fa-edit"></i>
@@ -512,10 +589,10 @@
                     </div>
                     
                     <div class="contact-item">
-                        <div class="contact-avatar">B</div>
+                        <div class="contact-avatar" id="contact2Avatar">B</div>
                         <div class="contact-info">
-                            <div class="contact-name" id="contact2Name">Add Emergency Contact</div>
-                            <div class="contact-number" id="contact2Number">Tap to add phone number</div>
+                            <div class="contact-name" id="contact2Name">Add Contact 2</div>
+                            <div class="contact-number" id="contact2Number">Tap to add number</div>
                         </div>
                         <div class="contact-action" onclick="SafeRoute.editContact(2)">
                             <i class="fas fa-edit"></i>
@@ -523,22 +600,22 @@
                     </div>
                 </div>
                 <button class="btn btn-secondary" onclick="SafeRoute.testMessage()">
-                    <i class="fas fa-paper-plane"></i> Send Test Message
+                    <i class="fas fa-paper-plane"></i> Send Test Alert
                 </button>
             </div>
             
-            <!-- Live Tracking Card -->
-            <div class="tracking-card">
+            <!-- Live Tracking -->
+            <div class="card tracking-card">
                 <div class="card-title">
                     <i class="fas fa-satellite"></i>
-                    <span>Live Journey Tracking</span>
+                    <span>Live Tracking</span>
                 </div>
                 
-                <div id="trackingMap" style="width: 100%; height: 200px; border-radius: 12px; overflow: hidden; margin-bottom: 15px; background: #000;"></div>
+                <div id="trackingMap"></div>
                 
                 <div class="tracking-info">
                     <div class="info-item">
-                        <div class="info-label">Current Location</div>
+                        <div class="info-label">Location</div>
                         <div class="info-value" id="currentLocation">--.--, --.--</div>
                     </div>
                     <div class="info-item">
@@ -552,29 +629,29 @@
                 </button>
             </div>
             
-            <!-- Premium Card -->
-            <div class="premium-card">
+            <!-- Info -->
+            <div class="card premium-card">
                 <div class="card-title">
-                    <i class="fas fa-crown"></i>
-                    <span>SafeRoute Premium</span>
+                    <i class="fas fa-info-circle"></i>
+                    <span>How to Use</span>
                 </div>
                 
                 <div class="premium-features">
                     <div class="premium-feature">
                         <i class="fas fa-check-circle" style="color: var(--safety-green);"></i>
-                        <span>Unlimited Emergency Contacts</span>
+                        <span>Save your route before traveling</span>
                     </div>
                     <div class="premium-feature">
                         <i class="fas fa-check-circle" style="color: var(--safety-green);"></i>
-                        <span>Advanced GPS Tracking</span>
+                        <span>Add emergency contacts</span>
                     </div>
                     <div class="premium-feature">
                         <i class="fas fa-check-circle" style="color: var(--safety-green);"></i>
-                        <span>Secret Photo & Audio Capture</span>
+                        <span>Shake phone 6 times for emergency</span>
                     </div>
                     <div class="premium-feature">
                         <i class="fas fa-check-circle" style="color: var(--safety-green);"></i>
-                        <span>WhatsApp Emergency Alerts</span>
+                        <span>Red button for instant emergency</span>
                     </div>
                 </div>
             </div>
@@ -589,12 +666,11 @@
     <!-- Emergency Modal -->
     <div class="emergency-modal" id="emergencyModal">
         <div class="emergency-content">
-            <div class="emergency-title">
-                <i class="fas fa-exclamation-triangle"></i>
-                EMERGENCY ALERT
+            <div style="color: var(--danger-red); font-size: 24px; margin-bottom: 20px;">
+                <i class="fas fa-exclamation-triangle"></i> EMERGENCY
             </div>
             <div class="countdown" id="countdown">5</div>
-            <div class="emergency-message" id="emergencyMessage">
+            <div style="margin-bottom: 20px; color: var(--text-light);" id="emergencyMessage">
                 Help will be notified in 5 seconds...
             </div>
             <div style="display: flex; gap: 15px;">
@@ -611,60 +687,52 @@
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
+    <!-- Mapbox -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
+    
     <script>
-        // SafeRoute Application
+        // Simple SafeRoute App
         const SafeRoute = {
             config: {
                 route: { start: '', end: '' },
-                contacts: [{ name: '', number: '' }, { name: '', number: '' }],
-                emergencySettings: {
-                    shakeThreshold: 6,
-                    shakeTimeout: 3000,
-                    countdownSeconds: 5
-                }
+                contacts: [{ name: '', number: '' }, { name: '', number: '' }]
             },
             
             state: {
                 currentLocation: null,
                 isTracking: false,
-                isEmergency: false,
                 map: null,
                 mapMarker: null,
-                countdownInterval: null,
                 shakeCount: 0,
-                lastShakeTime: 0,
-                batteryLevel: 85
+                batteryLevel: 100
             },
 
-            // Initialize the app
-            async init() {
-                console.log('🚀 SafeRoute Initializing...');
+            // Initialize
+            init() {
+                console.log('SafeRoute starting...');
                 
-                // Hide splash screen after 2 seconds
+                // Hide splash after 2 seconds
                 setTimeout(() => {
-                    const splashScreen = document.getElementById('splashScreen');
-                    if (splashScreen) {
-                        splashScreen.style.opacity = '0';
-                        setTimeout(() => {
-                            splashScreen.style.display = 'none';
-                        }, 500);
-                    }
+                    document.getElementById('splashScreen').style.display = 'none';
                 }, 2000);
                 
                 // Load saved data
                 this.loadData();
                 
-                // Initialize systems
-                this.initClock();
+                // Setup GPS
                 this.initGPS();
-                this.initShakeDetection();
+                
+                // Setup battery
                 this.initBattery();
                 
-                // Setup demo data
+                // Setup shake detection
+                this.initShakeDetection();
+                
+                // Demo data
                 this.setupDemoData();
             },
 
-            // Load saved data
+            // Load data from localStorage
             loadData() {
                 try {
                     const saved = localStorage.getItem('saferoute_data');
@@ -673,7 +741,6 @@
                         this.config.route = data.route || this.config.route;
                         this.config.contacts = data.contacts || this.config.contacts;
                         
-                        // Update UI
                         document.getElementById('startPoint').value = this.config.route.start;
                         document.getElementById('endPoint').value = this.config.route.end;
                         
@@ -681,7 +748,7 @@
                         this.updateContactDisplay(2);
                     }
                 } catch (e) {
-                    console.log('No saved data found');
+                    console.log('No saved data');
                 }
             },
 
@@ -693,15 +760,15 @@
                         contacts: this.config.contacts
                     }));
                 } catch (e) {
-                    console.error('Error saving data:', e);
+                    console.error('Error saving:', e);
                 }
             },
 
-            // Start the main app
+            // Start app (from welcome screen)
             startApp() {
                 document.getElementById('welcomeScreen').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'flex';
-                this.showToast('👋 Welcome to SafeRoute!', 'success');
+                this.showToast('Welcome to SafeRoute!', 'success');
             },
 
             // Save route
@@ -710,62 +777,49 @@
                 const end = document.getElementById('endPoint').value.trim();
                 
                 if (!start || !end) {
-                    this.showToast('Please enter both start and end points', 'warning');
+                    this.showToast('Enter start and end points', 'warning');
                     return;
                 }
                 
                 this.config.route = { start, end };
                 this.saveData();
-                this.showToast('✅ Route saved successfully!', 'success');
+                this.showToast('Route saved!', 'success');
             },
 
             // Use current location
             useCurrentLocation() {
                 if (!this.state.currentLocation) {
-                    this.showToast('Getting your location...', 'info');
+                    this.showToast('Getting location...', 'info');
                     return;
                 }
                 
-                const locationText = `My Current Location (${this.state.currentLocation.lat.toFixed(4)}, ${this.state.currentLocation.lng.toFixed(4)})`;
-                document.getElementById('startPoint').value = locationText;
-                this.config.route.start = locationText;
-                this.showToast('📍 Current location set as start point', 'success');
+                const loc = `My Location (${this.state.currentLocation.lat.toFixed(4)}, ${this.state.currentLocation.lng.toFixed(4)})`;
+                document.getElementById('startPoint').value = loc;
+                this.config.route.start = loc;
+                this.showToast('Location set', 'success');
             },
 
             // Edit contact
             editContact(index) {
-                const name = prompt(`Enter name for Contact ${index}:`, this.config.contacts[index-1]?.name || '');
-                if (name === null) return;
+                const name = prompt(`Contact ${index} name:`, this.config.contacts[index-1]?.name || '');
+                if (!name) return;
                 
-                const number = prompt(`Enter phone number for ${name}:`, this.config.contacts[index-1]?.number || '');
-                if (number === null) return;
-                
-                while (this.config.contacts.length < index) {
-                    this.config.contacts.push({ name: '', number: '' });
-                }
+                const number = prompt(`Phone number for ${name}:`, this.config.contacts[index-1]?.number || '');
+                if (!number) return;
                 
                 this.config.contacts[index-1] = { name, number };
                 this.saveData();
                 this.updateContactDisplay(index);
-                this.showToast(`👤 Contact ${name} saved`, 'success');
+                this.showToast(`Saved ${name}`, 'success');
             },
 
             // Update contact display
             updateContactDisplay(index) {
                 const contact = this.config.contacts[index-1];
-                const nameEl = document.getElementById(`contact${index}Name`);
-                const numberEl = document.getElementById(`contact${index}Number`);
-                
                 if (contact && contact.name) {
-                    nameEl.textContent = contact.name;
-                    numberEl.textContent = contact.number || 'No number';
-                    const avatar = document.querySelectorAll('.contact-avatar')[index-1];
-                    if (avatar) {
-                        avatar.textContent = contact.name.charAt(0).toUpperCase();
-                    }
-                } else if (nameEl) {
-                    nameEl.textContent = 'Add Emergency Contact';
-                    numberEl.textContent = 'Tap to add phone number';
+                    document.getElementById(`contact${index}Name`).textContent = contact.name;
+                    document.getElementById(`contact${index}Number`).textContent = contact.number;
+                    document.getElementById(`contact${index}Avatar`).textContent = contact.name.charAt(0).toUpperCase();
                 }
             },
 
@@ -774,22 +828,17 @@
                 const hasContacts = this.config.contacts.some(c => c.name && c.number);
                 
                 if (!hasContacts) {
-                    this.showToast('Please add emergency contacts first', 'warning');
+                    this.showToast('Add contacts first', 'warning');
                     return;
                 }
                 
-                this.showToast('📨 Test message would be sent to your contacts', 'info');
+                this.showToast('Test alert sent', 'info');
             },
 
             // Start tracking
             startTracking() {
                 if (!this.config.route.start || !this.config.route.end) {
-                    this.showToast('Please save your route first', 'warning');
-                    return;
-                }
-                
-                if (!this.state.currentLocation) {
-                    this.showToast('Waiting for GPS location...', 'info');
+                    this.showToast('Save route first', 'warning');
                     return;
                 }
                 
@@ -801,11 +850,10 @@
                     button.style.background = 'var(--danger-red)';
                     
                     this.initMap();
-                    this.showToast('📍 Live tracking started!', 'success');
+                    this.showToast('Tracking started', 'success');
                 } else {
                     button.innerHTML = '<i class="fas fa-play"></i> Start Tracking';
                     button.style.background = 'var(--primary-blue)';
-                    
                     this.showToast('Tracking stopped', 'info');
                 }
             },
@@ -815,13 +863,14 @@
                 if (this.state.map) return;
                 
                 try {
-                    mapboxgl.accessToken = 'pk.eyJ1IjoiZWtlaWRpbWF1Y2h1a3d1IiwiYSI6ImNtbDYxZ3NvazA2cDYza3NjOXlwNmx0aXcifQ.agDhj-euUG6sEyMTiDsQAA';
+                    // Use public demo token
+                    mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
                     
                     this.state.map = new mapboxgl.Map({
                         container: 'trackingMap',
                         style: 'mapbox://styles/mapbox/streets-v11',
                         center: this.state.currentLocation ? [this.state.currentLocation.lng, this.state.currentLocation.lat] : [0, 0],
-                        zoom: 14
+                        zoom: 12
                     });
                     
                     // Add marker
@@ -831,7 +880,7 @@
                         
                 } catch (error) {
                     console.error('Map error:', error);
-                    this.showToast('Map loading failed', 'error');
+                    this.showToast('Map failed', 'error');
                 }
             },
 
@@ -847,38 +896,32 @@
                         });
                     }
                     
-                    // Update display
                     document.getElementById('currentLocation').textContent = 
                         `${this.state.currentLocation.lat.toFixed(4)}, ${this.state.currentLocation.lng.toFixed(4)}`;
                 }
             },
 
             // Activate emergency
-            activateEmergency(source = 'BUTTON') {
-                if (this.state.isEmergency) return;
+            activateEmergency() {
+                if (document.getElementById('emergencyModal').style.display === 'flex') return;
                 
-                this.state.isEmergency = true;
+                document.getElementById('emergencyModal').style.display = 'flex';
                 
-                // Show modal
-                const modal = document.getElementById('emergencyModal');
-                modal.style.display = 'flex';
-                
-                // Start countdown
-                let countdown = this.config.emergencySettings.countdownSeconds;
+                let countdown = 5;
                 document.getElementById('countdown').textContent = countdown;
-                document.getElementById('emergencyMessage').textContent = 
-                    `Help will be notified in ${countdown} seconds...`;
                 
-                this.state.countdownInterval = setInterval(() => {
+                const countdownInterval = setInterval(() => {
                     countdown--;
                     document.getElementById('countdown').textContent = countdown;
-                    document.getElementById('emergencyMessage').textContent = 
-                        countdown > 0 ? `Help will be notified in ${countdown} seconds...` : 'Sending emergency alerts...';
                     
                     if (countdown <= 0) {
+                        clearInterval(countdownInterval);
                         this.confirmEmergency();
                     }
                 }, 1000);
+                
+                // Store interval for cancellation
+                this.state.countdownInterval = countdownInterval;
             },
 
             // Confirm emergency
@@ -886,289 +929,158 @@
                 clearInterval(this.state.countdownInterval);
                 document.getElementById('emergencyModal').style.display = 'none';
                 
-                // Send emergency alerts
-                this.sendEmergencyAlerts();
+                const validContacts = this.config.contacts.filter(c => c.name && c.number);
+                if (validContacts.length > 0) {
+                    this.showToast(`Emergency sent to ${validContacts.length} contacts`, 'success');
+                } else {
+                    this.showToast('No contacts to notify', 'warning');
+                }
                 
-                // Start live tracking if not already
+                // Start tracking if not already
                 if (!this.state.isTracking) {
                     this.state.isTracking = true;
                     this.initMap();
                 }
-                
-                this.showToast('🚨 Emergency alerts sent! Help is on the way.', 'success');
-                this.state.isEmergency = false;
             },
 
             // Cancel emergency
             cancelEmergency() {
                 clearInterval(this.state.countdownInterval);
                 document.getElementById('emergencyModal').style.display = 'none';
-                this.state.isEmergency = false;
                 this.showToast('Emergency cancelled', 'info');
             },
 
-            // Send emergency alerts
-            sendEmergencyAlerts() {
-                const validContacts = this.config.contacts.filter(c => c.name && c.number);
-                
-                if (validContacts.length === 0) {
-                    this.showToast('No emergency contacts to notify', 'warning');
-                    return;
-                }
-                
-                this.showToast(`🚨 Emergency alert sent to ${validContacts.length} contact(s)`, 'success');
-            },
-
-            // Enhanced shake detection with 6 shakes threshold
+            // Shake detection
             initShakeDetection() {
                 if (!window.DeviceMotionEvent) return;
                 
-                let lastX = 0, lastY = 0, lastZ = 0;
-                let lastTime = 0;
+                let lastShake = 0;
+                let shakeCount = 0;
                 
-                window.addEventListener('devicemotion', (event) => {
-                    const acc = event.accelerationIncludingGravity;
+                window.addEventListener('devicemotion', (e) => {
+                    const acc = e.accelerationIncludingGravity;
                     if (!acc) return;
                     
-                    const currentTime = Date.now();
-                    if (currentTime - lastTime < 100) return;
+                    const now = Date.now();
+                    if (now - lastShake < 100) return;
                     
-                    const deltaX = Math.abs(acc.x - lastX);
-                    const deltaY = Math.abs(acc.y - lastY);
-                    const deltaZ = Math.abs(acc.z - lastZ);
+                    const total = Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z);
                     
-                    const total = deltaX + deltaY + deltaZ;
-                    
-                    if (total > 15) {
-                        this.handleShake();
-                    }
-                    
-                    lastX = acc.x;
-                    lastY = acc.y;
-                    lastZ = acc.z;
-                    lastTime = currentTime;
-                });
-            },
-
-            // Handle shake detection with 6 shakes requirement
-            handleShake() {
-                const now = Date.now();
-                
-                // Reset shake count if more than 3 seconds have passed
-                if (now - this.state.lastShakeTime > this.config.emergencySettings.shakeTimeout) {
-                    this.state.shakeCount = 0;
-                    this.hideShakeCounter();
-                }
-                
-                this.state.shakeCount++;
-                this.state.lastShakeTime = now;
-                
-                // Show shake counter
-                this.showShakeCounter();
-                
-                // If 6 shakes reached, activate emergency
-                if (this.state.shakeCount >= this.config.emergencySettings.shakeThreshold) {
-                    this.activateEmergency('SHAKE');
-                    this.state.shakeCount = 0;
-                    this.hideShakeCounter();
-                }
-            },
-
-            // Show shake counter
-            showShakeCounter() {
-                const counter = document.getElementById('shakeCounter');
-                const countDisplay = document.getElementById('shakeCount');
-                
-                if (counter && countDisplay) {
-                    counter.style.display = 'flex';
-                    countDisplay.textContent = `${this.state.shakeCount}/${this.config.emergencySettings.shakeThreshold}`;
-                    
-                    // Auto-hide after 3 seconds
-                    setTimeout(() => {
-                        if (Date.now() - this.state.lastShakeTime > 3000) {
-                            this.hideShakeCounter();
+                    if (total > 20) {
+                        if (now - this.state.lastShakeTime > 3000) {
+                            shakeCount = 0;
                         }
-                    }, 3000);
-                }
-            },
-
-            // Hide shake counter
-            hideShakeCounter() {
-                const counter = document.getElementById('shakeCounter');
-                if (counter) {
-                    counter.style.display = 'none';
-                }
-            },
-
-            // Initialize systems
-            initClock() {
-                setInterval(() => {
-                    // Update time if needed
-                }, 1000);
-            },
-
-            initGPS() {
-                if (!('geolocation' in navigator)) {
-                    this.showToast('GPS not available', 'error');
-                    return;
-                }
-                
-                const success = (position) => {
-                    this.state.currentLocation = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude,
-                        accuracy: position.coords.accuracy
-                    };
-                    
-                    this.updateMapLocation();
-                };
-                
-                const error = () => {
-                    // Demo location for testing
-                    this.state.currentLocation = {
-                        lat: 6.5244 + (Math.random() - 0.5) * 0.01,
-                        lng: 3.3792 + (Math.random() - 0.5) * 0.01,
-                        accuracy: 50
-                    };
-                    this.updateMapLocation();
-                };
-                
-                navigator.geolocation.watchPosition(success, error, {
-                    enableHighAccuracy: true,
-                    maximumAge: 30000,
-                    timeout: 27000
+                        
+                        shakeCount++;
+                        this.state.lastShakeTime = now;
+                        
+                        // Show counter
+                        const counter = document.getElementById('shakeCounter');
+                        counter.style.display = 'flex';
+                        document.getElementById('shakeCount').textContent = `${shakeCount}/6`;
+                        
+                        // If 6 shakes, trigger emergency
+                        if (shakeCount >= 6) {
+                            this.activateEmergency();
+                            shakeCount = 0;
+                            counter.style.display = 'none';
+                        }
+                        
+                        // Hide counter after 3 seconds
+                        setTimeout(() => {
+                            if (Date.now() - this.state.lastShakeTime > 3000) {
+                                counter.style.display = 'none';
+                            }
+                        }, 3000);
+                    }
                 });
             },
 
-            // Battery monitoring
+            // GPS
+            initGPS() {
+                if (!navigator.geolocation) return;
+                
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        this.state.currentLocation = {
+                            lat: pos.coords.latitude,
+                            lng: pos.coords.longitude
+                        };
+                        this.updateMapLocation();
+                    },
+                    () => {
+                        // Demo location (Lagos, Nigeria)
+                        this.state.currentLocation = {
+                            lat: 6.5244,
+                            lng: 3.3792
+                        };
+                        this.updateMapLocation();
+                    }
+                );
+            },
+
+            // Battery
             initBattery() {
                 if ('getBattery' in navigator) {
                     navigator.getBattery().then(battery => {
-                        const updateBattery = () => {
-                            this.state.batteryLevel = Math.round(battery.level * 100);
-                            const batteryLevelEl = document.getElementById('batteryLevel');
-                            if (batteryLevelEl) {
-                                batteryLevelEl.textContent = `${this.state.batteryLevel}%`;
-                            }
-                        };
+                        this.state.batteryLevel = Math.round(battery.level * 100);
+                        document.getElementById('batteryLevel').textContent = `${this.state.batteryLevel}%`;
                         
-                        battery.addEventListener('levelchange', updateBattery);
-                        updateBattery();
+                        battery.addEventListener('levelchange', () => {
+                            this.state.batteryLevel = Math.round(battery.level * 100);
+                            document.getElementById('batteryLevel').textContent = `${this.state.batteryLevel}%`;
+                        });
                     });
                 } else {
-                    // Demo battery level
-                    this.state.batteryLevel = 85;
-                    const batteryLevelEl = document.getElementById('batteryLevel');
-                    if (batteryLevelEl) {
-                        batteryLevelEl.textContent = `${this.state.batteryLevel}%`;
-                    }
+                    document.getElementById('batteryLevel').textContent = '85%';
                 }
             },
 
-            // Setup demo data
+            // Demo data
             setupDemoData() {
                 setTimeout(() => {
-                    if (!SafeRoute.config.route.start) {
+                    if (!this.config.route.start) {
                         document.getElementById('startPoint').value = 'Home';
-                        document.getElementById('endPoint').value = 'Office';
+                        document.getElementById('endPoint').value = 'Work';
                     }
                     
-                    if (!SafeRoute.config.contacts[0].name) {
-                        SafeRoute.config.contacts[0] = { name: 'John Doe', number: '+2348012345678' };
-                        SafeRoute.config.contacts[1] = { name: 'Jane Smith', number: '08098765432' };
-                        SafeRoute.updateContactDisplay(1);
-                        SafeRoute.updateContactDisplay(2);
+                    if (!this.config.contacts[0].name) {
+                        this.config.contacts[0] = { name: 'Emergency Contact', number: '+2348012345678' };
+                        this.updateContactDisplay(1);
                     }
                 }, 1000);
             },
 
-            // Show toast
+            // Toast message
             showToast(message, type = 'info') {
                 const toast = document.getElementById('toast');
-                if (!toast) return;
-                
                 toast.textContent = message;
                 
                 switch(type) {
-                    case 'success':
-                        toast.style.borderColor = 'var(--safety-green)';
-                        break;
-                    case 'error':
-                        toast.style.borderColor = 'var(--danger-red)';
-                        break;
-                    case 'warning':
-                        toast.style.borderColor = 'var(--warning-orange)';
-                        break;
-                    default:
-                        toast.style.borderColor = 'var(--primary-blue)';
+                    case 'success': toast.style.borderColor = '#00CC88'; break;
+                    case 'error': toast.style.borderColor = '#FF3366'; break;
+                    case 'warning': toast.style.borderColor = '#FF9900'; break;
+                    default: toast.style.borderColor = '#0066FF';
                 }
                 
                 toast.style.display = 'block';
-                
-                setTimeout(() => {
-                    toast.style.display = 'none';
-                }, 3000);
+                setTimeout(() => toast.style.display = 'none', 3000);
             }
         };
 
-        // Initialize when page loads
+        // Initialize on load
         document.addEventListener('DOMContentLoaded', () => {
             SafeRoute.init();
         });
 
-        // Register Service Worker for PWA
+        // PWA Service Worker
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js').then(function(registration) {
-                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                }).catch(function(err) {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(() => console.log('Service Worker registered'))
+                    .catch(err => console.log('SW failed:', err));
             });
         }
     </script>
-  <script>
-// Test PWA setup
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Testing PWA setup...');
-    
-    // Test Service Worker
-    if ('serviceWorker' in navigator) {
-        console.log('✅ Service Worker API supported');
-        
-        navigator.serviceWorker.getRegistration().then(function(reg) {
-            if (reg) {
-                console.log('✅ Service Worker registered');
-            } else {
-                console.log('⚠️ Service Worker not registered');
-            }
-        });
-    } else {
-        console.log('❌ Service Worker not supported');
-    }
-    
-    // Test Manifest
-    if ('BeforeInstallPromptEvent' in window) {
-        console.log('✅ Web App Install supported');
-    }
-    
-    // Check if app is running as PWA
-    if (window.matchMedia('(display-mode: standalone)').matches || 
-        window.navigator.standalone === true) {
-        console.log('✅ Running as installed PWA');
-    } else {
-        console.log('🌐 Running in browser');
-    }
-    
-    // Test localStorage
-    try {
-        localStorage.setItem('test', 'test');
-        localStorage.removeItem('test');
-        console.log('✅ localStorage working');
-    } catch (e) {
-        console.log('❌ localStorage not available');
-    }
-});
-</script>
 </body>
 </html>
