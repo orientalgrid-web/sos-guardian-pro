@@ -1,89 +1,65 @@
 {
-  "name": "SafeRoute - Emergency Guardian",
+  "name": "SafeRoute Nigeria - Emergency Guardian",
   "short_name": "SafeRoute",
-  "description": "Your personal safety companion for every journey",
-  "start_url": "./index.html",
+  "description": "Personal safety companion for Nigerians. Emergency alerts, GPS tracking, and shake detection.",
+  "start_url": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay"],
-  "orientation": "portrait",
-  "theme_color": "#0A192F",
   "background_color": "#0A192F",
-  "categories": ["navigation", "safety", "utilities"],
+  "theme_color": "#0066FF",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "./icons/icon-72x72.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./icons/icon-96x96.png",
+      "src": "https://img.icons8.com/color/96/000000/shield.png",
       "sizes": "96x96",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "./icons/icon-128x128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./icons/icon-144x144.png",
+      "src": "https://img.icons8.com/color/144/000000/shield.png",
       "sizes": "144x144",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "./icons/icon-152x152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./icons/icon-192x192.png",
+      "src": "https://img.icons8.com/color/192/000000/shield.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "./icons/icon-384x384.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./icons/icon-512x512.png",
+      "src": "https://img.icons8.com/color/512/000000/shield.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
   ],
+  "categories": ["navigation", "productivity", "security"],
+  "lang": "en",
+  "dir": "ltr",
+  "scope": "/",
   "screenshots": [
     {
-      "src": "./screenshots/screenshot1.png",
-      "sizes": "1080x1920",
+      "src": "https://via.placeholder.com/1280x720/0A192F/0066FF?text=SafeRoute+Screenshot",
+      "sizes": "1280x720",
       "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Emergency Contacts Screen"
+      "form_factor": "wide"
     },
     {
-      "src": "./screenshots/screenshot2.png",
-      "sizes": "1080x1920",
+      "src": "https://via.placeholder.com/750x1334/0A192F/0066FF?text=SafeRoute+Screenshot",
+      "sizes": "750x1334",
       "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Live Tracking Screen"
+      "form_factor": "narrow"
     }
   ],
   "shortcuts": [
     {
-      "name": "New Emergency",
+      "name": "Emergency Alert",
       "short_name": "Emergency",
-      "description": "Activate emergency mode",
-      "url": "./index.html?emergency=true",
+      "description": "Activate emergency mode immediately",
+      "url": "/?emergency=true",
       "icons": [
         {
-          "src": "./icons/emergency-96x96.png",
+          "src": "https://img.icons8.com/color/96/000000/siren.png",
           "sizes": "96x96",
           "type": "image/png"
         }
@@ -92,24 +68,17 @@
     {
       "name": "Start Tracking",
       "short_name": "Track",
-      "description": "Start journey tracking",
-      "url": "./index.html?tracking=true",
+      "description": "Begin journey tracking",
+      "url": "/?tracking=true",
       "icons": [
         {
-          "src": "./icons/tracking-96x96.png",
+          "src": "https://img.icons8.com/color/96/000000/map-marker.png",
           "sizes": "96x96",
           "type": "image/png"
         }
       ]
     }
   ],
-  "protocol_handlers": [
-    {
-      "protocol": "web+saferoute",
-      "url": "./index.html?emergency=%s"
-    }
-  ],
-  "id": "./index.html",
-  "scope": "./",
+  "related_applications": [],
   "prefer_related_applications": false
 }
