@@ -17,7 +17,7 @@
     {
       "name": "Emergency Alert",
       "short_name": "Emergency",
-      "description": "Send immediate emergency alert",
+      "description": "Send immediate emergency alert to contacts",
       "url": "/?emergency=true",
       "icons": [
         {
@@ -30,7 +30,7 @@
     {
       "name": "Start Tracking",
       "short_name": "Track",
-      "description": "Begin live journey tracking",
+      "description": "Begin live GPS journey tracking",
       "url": "/?tracking=true",
       "icons": [
         {
@@ -43,7 +43,7 @@
     {
       "name": "Check Contacts",
       "short_name": "Contacts",
-      "description": "View emergency contacts",
+      "description": "View and manage emergency contacts",
       "url": "/?contacts=true",
       "icons": [
         {
@@ -116,14 +116,14 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "SafeRoute Dashboard"
+      "label": "SafeRoute Dashboard with emergency features"
     },
     {
       "src": "/screenshots/narrow.png",
       "sizes": "720x1280",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "SafeRoute Mobile Interface"
+      "label": "SafeRoute Mobile Interface for on-the-go safety"
     }
   ],
   "edge_side_panel": {
