@@ -1,23 +1,72 @@
 {
-  "name": "SafeRoute Nigeria",
+  "name": "SafeRoute Nigeria - Emergency Guardian",
   "short_name": "SafeRoute",
-  "description": "Emergency safety app with GPS tracking and shake detection",
+  "description": "Personal safety companion with emergency alerts, GPS tracking, and shake detection",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
   "background_color": "#0A192F",
   "theme_color": "#0A192F",
+  "orientation": "portrait",
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["navigation", "safety", "security"],
+  "screenshots": [
+    {
+      "src": "screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "SafeRoute Dashboard"
+    },
+    {
+      "src": "screenshot-narrow.png",
+      "sizes": "720x1280",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "SafeRoute Mobile View"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Emergency Alert",
+      "short_name": "Emergency",
+      "description": "Send emergency alert immediately",
+      "url": "/?emergency=true",
+      "icons": [
+        {
+          "src": "icon-emergency-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Start Tracking",
+      "short_name": "Track",
+      "description": "Begin live GPS tracking",
+      "url": "/?tracking=true",
+      "icons": [
+        {
+          "src": "icon-tracking-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
