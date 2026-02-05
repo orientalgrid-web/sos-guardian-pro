@@ -1,335 +1,275 @@
-// Service Worker for SafeRoute PWA
-const CACHE_NAME = 'saferoute-v2';
-const OFFLINE_CACHE = 'saferoute-offline-data';
-const EMERGENCY_CACHE = 'saferoute-emergencies';
+// SafeRoute Service Worker v1.0
+const CACHE_NAME = 'saferoute-v1.2';
+const STATIC_CACHE = 'static-v1';
+const DYNAMIC_CACHE = 'dynamic-v1';
+const EMERGENCY_CACHE = 'emergency-data';
 
-// Update the STATIC_ASSETS array in your sw.js:
-const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  'https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js',
-  'https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
-  
-  // Corrected icon URLs
-  'https://img.icons8.com/color/72/000000/security-shield-green.png',
-  'https://img.icons8.com/color/96/000000/security-shield-green.png',
-  'https://img.icons8.com/color/144/000000/security-shield-green.png',
-  'https://img.icons8.com/color/192/000000/security-shield-green.png',
-  'https://img.icons8.com/color/512/000000/security-shield-green.png',
-  
-  // Shortcut icons
-  'https://img.icons8.com/color/96/000000/gps-device.png',
-  'https://img.icons8.com/color/96/000000/contacts.png'
-];
-
-// Install event - cache static assets
-self.addEventListener('install', event => {
-  console.log('🔧 Service Worker installing...');
+// Install Event
+self.addEventListener('install', (event) => {
+  console.log('[Service Worker] Installing...');
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('📦 Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
-      })
-      .then(() => self.skipWaiting())
+    caches.open(STATIC_CACHE).then((cache) => {
+      console.log('[Service Worker] Caching app shell');
+      return cache.addAll([
+        '/',
+        '/index.html',
+        '/manifest.json',
+        '/icons/icon-72x72.png',
+        '/icons/icon-96x96.png',
+        '/icons/icon-128x128.png',
+        '/icons/icon-144x144.png',
+        '/icons/icon-152x152.png',
+        '/icons/icon-192x192.png',
+        '/icons/icon-384x384.png',
+        '/icons/icon-512x512.png',
+        '/icons/maskable-icon.png'
+      ]);
+    })
   );
+  self.skipWaiting();
 });
 
-// Activate event - clean up old caches
-self.addEventListener('activate', event => {
-  console.log('🚀 Service Worker activating...');
+// Activate Event
+self.addEventListener('activate', (event) => {
+  console.log('[Service Worker] Activating...');
   event.waitUntil(
     Promise.all([
       // Clean up old caches
-      caches.keys().then(cacheNames => {
+      caches.keys().then((cacheNames) => {
         return Promise.all(
-          cacheNames.map(cacheName => {
-            if (cacheName !== CACHE_NAME && 
-                cacheName !== OFFLINE_CACHE && 
+          cacheNames.map((cacheName) => {
+            if (cacheName !== STATIC_CACHE && 
+                cacheName !== DYNAMIC_CACHE && 
                 cacheName !== EMERGENCY_CACHE) {
-              console.log('🗑️ Deleting old cache:', cacheName);
+              console.log('[Service Worker] Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
           })
         );
       }),
-      // Claim clients immediately
       self.clients.claim()
     ])
   );
 });
 
-// Fetch event - network first with cache fallback
-self.addEventListener('fetch', event => {
+// Fetch Event - Cache First, then Network Strategy
+self.addEventListener('fetch', (event) => {
   const { request } = event;
+  const url = new URL(request.url);
   
-  // Skip non-GET requests
-  if (request.method !== 'GET') return;
-  
-  // Handle mapbox API requests
-  if (request.url.includes('mapbox')) {
-    event.respondWith(
-      caches.match(request)
-        .then(cachedResponse => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          
-          return fetch(request)
-            .then(response => {
-              // Cache the mapbox response
-              const responseClone = response.clone();
-              caches.open(CACHE_NAME)
-                .then(cache => cache.put(request, responseClone));
-              return response;
-            })
-            .catch(() => {
-              // Return offline fallback for map
-              return new Response(
-                JSON.stringify({ error: 'Offline - Map unavailable' }),
-                { headers: { 'Content-Type': 'application/json' } }
-              );
-            });
-        })
-    );
+  // Skip non-GET requests and chrome-extension requests
+  if (request.method !== 'GET' || url.protocol === 'chrome-extension:') {
     return;
   }
   
-  // For HTML requests - network first
+  // Handle different resource types
   if (request.headers.get('Accept').includes('text/html')) {
+    // For HTML: Network first, fallback to cache
     event.respondWith(
       fetch(request)
-        .then(response => {
-          // Update cache with fresh response
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME)
-            .then(cache => cache.put(request, responseClone));
-          return response;
+        .then((networkResponse) => {
+          // Cache the fresh response
+          const responseClone = networkResponse.clone();
+          caches.open(DYNAMIC_CACHE)
+            .then((cache) => cache.put(request, responseClone));
+          return networkResponse;
         })
         .catch(() => {
           return caches.match(request)
-            .then(cachedResponse => cachedResponse || caches.match('/'));
+            .then((cachedResponse) => {
+              return cachedResponse || caches.match('/');
+            });
         })
     );
-    return;
+  } else if (request.url.includes('api.mapbox.com')) {
+    // For Mapbox: Cache first, then network
+    event.respondWith(
+      caches.match(request)
+        .then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+          
+          return fetch(request)
+            .then((networkResponse) => {
+              const responseClone = networkResponse.clone();
+              caches.open(DYNAMIC_CACHE)
+                .then((cache) => cache.put(request, responseClone));
+              return networkResponse;
+            })
+            .catch(() => {
+              // Return offline fallback
+              return new Response(JSON.stringify({
+                offline: true,
+                message: 'Map service unavailable offline'
+              }), {
+                headers: { 'Content-Type': 'application/json' }
+              });
+            });
+        })
+    );
+  } else {
+    // For other resources: Cache first
+    event.respondWith(
+      caches.match(request)
+        .then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+          
+          return fetch(request)
+            .then((networkResponse) => {
+              // Only cache successful responses
+              if (!networkResponse.ok) return networkResponse;
+              
+              const responseClone = networkResponse.clone();
+              caches.open(DYNAMIC_CACHE)
+                .then((cache) => cache.put(request, responseClone));
+              return networkResponse;
+            });
+        })
+    );
   }
-  
-  // For other resources - cache first
-  event.respondWith(
-    caches.match(request)
-      .then(cachedResponse => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-        
-        return fetch(request)
-          .then(response => {
-            // Don't cache if not successful
-            if (!response.ok) return response;
-            
-            // Cache the response
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME)
-              .then(cache => cache.put(request, responseClone));
-            return response;
-          });
-      })
-  );
 });
 
-// Background sync for emergency alerts
-self.addEventListener('sync', event => {
-  console.log('🔄 Background sync event:', event.tag);
-  
-  if (event.tag === 'emergency-sync') {
-    event.waitUntil(syncEmergencyData());
+// Background Sync for Emergency Alerts
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-emergencies') {
+    console.log('[Service Worker] Background sync for emergencies');
+    event.waitUntil(syncEmergencies());
   }
 });
 
-// Sync emergency data when back online
-async function syncEmergencyData() {
-  console.log('🔄 Syncing emergency data...');
-  
+// Sync emergency data when online
+async function syncEmergencies() {
   try {
-    // Open emergency cache
     const emergencyCache = await caches.open(EMERGENCY_CACHE);
-    const requests = await emergencyCache.keys();
+    const keys = await emergencyCache.keys();
     
-    let syncedCount = 0;
-    
-    // Process each stored emergency
-    for (const request of requests) {
+    for (const request of keys) {
       const response = await emergencyCache.match(request);
       if (!response) continue;
       
       const emergencyData = await response.json();
       
+      // Try to send to server
       try {
-        // Attempt to send emergency data to server/API
-        const sendResult = await sendEmergencyToServer(emergencyData);
-        
-        if (sendResult) {
-          // Remove from cache if successfully sent
+        const sent = await sendEmergencyData(emergencyData);
+        if (sent) {
           await emergencyCache.delete(request);
-          syncedCount++;
-          console.log('✅ Emergency data synced:', emergencyData);
+          console.log('[Service Worker] Emergency synced successfully');
+          
+          // Send notification to app
+          sendMessageToClients({
+            type: 'EMERGENCY_SYNC_SUCCESS',
+            data: emergencyData
+          });
         }
       } catch (error) {
-        console.log('❌ Failed to sync emergency:', error);
-        // Keep in cache for next sync attempt
+        console.error('[Service Worker] Failed to sync emergency:', error);
       }
     }
-    
-    // Notify app about sync completion
-    const clients = await self.clients.matchAll();
-    clients.forEach(client => {
-      client.postMessage({
-        type: 'SYNC_COMPLETE',
-        count: syncedCount,
-        timestamp: new Date().toISOString()
-      });
-    });
-    
-    return syncedCount;
-    
   } catch (error) {
-    console.error('❌ Sync error:', error);
-    throw error;
+    console.error('[Service Worker] Sync error:', error);
   }
 }
 
 // Send emergency data to server
-async function sendEmergencyToServer(data) {
-  // This is where you'd implement your actual API endpoint
-  // For now, we'll simulate with a fake API
-  
-  console.log('📤 Sending emergency to server:', data);
-  
-  // Simulate API endpoint - replace with your actual endpoint
-  const API_ENDPOINT = 'https://your-api.com/emergency';
+async function sendEmergencyData(data) {
+  // Replace with your actual API endpoint
+  const API_URL = 'https://api.saferoute.ng/emergency';
   
   try {
-    // Real implementation would look like:
-    // const response = await fetch(API_ENDPOINT, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({
-    //     type: 'emergency',
-    //     data: data,
-    //     app_id: 'saferoute-ng'
-    //   })
-    // });
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...data,
+        timestamp: new Date().toISOString(),
+        app_version: '1.0.0'
+      })
+    });
     
-    // For demo purposes - simulate success
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Simulate 90% success rate for demo
-    const success = Math.random() > 0.1;
-    
-    if (success) {
-      return { success: true, message: 'Emergency reported' };
-    } else {
-      throw new Error('Server error');
-    }
-    
+    return response.ok;
   } catch (error) {
-    console.error('❌ Server send failed:', error);
+    console.error('[Service Worker] API Error:', error);
     throw error;
   }
 }
 
-// Handle messages from main app
-self.addEventListener('message', event => {
-  console.log('📩 Message from app:', event.data);
-  
-  const { type, payload } = event.data;
+// Handle messages from app
+self.addEventListener('message', (event) => {
+  const { type, data } = event.data;
   
   switch (type) {
     case 'STORE_EMERGENCY':
-      storeEmergencyData(payload);
+      storeEmergencyData(data);
       break;
       
     case 'SKIP_WAITING':
       self.skipWaiting();
       break;
+      
+    case 'GET_CACHED_DATA':
+      getCachedData(event);
+      break;
   }
 });
 
-// Store emergency data for offline sync
+// Store emergency data offline
 async function storeEmergencyData(data) {
-  console.log('💾 Storing emergency data offline:', data);
-  
   try {
-    const emergencyCache = await caches.open(EMERGENCY_CACHE);
+    const cache = await caches.open(EMERGENCY_CACHE);
+    const id = Date.now().toString();
+    const url = `/emergency/${id}`;
     
-    // Create unique URL for this emergency
-    const emergencyId = `emergency_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const emergencyUrl = new URL(`/emergency/${emergencyId}`, self.location.origin);
-    
-    // Store in cache
-    await emergencyCache.put(
-      emergencyUrl,
+    await cache.put(
+      new Request(url),
       new Response(JSON.stringify({
         ...data,
-        storedAt: new Date().toISOString(),
-        syncAttempts: 0
-      }), {
-        headers: { 'Content-Type': 'application/json' }
-      })
+        stored_at: new Date().toISOString(),
+        sync_attempts: 0
+      }))
     );
-    
-    // Notify app
-    const clients = await self.clients.matchAll();
-    clients.forEach(client => {
-      client.postMessage({
-        type: 'EMERGENCY_STORED',
-        id: emergencyId,
-        timestamp: new Date().toISOString()
-      });
-    });
     
     // Register for background sync
     if ('SyncManager' in self.registration) {
       try {
-        await self.registration.sync.register('emergency-sync');
-        console.log('✅ Background sync registered');
-      } catch (error) {
-        console.log('Background sync registration failed:', error);
+        await self.registration.sync.register('sync-emergencies');
+      } catch (syncError) {
+        console.log('[Service Worker] Background sync not available');
       }
     }
     
-    console.log('✅ Emergency data stored for sync');
+    // Notify clients
+    sendMessageToClients({
+      type: 'EMERGENCY_STORED',
+      id: id,
+      timestamp: new Date().toISOString()
+    });
     
   } catch (error) {
-    console.error('❌ Failed to store emergency data:', error);
+    console.error('[Service Worker] Store emergency error:', error);
   }
 }
 
-// Periodic sync for emergencies (if supported)
-if ('periodicSync' in self.registration) {
-  self.addEventListener('periodicsync', event => {
-    if (event.tag === 'emergency-periodic-sync') {
-      console.log('⏰ Periodic sync triggered');
-      event.waitUntil(syncEmergencyData());
-    }
-  });
-}
-
-// Handle push notifications for emergencies
-self.addEventListener('push', event => {
-  console.log('📢 Push notification received:', event);
+// Push Notifications
+self.addEventListener('push', (event) => {
+  let data = {};
   
-  const data = event.data ? event.data.json() : {};
-  const title = data.title || 'SafeRoute Emergency';
+  try {
+    data = event.data.json();
+  } catch (e) {
+    data = {
+      title: 'SafeRoute',
+      body: 'Emergency notification',
+      icon: '/icons/icon-192x192.png'
+    };
+  }
+  
   const options = {
-    body: data.body || 'Emergency alert received',
-    icon: 'https://img.icons8.com/color/96/000000/shield.png',
-    badge: 'https://img.icons8.com/color/96/000000/shield.png',
-    vibrate: [200, 100, 200, 100, 200, 100, 400],
+    body: data.body || 'Emergency alert',
+    icon: data.icon || '/icons/icon-192x192.png',
+    badge: '/icons/icon-96x96.png',
+    vibrate: [100, 50, 100],
     data: data,
     actions: [
       {
@@ -343,39 +283,53 @@ self.addEventListener('push', event => {
     ]
   };
   
-  event.waitUntil(
-    self.registration.showNotification(title, options)
-  );
+  event.waitUntil(self.registration.showNotification(data.title || 'SafeRoute', options));
 });
 
-// Handle notification clicks
-self.addEventListener('notificationclick', event => {
-  console.log('🔔 Notification clicked:', event.notification.data);
-  
+// Notification click handler
+self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   
-  const { action, notification } = event;
-  
-  if (action === 'dismiss') {
-    return;
+  if (event.action === 'view') {
+    event.waitUntil(
+      clients.openWindow('/?emergency=true')
+    );
   }
-  
-  // For view action or default click
-  event.waitUntil(
-    clients.matchAll({
-      type: 'window',
-      includeUncontrolled: true
-    }).then(clientList => {
-      // Focus existing window or open new one
-      for (const client of clientList) {
-        if (client.url.includes('/') && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      
-      if (clients.openWindow) {
-        return clients.openWindow('/');
-      }
-    })
-  );
 });
+
+// Helper function to send messages to clients
+function sendMessageToClients(message) {
+  self.clients.matchAll().then((clients) => {
+    clients.forEach((client) => {
+      client.postMessage(message);
+    });
+  });
+}
+
+// Helper to get cached data
+async function getCachedData(event) {
+  const { cacheName, key } = event.data;
+  
+  try {
+    const cache = await caches.open(cacheName);
+    const response = await cache.match(key);
+    
+    if (response) {
+      const data = await response.json();
+      event.ports[0].postMessage({ success: true, data });
+    } else {
+      event.ports[0].postMessage({ success: false, error: 'Not found' });
+    }
+  } catch (error) {
+    event.ports[0].postMessage({ success: false, error: error.message });
+  }
+}
+
+// Periodic Sync (if supported)
+if ('periodicSync' in self.registration) {
+  self.addEventListener('periodicsync', (event) => {
+    if (event.tag === 'periodic-emergency-sync') {
+      event.waitUntil(syncEmergencies());
+    }
+  });
+}
