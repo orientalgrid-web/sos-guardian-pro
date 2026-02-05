@@ -1127,26 +1127,48 @@
             });
         }
     </script>
-    <script>
-// Test if manifest is loading
-if ('serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window) {
-  console.log('✅ PWA supported');
-  
-  // Check manifest
-  fetch('/manifest.json')
-    .then(response => response.json())
-    .then(manifest => {
-      console.log('✅ Manifest loaded:', manifest.name);
-      console.log('📝 Description:', manifest.description);
-      
-      if (!manifest.description) {
-        console.error('❌ Manifest missing description!');
-      }
-    })
-    .catch(error => {
-      console.error('❌ Manifest loading failed:', error);
-    });
-}
+  <script>
+// Test PWA setup
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Testing PWA setup...');
+    
+    // Test Service Worker
+    if ('serviceWorker' in navigator) {
+        console.log('✅ Service Worker API supported');
+        
+        navigator.serviceWorker.getRegistration().then(function(reg) {
+            if (reg) {
+                console.log('✅ Service Worker registered');
+            } else {
+                console.log('⚠️ Service Worker not registered');
+            }
+        });
+    } else {
+        console.log('❌ Service Worker not supported');
+    }
+    
+    // Test Manifest
+    if ('BeforeInstallPromptEvent' in window) {
+        console.log('✅ Web App Install supported');
+    }
+    
+    // Check if app is running as PWA
+    if (window.matchMedia('(display-mode: standalone)').matches || 
+        window.navigator.standalone === true) {
+        console.log('✅ Running as installed PWA');
+    } else {
+        console.log('🌐 Running in browser');
+    }
+    
+    // Test localStorage
+    try {
+        localStorage.setItem('test', 'test');
+        localStorage.removeItem('test');
+        console.log('✅ localStorage working');
+    } catch (e) {
+        console.log('❌ localStorage not available');
+    }
+});
 </script>
 </body>
 </html>
