@@ -1,196 +1,122 @@
 {
   "name": "SafeRoute Nigeria",
   "short_name": "SafeRoute",
-  "description": "Emergency Guardian & Personal Safety Companion for Nigerians. Get help with one tap or shake. Track journeys, alert contacts, and stay safe.",
+  "description": "Personal safety companion for Nigerians. Emergency alerts, GPS tracking, and shake detection.",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "portrait-primary",
   "background_color": "#0A192F",
-  "theme_color": "#0066FF",
-  "orientation": "portrait",
-  "lang": "en",
-  "dir": "ltr",
-  "scope": "/",
-  
+  "theme_color": "#0A192F",
   "icons": [
     {
-      "src": "https://img.icons8.com/color/72/000000/shield.png",
+      "src": "https://img.icons8.com/color/72/000000/security-shield-green.png",
       "sizes": "72x72",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "https://img.icons8.com/color/96/000000/shield.png",
+      "src": "https://img.icons8.com/color/96/000000/security-shield-green.png",
       "sizes": "96x96",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "https://img.icons8.com/color/128/000000/shield.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "https://img.icons8.com/color/144/000000/shield.png",
+      "src": "https://img.icons8.com/color/144/000000/security-shield-green.png",
       "sizes": "144x144",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "https://img.icons8.com/color/152/000000/shield.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "https://img.icons8.com/color/192/000000/shield.png",
+      "src": "https://img.icons8.com/color/192/000000/security-shield-green.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://img.icons8.com/color/384/000000/shield.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "https://img.icons8.com/color/512/000000/shield.png",
+      "src": "https://img.icons8.com/color/512/000000/security-shield-green.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
   ],
-  
   "screenshots": [
     {
-      "src": "https://via.placeholder.com/1280x720/0A192F/FFFFFF?text=SafeRoute+Emergency+Guardian\nProtect+Yourself+in+Emergencies",
-      "sizes": "1280x720",
+      "src": "https://img.icons8.com/color/640/000000/security-shield-green.png",
+      "sizes": "640x320",
       "type": "image/png",
-      "form_factor": "wide",
-      "label": "Emergency Dashboard"
+      "label": "SafeRoute Emergency Interface",
+      "form_factor": "wide"
     },
     {
-      "src": "https://via.placeholder.com/750x1334/0A192F/FFFFFF?text=Shake+6+Times+for+Emergency\nGPS+Tracking+%26+Alerts",
-      "sizes": "750x1334",
+      "src": "https://img.icons8.com/color/360/000000/security-shield-green.png",
+      "sizes": "360x640",
       "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Mobile Interface"
+      "label": "SafeRoute Mobile App",
+      "form_factor": "narrow"
     }
   ],
-  
+  "categories": ["navigation", "safety", "utilities"],
   "shortcuts": [
     {
       "name": "Emergency Alert",
       "short_name": "Emergency",
-      "description": "Activate emergency mode immediately",
-      "url": "/?source=shortcut&action=emergency",
+      "description": "Send emergency alert immediately",
+      "url": "/?emergency=true",
       "icons": [
         {
-          "src": "https://img.icons8.com/color/96/000000/siren.png",
+          "src": "https://img.icons8.com/color/96/000000/security-shield-green.png",
           "sizes": "96x96",
           "type": "image/png"
         }
       ]
     },
     {
-      "name": "Start Journey Tracking",
-      "short_name": "Track Journey",
-      "description": "Begin tracking your current journey",
-      "url": "/?source=shortcut&action=tracking",
+      "name": "Start Tracking",
+      "short_name": "Track",
+      "description": "Start live journey tracking",
+      "url": "/?tracking=true",
       "icons": [
         {
-          "src": "https://img.icons8.com/color/96/000000/route.png",
+          "src": "https://img.icons8.com/color/96/000000/gps-device.png",
           "sizes": "96x96",
           "type": "image/png"
         }
       ]
     },
     {
-      "name": "Add Emergency Contact",
-      "short_name": "Add Contact",
-      "description": "Add new emergency contact quickly",
-      "url": "/?source=shortcut&action=add_contact",
+      "name": "Quick Contacts",
+      "short_name": "Contacts",
+      "description": "Manage emergency contacts",
+      "url": "/?contacts=true",
       "icons": [
         {
-          "src": "https://img.icons8.com/color/96/000000/add-user-male.png",
+          "src": "https://img.icons8.com/color/96/000000/contacts.png",
           "sizes": "96x96",
           "type": "image/png"
         }
       ]
     }
   ],
-  
-  "categories": [
-    "navigation",
-    "productivity", 
-    "security",
-    "health",
-    "travel"
-  ],
-  
-  "edge_side_panel": {
-    "preferred_width": 400
-  },
-  
-  "launch_handler": {
-    "client_mode": "auto"
-  },
-  
-  "handle_links": "preferred",
-  
   "protocol_handlers": [
     {
       "protocol": "web+saferoute",
-      "url": "/?protocol=%s"
+      "url": "/?emergency=%s"
     }
   ],
-  
-  "related_applications": [],
-  
-  "prefer_related_applications": false,
-  
-  "share_target": {
-    "action": "/share",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": {
-      "title": "name",
-      "text": "description",
-      "url": "link",
-      "files": [
-        {
-          "name": "media",
-          "accept": ["image/*", "video/*", "audio/*"]
-        }
-      ]
-    }
+  "edge_side_panel": {
+    "preferred_width": 400
   },
-  
-  "file_handlers": [
-    {
-      "action": "/open-file",
-      "accept": {
-        "application/json": [".json"],
-        "text/plain": [".txt", ".log"]
-      },
-      "icons": [
-        {
-          "src": "https://img.icons8.com/color/96/000000/document.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    }
+  "permissions": [
+    "geolocation",
+    "notifications",
+    "background-sync",
+    "periodic-background-sync"
   ],
-  
-  "display_override": [
-    "standalone",
-    "minimal-ui",
-    "window-controls-overlay"
-  ],
-  
-  "id": "/?source=pwa",
-  
-  "splash_pages": null
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "handle_links": "preferred",
+  "related_applications": [],
+  "prefer_related_applications": false
 }
