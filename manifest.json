@@ -1,16 +1,32 @@
 {
-  "name": "SafeRoute Nigeria - Emergency Guardian",
+  "name": "SafeRoute Nigeria",
   "short_name": "SafeRoute",
-  "description": "Personal safety companion for Nigerians. Emergency alerts, GPS tracking, and shake detection.",
+  "description": "Emergency Guardian & Personal Safety Companion for Nigerians. Get help with one tap or shake. Track journeys, alert contacts, and stay safe.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0A192F",
   "theme_color": "#0066FF",
   "orientation": "portrait",
+  "lang": "en",
+  "dir": "ltr",
+  "scope": "/",
+  
   "icons": [
+    {
+      "src": "https://img.icons8.com/color/72/000000/shield.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "https://img.icons8.com/color/96/000000/shield.png",
       "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://img.icons8.com/color/128/000000/shield.png",
+      "sizes": "128x128",
       "type": "image/png",
       "purpose": "any"
     },
@@ -21,8 +37,20 @@
       "purpose": "any"
     },
     {
+      "src": "https://img.icons8.com/color/152/000000/shield.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
       "src": "https://img.icons8.com/color/192/000000/shield.png",
       "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://img.icons8.com/color/384/000000/shield.png",
+      "sizes": "384x384",
       "type": "image/png",
       "purpose": "any maskable"
     },
@@ -33,30 +61,30 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["navigation", "productivity", "security"],
-  "lang": "en",
-  "dir": "ltr",
-  "scope": "/",
+  
   "screenshots": [
     {
-      "src": "https://via.placeholder.com/1280x720/0A192F/0066FF?text=SafeRoute+Screenshot",
+      "src": "https://via.placeholder.com/1280x720/0A192F/FFFFFF?text=SafeRoute+Emergency+Guardian\nProtect+Yourself+in+Emergencies",
       "sizes": "1280x720",
       "type": "image/png",
-      "form_factor": "wide"
+      "form_factor": "wide",
+      "label": "Emergency Dashboard"
     },
     {
-      "src": "https://via.placeholder.com/750x1334/0A192F/0066FF?text=SafeRoute+Screenshot",
+      "src": "https://via.placeholder.com/750x1334/0A192F/FFFFFF?text=Shake+6+Times+for+Emergency\nGPS+Tracking+%26+Alerts",
       "sizes": "750x1334",
       "type": "image/png",
-      "form_factor": "narrow"
+      "form_factor": "narrow",
+      "label": "Mobile Interface"
     }
   ],
+  
   "shortcuts": [
     {
       "name": "Emergency Alert",
       "short_name": "Emergency",
       "description": "Activate emergency mode immediately",
-      "url": "/?emergency=true",
+      "url": "/?source=shortcut&action=emergency",
       "icons": [
         {
           "src": "https://img.icons8.com/color/96/000000/siren.png",
@@ -64,21 +92,33 @@
           "type": "image/png"
         }
       ]
-    },
-    {
-      "name": "Start Tracking",
-      "short_name": "Track",
-      "description": "Begin journey tracking",
-      "url": "/?tracking=true",
-      "icons": [
-        {
-          "src": "https://img.icons8.com/color/96/000000/map-marker.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
     }
   ],
+  
+  "categories": [
+    "navigation",
+    "productivity", 
+    "security",
+    "health",
+    "travel"
+  ],
+  
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  
+  "launch_handler": {
+    "client_mode": "auto"
+  },
+  
+  "protocol_handlers": [
+    {
+      "protocol": "web+saferoute",
+      "url": "/?protocol=%s"
+    }
+  ],
+  
   "related_applications": [],
+  
   "prefer_related_applications": false
 }
