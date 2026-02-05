@@ -1,71 +1,27 @@
 {
-  "name": "SafeRoute Nigeria",
+  "name": "SafeRoute Nigeria - Emergency Guardian",
   "short_name": "SafeRoute",
-  "description": "Personal safety companion for Nigerians. Emergency alerts, GPS tracking, and shake detection.",
+  "description": "Your personal safety companion for every journey in Nigeria. Emergency alerts, live GPS tracking, and shake detection to keep you safe.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone"],
   "orientation": "portrait-primary",
   "background_color": "#0A192F",
   "theme_color": "#0A192F",
-  "icons": [
-    {
-      "src": "https://img.icons8.com/color/72/000000/security-shield-green.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "https://img.icons8.com/color/96/000000/security-shield-green.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "https://img.icons8.com/color/144/000000/security-shield-green.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "https://img.icons8.com/color/192/000000/security-shield-green.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "https://img.icons8.com/color/512/000000/security-shield-green.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "https://img.icons8.com/color/640/000000/security-shield-green.png",
-      "sizes": "640x320",
-      "type": "image/png",
-      "label": "SafeRoute Emergency Interface",
-      "form_factor": "wide"
-    },
-    {
-      "src": "https://img.icons8.com/color/360/000000/security-shield-green.png",
-      "sizes": "360x640",
-      "type": "image/png",
-      "label": "SafeRoute Mobile App",
-      "form_factor": "narrow"
-    }
-  ],
-  "categories": ["navigation", "safety", "utilities"],
+  "id": "/?source=pwa",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["navigation", "safety", "security", "utilities"],
   "shortcuts": [
     {
       "name": "Emergency Alert",
       "short_name": "Emergency",
-      "description": "Send emergency alert immediately",
+      "description": "Send immediate emergency alert to contacts",
       "url": "/?emergency=true",
       "icons": [
         {
-          "src": "https://img.icons8.com/color/96/000000/security-shield-green.png",
+          "src": "/icons/emergency-96.png",
           "sizes": "96x96",
           "type": "image/png"
         }
@@ -74,49 +30,63 @@
     {
       "name": "Start Tracking",
       "short_name": "Track",
-      "description": "Start live journey tracking",
+      "description": "Begin live GPS journey tracking",
       "url": "/?tracking=true",
       "icons": [
         {
-          "src": "https://img.icons8.com/color/96/000000/gps-device.png",
+          "src": "/icons/tracking-96.png",
           "sizes": "96x96",
           "type": "image/png"
         }
       ]
+    }
+  ],
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "name": "Quick Contacts",
-      "short_name": "Contacts",
-      "description": "Manage emergency contacts",
-      "url": "/?contacts=true",
-      "icons": [
-        {
-          "src": "https://img.icons8.com/color/96/000000/contacts.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    }
-  ],
-  "protocol_handlers": [
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
     {
-      "protocol": "web+saferoute",
-      "url": "/?emergency=%s"
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
-  "edge_side_panel": {
-    "preferred_width": 400
-  },
-  "permissions": [
-    "geolocation",
-    "notifications",
-    "background-sync",
-    "periodic-background-sync"
-  ],
-  "launch_handler": {
-    "client_mode": "focus-existing"
-  },
-  "handle_links": "preferred",
-  "related_applications": [],
-  "prefer_related_applications": false
+  "screenshots": [
+    {
+      "src": "/screenshots/wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "SafeRoute Dashboard"
+    },
+    {
+      "src": "/screenshots/narrow.png",
+      "sizes": "720x1280",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "SafeRoute Mobile Interface"
+    }
+  ]
 }
