@@ -2,17 +2,12 @@
 <browserconfig>
     <msapplication>
         <tile>
-            <square70x70logo src="https://img.icons8.com/color/70/000000/security-shield-green.png"/>
-            <square150x150logo src="https://img.icons8.com/color/150/000000/security-shield-green.png"/>
-            <square310x310logo src="https://img.icons8.com/color/310/000000/security-shield-green.png"/>
-            <wide310x150logo src="https://img.icons8.com/color/310x150/000000/security-shield-green.png"/>
+            <square70x70logo src="/icons/icon-70x70.png"/>
+            <square150x150logo src="/icons/icon-150x150.png"/>
+            <square310x310logo src="/icons/icon-310x310.png"/>
+            <wide310x150logo src="/icons/icon-310x150.png"/>
             <TileColor>#0A192F</TileColor>
-            <TileImage src="https://img.icons8.com/color/144/000000/security-shield-green.png"/>
+            <TileImage src="/icons/icon-144x144.png"/>
         </tile>
-        <notification>
-            <polling-uri src=""/>
-            <frequency>30</frequency>
-            <cycle>1</cycle>
-        </notification>
     </msapplication>
 </browserconfig>
