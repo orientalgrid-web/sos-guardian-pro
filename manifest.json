@@ -1,5 +1,4 @@
-{
-  "name": "SafeRoute Nigeria",
+"name": "SafeRoute Nigeria",
   "short_name": "SafeRoute",
   "description": "Emergency safety app with GPS tracking and shake detection",
   "start_url": ".",
@@ -17,5 +16,6 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "id": "SafeRoute"
 }
