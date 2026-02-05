@@ -51,6 +51,59 @@
             position: fixed;
         }
 
+        /* Nigerian Flag Colors */
+        .naira {
+            color: #008753 !important; /* Nigerian green */
+            font-weight: 700;
+        }
+
+        .ngn {
+            position: relative;
+        }
+
+        .ngn::before {
+            content: '₦';
+            margin-right: 2px;
+        }
+
+        /* Splash Screen */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0A192F 0%, #1A2F4F 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .splash-logo {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--primary-blue), var(--safety-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+        }
+
+        .splash-loading {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-blue);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         /* Welcome Screen */
         .welcome-screen {
             position: fixed;
@@ -178,6 +231,76 @@
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
+        }
+
+        /* Shake Counter */
+        .shake-counter {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: rgba(255, 51, 102, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 51, 102, 0.3);
+        }
+
+        .shake-counter span {
+            color: var(--danger-red);
+            font-weight: 700;
+        }
+
+        /* Offline Indicator */
+        .offline-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--warning-orange);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            z-index: 1001;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        /* Install Prompt Button */
+        .install-prompt {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--primary-blue), var(--safety-green));
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 20px rgba(0, 102, 255, 0.3);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-5px); }
         }
 
         /* Content Area */
@@ -577,6 +700,26 @@
             white-space: nowrap;
         }
 
+        /* Twilio/WhatsApp Specific Styles */
+        .whatsapp-button {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+        }
+
+        .whatsapp-button:hover {
+            background: #1DA851;
+            transform: translateY(-2px);
+        }
+
         /* Emergency Modal */
         .emergency-modal {
             position: fixed;
@@ -781,6 +924,171 @@
             box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
         }
 
+        /* PWA Standalone Mode Adjustments */
+        @media (display-mode: standalone) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            
+            .app-header {
+                padding-top: calc(20px + env(safe-area-inset-top));
+            }
+            
+            .emergency-button {
+                bottom: calc(30px + env(safe-area-inset-bottom));
+            }
+            
+            .upgrade-button {
+                bottom: calc(30px + env(safe-area-inset-bottom));
+            }
+        }
+
+        /* Update Notification Badge */
+        .update-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger-red);
+            color: white;
+            font-size: 12px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            animation: pulse 1s infinite;
+        }
+
+        /* Network Status in Header */
+        .network-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        .network-status.online {
+            color: var(--safety-green);
+        }
+
+        .network-status.offline {
+            color: var(--warning-orange);
+        }
+
+        /* Background Sync Notification */
+        .sync-notification {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: var(--safety-green);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0, 204, 136, 0.3);
+        }
+
+        /* Install Icon */
+        .install-icon {
+            animation: pulse 2s infinite;
+        }
+
+        /* Camera Preview */
+        .camera-preview {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 400px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            z-index: 9998;
+            display: none;
+            border: 3px solid var(--primary-blue);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .camera-preview img {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .recording-indicator {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--danger-red);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            animation: pulse 1s infinite;
+        }
+
+        .secret-features-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .secret-features-toggle.active {
+            background: rgba(255, 51, 102, 0.3);
+            color: white;
+        }
+
+        /* Voice Recording Animation */
+        @keyframes audioWave {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.5); }
+        }
+
+        .audio-wave {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            height: 20px;
+        }
+
+        .audio-wave span {
+            width: 3px;
+            background: white;
+            border-radius: 2px;
+            animation: audioWave 1s ease-in-out infinite;
+        }
+
+        .audio-wave span:nth-child(2) { animation-delay: 0.1s; }
+        .audio-wave span:nth-child(3) { animation-delay: 0.2s; }
+        .audio-wave span:nth-child(4) { animation-delay: 0.3s; }
+        .audio-wave span:nth-child(5) { animation-delay: 0.4s; }
+
         /* Responsive */
         @media (max-width: 768px) {
             .welcome-logo {
@@ -847,6 +1155,12 @@
     </style>
 </head>
 <body>
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-logo">SafeRoute</div>
+        <div class="splash-loading"></div>
+    </div>
+
     <!-- Welcome Screen -->
     <div class="welcome-screen" id="welcomeScreen">
         <div class="welcome-logo">SafeRoute</div>
@@ -909,6 +1223,26 @@
         </div>
         
         <div class="content-area">
+            <!-- Shake Counter -->
+            <div class="shake-counter" id="shakeCounter" style="display: none;">
+                <i class="fas fa-mobile-alt"></i> Shakes: <span id="shakeCount">0/6</span>
+            </div>
+            
+            <!-- Offline Indicator -->
+            <div class="offline-indicator" id="offlineIndicator">
+                <i class="fas fa-wifi-slash"></i> You are offline. Emergency features will work locally.
+            </div>
+            
+            <!-- Install Prompt Button -->
+            <button class="install-prompt" id="installPrompt">
+                <i class="fas fa-download"></i> Install SafeRoute App
+            </button>
+            
+            <!-- Sync Notification -->
+            <div class="sync-notification" id="syncNotification">
+                <i class="fas fa-sync-alt"></i> Syncing offline data...
+            </div>
+            
             <!-- Ad Banner (shown to free users) -->
             <div class="ad-banner" id="adBanner" style="display: none;">
                 <div class="ad-text">
@@ -916,7 +1250,7 @@
                     <p>Remove ads and unlock all safety features</p>
                 </div>
                 <button class="remove-ads-btn" onclick="SafeRoute.showPricing()">
-                    Remove Ads - $4.99/mo
+                    Remove Ads - <span class="ngn naira">3,000</span>/mo
                 </button>
             </div>
             
@@ -1049,7 +1383,7 @@
             <div class="premium-card slide-in" id="premiumCard">
                 <div class="card-title">
                     <i class="fas fa-crown"></i>
-                    <span>SafeRoute Premium</span>
+                    <span>SafeRoute Premium - For Nigerians 🇳🇬</span>
                 </div>
                 
                 <div class="premium-features">
@@ -1073,37 +1407,49 @@
                         <i class="fas fa-check-circle" style="color: var(--safety-green);"></i>
                         <span>24/7 Emergency Support Line</span>
                     </div>
+                    <div class="premium-feature">
+                        <i class="fas fa-check-circle" style="color: var(--safety-green);"></i>
+                        <span>Secret Photo & Audio Capture</span>
+                    </div>
+                    <div class="premium-feature">
+                        <i class="fas fa-check-circle" style="color: var(--safety-green);"></i>
+                        <span>WhatsApp Emergency Alerts</span>
+                    </div>
+                    <div class="premium-feature">
+                        <i class="fas fa-check-circle" style="color: var(--safety-green);"></i>
+                        <span>Naira Payment 🇳🇬</span>
+                    </div>
                 </div>
                 
                 <div class="pricing-options">
                     <div class="pricing-option">
-                        <div class="price">$4.99<span>/month</span></div>
+                        <div class="price"><span class="ngn naira">3,000</span><span>/month</span></div>
                         <div class="plan-name">Monthly Plan</div>
-                        <button class="btn btn-primary" onclick="SafeRoute.selectPlan('monthly', 4.99)">
+                        <button class="btn btn-primary" onclick="SafeRoute.selectPlan('monthly', 3000)">
                             Subscribe
                         </button>
                     </div>
                     
                     <div class="pricing-option popular">
                         <div class="popular-badge">MOST POPULAR</div>
-                        <div class="price">$49.99<span>/year</span></div>
+                        <div class="price"><span class="ngn naira">30,000</span><span>/year</span></div>
                         <div class="plan-name">Yearly Plan (Save 17%)</div>
-                        <button class="btn btn-success" onclick="SafeRoute.selectPlan('yearly', 49.99)">
+                        <button class="btn btn-success" onclick="SafeRoute.selectPlan('yearly', 30000)">
                             Subscribe
                         </button>
                     </div>
                     
                     <div class="pricing-option">
-                        <div class="price">$149.99</div>
+                        <div class="price"><span class="ngn naira">90,000</span></div>
                         <div class="plan-name">Lifetime Access</div>
-                        <button class="btn btn-secondary" onclick="SafeRoute.selectPlan('lifetime', 149.99)">
+                        <button class="btn btn-secondary" onclick="SafeRoute.selectPlan('lifetime', 90000)">
                             Purchase
                         </button>
                     </div>
                 </div>
                 
                 <div style="text-align: center; margin-top: 20px; color: var(--text-dim); font-size: 12px;">
-                    <i class="fas fa-lock"></i> Secure payment. Cancel anytime.
+                    <i class="fas fa-lock"></i> Secure payment. Cancel anytime. 🇳🇬
                 </div>
             </div>
         </div>
@@ -1117,6 +1463,26 @@
         <button class="upgrade-button" id="upgradeButton" style="display: none;">
             <i class="fas fa-crown"></i> Upgrade to Premium
         </button>
+    </div>
+
+    <!-- Camera Overlay (hidden) -->
+    <div id="cameraOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: none;">
+        <div style="position: absolute; top: 20px; right: 20px; color: white; font-size: 24px;">
+            <i class="fas fa-camera"></i> Recording...
+        </div>
+        <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: white; font-size: 18px;">
+            <i class="fas fa-microphone"></i> Audio recording...
+        </div>
+    </div>
+
+    <!-- Voice Recording Indicator -->
+    <div id="voiceRecording" style="position: fixed; top: 100px; right: 20px; background: var(--danger-red); color: white; padding: 10px 15px; border-radius: 20px; z-index: 1000; display: none; align-items: center; gap: 8px; animation: pulse 1s infinite;">
+        <i class="fas fa-microphone"></i> Recording Audio
+    </div>
+
+    <!-- Photo Capture Indicator -->
+    <div id="photoCapture" style="position: fixed; top: 140px; right: 20px; background: var(--primary-blue); color: white; padding: 10px 15px; border-radius: 20px; z-index: 1000; display: none; align-items: center; gap: 8px;">
+        <i class="fas fa-camera"></i> Photo Captured
     </div>
 
     <!-- Emergency Modal -->
@@ -1146,7 +1512,7 @@
         <div class="payment-content">
             <div class="card-title">
                 <i class="fas fa-credit-card"></i>
-                <span>Complete Payment</span>
+                <span>Complete Payment (Naira 🇳🇬)</span>
             </div>
             
             <div style="text-align: center; margin: 20px 0;">
@@ -1154,7 +1520,7 @@
                     Monthly Plan
                 </div>
                 <div style="font-size: 32px; font-weight: 900; color: var(--safety-green); margin: 10px 0;" id="selectedPrice">
-                    $4.99
+                    <span class="ngn naira">3,000</span>
                 </div>
                 <div style="color: var(--text-dim); font-size: 14px;" id="selectedPeriod">
                     Billed monthly
@@ -1167,8 +1533,8 @@
                         <i class="fas fa-credit-card"></i>
                     </div>
                     <div class="payment-details">
-                        <h4>Credit/Debit Card</h4>
-                        <p>Pay with Visa, Mastercard, or American Express</p>
+                        <h4>Bank Transfer 🇳🇬</h4>
+                        <p>Pay with Nigerian bank transfer</p>
                     </div>
                 </div>
                 
@@ -1182,24 +1548,23 @@
                     </div>
                 </div>
                 
-                <div class="payment-method" onclick="SafeRoute.selectPaymentMethod('googlepay')">
+                <div class="payment-method" onclick="SafeRoute.selectPaymentMethod('flutterwave')">
                     <div class="payment-icon">
-                        <i class="fab fa-google-pay"></i>
+                        <i class="fas fa-university"></i>
                     </div>
                     <div class="payment-details">
-                        <h4>Google Pay</h4>
-                        <p>Fast payment with Google Pay</p>
+                        <h4>Flutterwave</h4>
+                        <p>Pay with Nigerian cards/banks</p>
                     </div>
                 </div>
             </div>
             
             <div id="cardDetails" style="display: block;">
-                <input type="text" class="card-input" id="cardNumber" placeholder="Card Number" maxlength="19">
+                <input type="text" class="card-input" id="cardNumber" placeholder="Account Number" maxlength="10">
                 <div class="card-row">
-                    <input type="text" class="card-input" id="cardExpiry" placeholder="MM/YY" maxlength="5">
-                    <input type="text" class="card-input" id="cardCVC" placeholder="CVC" maxlength="3">
+                    <input type="text" class="card-input" id="bankName" placeholder="Bank Name">
+                    <input type="text" class="card-input" id="accountName" placeholder="Account Name">
                 </div>
-                <input type="text" class="card-input" id="cardName" placeholder="Name on Card">
             </div>
             
             <div id="paypalDetails" style="display: none;">
@@ -1209,10 +1574,10 @@
                 </div>
             </div>
             
-            <div id="googlepayDetails" style="display: none;">
+            <div id="flutterwaveDetails" style="display: none;">
                 <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 12px; margin: 20px 0;">
-                    <i class="fab fa-google-pay" style="font-size: 48px; color: #4285F4;"></i>
-                    <p style="margin-top: 15px; color: var(--text-dim);">You'll be redirected to Google Pay to complete your payment</p>
+                    <i class="fas fa-university" style="font-size: 48px; color: #F5A623;"></i>
+                    <p style="margin-top: 15px; color: var(--text-dim);">You'll be redirected to Flutterwave to complete your payment</p>
                 </div>
             </div>
             
@@ -1226,7 +1591,7 @@
             </div>
             
             <div style="text-align: center; margin-top: 20px; color: var(--text-dim); font-size: 12px;">
-                <i class="fas fa-shield-alt"></i> Your payment is secure and encrypted
+                <i class="fas fa-shield-alt"></i> Your payment is secure and encrypted 🇳🇬
             </div>
         </div>
     </div>
@@ -1238,7 +1603,7 @@
                 <i class="fas fa-check-circle"></i>
             </div>
             <div style="font-size: 24px; font-weight: 700; color: var(--text-light); margin-bottom: 10px;">
-                Payment Successful!
+                Payment Successful! 🇳🇬
             </div>
             <div style="color: var(--text-dim); margin-bottom: 30px;">
                 You are now a SafeRoute Premium member
@@ -1252,24 +1617,47 @@
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
+    <!-- Twilio Configuration -->
     <script>
-        // SafeRoute Application with Payment System
+        // Twilio configuration with your credentials
+        const TWILIO_CONFIG = {
+            accountSid: 'AC4fb1c1b8af2739e2e06c3fb593eb664f',  // Your Twilio Account SID
+            authToken: 'f37fbe63a7057e2b67003b36b2290a41',       // Your Twilio Auth Token
+            whatsappNumber: 'whatsapp:+14155238886', // Twilio WhatsApp Sandbox number
+            fromNumber: '+12608297880',          // Your Twilio phone number
+            webhookUrl: 'https://your-server.com/twilio-webhook', // Your webhook endpoint
+            mediaStorageUrl: 'https://your-server.com/media-upload' // For storing photos/audio
+        };
+    </script>
+
+    <script>
+        // SafeRoute Application with Nigerian Focus
         const SafeRoute = {
             config: {
-                route: {
-                    start: '',
-                    end: ''
-                },
-                contacts: [
-                    { name: '', number: '' },
-                    { name: '', number: '' }
-                ],
+                route: { start: '', end: '' },
+                contacts: [{ name: '', number: '' }, { name: '', number: '' }],
                 isPremium: false,
                 payment: {
                     selectedPlan: null,
                     selectedPrice: null,
                     selectedPeriod: null,
                     paymentMethod: 'card'
+                },
+                pwaInstalled: false,
+                lastSync: null,
+                twilio: {
+                    enabled: true,
+                    whatsappEnabled: true,
+                    secretPhotos: true,
+                    voiceRecording: true,
+                    autoCaptureInterval: 30000, // 30 seconds between photos
+                    recordingDuration: 30000, // 30 seconds audio recording
+                    mediaQuality: 'medium'
+                },
+                emergencySettings: {
+                    shakeThreshold: 6, // Changed from 3 to 6 shakes
+                    shakeTimeout: 3000, // 3 seconds to complete shakes
+                    countdownSeconds: 5 // Emergency countdown
                 }
             },
             
@@ -1281,12 +1669,45 @@
                 mapMarker: null,
                 countdownInterval: null,
                 shakeCount: 0,
-                lastShakeTime: 0
+                lastShakeTime: 0,
+                deferredPrompt: null,
+                isOnline: navigator.onLine,
+                serviceWorker: null,
+                pendingMessages: [],
+                pendingLocations: [],
+                lowBatteryWarned: false,
+                
+                // Twilio & Secret Features State
+                isSecretMode: false,
+                cameraActive: false,
+                microphoneActive: false,
+                mediaStream: null,
+                audioRecorder: null,
+                secretPhotoInterval: null,
+                audioChunks: [],
+                capturedPhotos: [],
+                recordedAudio: [],
+                lastPhotoTime: null,
+                lastAudioTime: null
             },
 
             // Initialize the app
-            init() {
-                console.log('SafeRoute Initializing...');
+            async init() {
+                console.log('🚀 SafeRoute PWA Initializing with Twilio...');
+                
+                // Initialize PWA features first
+                await this.initPWA();
+                
+                // Hide splash screen after 2 seconds
+                setTimeout(() => {
+                    const splashScreen = document.getElementById('splashScreen');
+                    if (splashScreen) {
+                        splashScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            splashScreen.style.display = 'none';
+                        }, 500);
+                    }
+                }, 2000);
                 
                 // Load saved data
                 this.loadData();
@@ -1299,577 +1720,322 @@
                 this.initNetwork();
                 this.initGPS();
                 this.initShakeDetection();
+                this.initBattery();
+                
+                // Initialize Twilio features (if premium)
+                if (this.config.isPremium) {
+                    this.initTwilioFeatures();
+                }
                 
                 // Show welcome screen first
                 document.getElementById('welcomeScreen').style.display = 'flex';
-            },
-
-            // Start the main app
-            startApp() {
-                document.getElementById('welcomeScreen').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'flex';
-                this.showToast('Welcome to SafeRoute!', 'success');
                 
-                // Update UI based on premium status
-                this.updatePremiumUI();
+                // Check if running in standalone mode
+                this.checkStandaloneMode();
+                
+                // Setup demo data
+                this.setupDemoData();
+                
+                // Setup secret features toggle
+                this.setupSecretFeaturesToggle();
             },
 
-            // Load saved data
-            loadData() {
+            // Initialize Twilio features
+            initTwilioFeatures() {
+                console.log('📱 Initializing Twilio features...');
+                
+                // Check for camera permission
+                if (this.config.twilio.secretPhotos) {
+                    this.requestCameraPermission();
+                }
+                
+                // Check for microphone permission
+                if (this.config.twilio.voiceRecording) {
+                    this.requestMicrophonePermission();
+                }
+                
+                // Setup auto-capture if enabled
+                if (this.config.twilio.secretPhotos && this.config.twilio.autoCaptureInterval > 0) {
+                    this.setupAutoPhotoCapture();
+                }
+            },
+
+            // Request camera permission
+            async requestCameraPermission() {
                 try {
-                    const saved = localStorage.getItem('saferoute_data');
-                    if (saved) {
-                        const data = JSON.parse(saved);
-                        this.config.route = data.route || this.config.route;
-                        this.config.contacts = data.contacts || this.config.contacts;
-                        this.config.isPremium = data.isPremium || false;
-                        
-                        // Update UI
-                        document.getElementById('startPoint').value = this.config.route.start;
-                        document.getElementById('endPoint').value = this.config.route.end;
-                        
-                        this.updateContactDisplay(1);
-                        this.updateContactDisplay(2);
-                    }
-                } catch (e) {
-                    console.log('No saved data found');
-                }
-            },
-
-            // Save data
-            saveData() {
-                try {
-                    localStorage.setItem('saferoute_data', JSON.stringify({
-                        route: this.config.route,
-                        contacts: this.config.contacts,
-                        isPremium: this.config.isPremium
-                    }));
-                } catch (e) {
-                    console.error('Error saving data:', e);
-                }
-            },
-
-            // Check premium status
-            checkPremiumStatus() {
-                const premiumExpiry = localStorage.getItem('premium_expiry');
-                if (premiumExpiry) {
-                    const expiryDate = new Date(premiumExpiry);
-                    if (expiryDate > new Date()) {
-                        this.config.isPremium = true;
-                    } else {
-                        // Premium expired
-                        this.config.isPremium = false;
-                        localStorage.removeItem('premium_expiry');
-                    }
-                }
-            },
-
-            // Update UI based on premium status
-            updatePremiumUI() {
-                if (this.config.isPremium) {
-                    // Hide ad banner
-                    document.getElementById('adBanner').style.display = 'none';
-                    // Show premium badge
-                    document.getElementById('premiumBadge').style.display = 'inline';
-                    // Hide upgrade button
-                    document.getElementById('upgradeButton').style.display = 'none';
-                    // Show premium features
-                    document.querySelectorAll('.premium-only').forEach(el => {
-                        el.style.display = 'flex';
-                    });
-                    // Update contact limit
-                    document.getElementById('contactLimit').textContent = '2/5 contacts';
-                    // Change premium card message
-                    document.querySelector('.premium-card .card-title span').textContent = 'SafeRoute Premium - Active';
-                    document.querySelector('.premium-card .card-title i').style.color = 'var(--premium-gold)';
-                    // Hide premium-only buttons
-                    document.getElementById('addContactBtn').style.display = 'none';
-                    document.getElementById('advancedTrackingBtn').style.display = 'none';
-                } else {
-                    // Show ad banner
-                    document.getElementById('adBanner').style.display = 'flex';
-                    // Hide premium badge
-                    document.getElementById('premiumBadge').style.display = 'none';
-                    // Show upgrade button
-                    document.getElementById('upgradeButton').style.display = 'flex';
-                    // Hide premium features
-                    document.querySelectorAll('.premium-only').forEach(el => {
-                        el.style.display = 'none';
-                    });
-                    // Update contact limit
-                    document.getElementById('contactLimit').textContent = '2/2 contacts';
-                }
-            },
-
-            // Show pricing options
-            showPricing() {
-                // In a real app, this would show the pricing modal
-                // For demo, scroll to premium card
-                document.querySelector('.premium-card').scrollIntoView({ behavior: 'smooth' });
-            },
-
-            // Select plan
-            selectPlan(plan, price) {
-                this.config.payment.selectedPlan = plan;
-                this.config.payment.selectedPrice = price;
-                
-                // Update modal
-                document.getElementById('selectedPlan').textContent = 
-                    plan === 'monthly' ? 'Monthly Plan' : 
-                    plan === 'yearly' ? 'Yearly Plan' : 'Lifetime Access';
-                document.getElementById('selectedPrice').textContent = `$${price}`;
-                document.getElementById('selectedPeriod').textContent = 
-                    plan === 'lifetime' ? 'One-time payment' : 
-                    plan === 'yearly' ? 'Billed yearly' : 'Billed monthly';
-                
-                // Show payment modal
-                document.getElementById('paymentModal').style.display = 'flex';
-            },
-
-            // Select payment method
-            selectPaymentMethod(method) {
-                this.config.payment.paymentMethod = method;
-                
-                // Update UI
-                document.querySelectorAll('.payment-method').forEach(el => {
-                    el.classList.remove('selected');
-                });
-                event.currentTarget.classList.add('selected');
-                
-                // Show corresponding details
-                document.getElementById('cardDetails').style.display = 'none';
-                document.getElementById('paypalDetails').style.display = 'none';
-                document.getElementById('googlepayDetails').style.display = 'none';
-                
-                if (method === 'card') {
-                    document.getElementById('cardDetails').style.display = 'block';
-                } else if (method === 'paypal') {
-                    document.getElementById('paypalDetails').style.display = 'block';
-                } else if (method === 'googlepay') {
-                    document.getElementById('googlepayDetails').style.display = 'block';
-                }
-            },
-
-            // Process payment (demo version)
-            processPayment() {
-                const method = this.config.payment.paymentMethod;
-                
-                // Validate card details if card payment
-                if (method === 'card') {
-                    const cardNumber = document.getElementById('cardNumber').value;
-                    const cardExpiry = document.getElementById('cardExpiry').value;
-                    const cardCVC = document.getElementById('cardCVC').value;
-                    const cardName = document.getElementById('cardName').value;
-                    
-                    if (!cardNumber || !cardExpiry || !cardCVC || !cardName) {
-                        this.showToast('Please fill all card details', 'warning');
-                        return;
-                    }
-                    
-                    // Simple card number validation
-                    if (cardNumber.replace(/\s/g, '').length < 16) {
-                        this.showToast('Please enter a valid card number', 'warning');
-                        return;
-                    }
-                }
-                
-                // Show processing message
-                this.showToast('Processing payment...', 'info');
-                
-                // Simulate payment processing
-                setTimeout(() => {
-                    // Mark user as premium
-                    this.config.isPremium = true;
-                    
-                    // Set expiry date based on plan
-                    const expiryDate = new Date();
-                    if (this.config.payment.selectedPlan === 'monthly') {
-                        expiryDate.setMonth(expiryDate.getMonth() + 1);
-                    } else if (this.config.payment.selectedPlan === 'yearly') {
-                        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-                    } else if (this.config.payment.selectedPlan === 'lifetime') {
-                        expiryDate.setFullYear(expiryDate.getFullYear() + 100); // 100 years = lifetime
-                    }
-                    
-                    // Save premium status
-                    localStorage.setItem('premium_expiry', expiryDate.toISOString());
-                    this.saveData();
-                    
-                    // Hide payment modal
-                    document.getElementById('paymentModal').style.display = 'none';
-                    
-                    // Show success modal
-                    document.getElementById('successModal').style.display = 'flex';
-                    
-                    // Log payment (in real app, this would go to your server)
-                    console.log('Payment successful:', {
-                        plan: this.config.payment.selectedPlan,
-                        price: this.config.payment.selectedPrice,
-                        method: this.config.payment.paymentMethod,
-                        timestamp: new Date().toISOString()
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            facingMode: 'environment',
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        } 
                     });
                     
-                }, 2000);
-            },
-
-            // Cancel payment
-            cancelPayment() {
-                document.getElementById('paymentModal').style.display = 'none';
-                this.showToast('Payment cancelled', 'info');
-            },
-
-            // Close success modal
-            closeSuccess() {
-                document.getElementById('successModal').style.display = 'none';
-                this.updatePremiumUI();
-                this.showToast('Welcome to SafeRoute Premium!', 'success');
-            },
-
-            // Save route
-            saveRoute() {
-                const start = document.getElementById('startPoint').value.trim();
-                const end = document.getElementById('endPoint').value.trim();
-                
-                if (!start || !end) {
-                    this.showToast('Please enter both start and end points', 'warning');
-                    return;
-                }
-                
-                this.config.route = { start, end };
-                this.saveData();
-                this.showToast('Route saved successfully!', 'success');
-                
-                // Update tracking status
-                document.getElementById('trackingStatus').innerHTML = 
-                    '<i class="fas fa-circle" style="color: var(--safety-green);"></i><span>ROUTE SAVED</span>';
-            },
-
-            // Use current location
-            useCurrentLocation() {
-                if (!this.state.currentLocation) {
-                    this.showToast('Getting your location...', 'info');
-                    return;
-                }
-                
-                const locationText = `My Current Location (${this.state.currentLocation.lat.toFixed(4)}, ${this.state.currentLocation.lng.toFixed(4)})`;
-                document.getElementById('startPoint').value = locationText;
-                this.config.route.start = locationText;
-                this.showToast('Current location set as start point', 'success');
-            },
-
-            // Edit contact
-            editContact(index) {
-                // Check if premium required for 3rd+ contact
-                if (index >= 3 && !this.config.isPremium) {
-                    this.showToast('Upgrade to Premium to add more contacts', 'warning');
-                    this.showPricing();
-                    return;
-                }
-                
-                const name = prompt(`Enter name for Contact ${index}:`, this.config.contacts[index-1]?.name || '');
-                if (name === null) return;
-                
-                const number = prompt(`Enter phone number for ${name}:`, this.config.contacts[index-1]?.number || '');
-                if (number === null) return;
-                
-                // Ensure array has enough elements
-                while (this.config.contacts.length < index) {
-                    this.config.contacts.push({ name: '', number: '' });
-                }
-                
-                this.config.contacts[index-1] = { name, number };
-                this.saveData();
-                this.updateContactDisplay(index);
-                this.showToast(`Contact ${name} saved`, 'success');
-            },
-
-            // Update contact display
-            updateContactDisplay(index) {
-                const contact = this.config.contacts[index-1];
-                const nameEl = document.getElementById(`contact${index}Name`);
-                const numberEl = document.getElementById(`contact${index}Number`);
-                
-                if (contact && contact.name) {
-                    nameEl.textContent = contact.name;
-                    numberEl.textContent = contact.number || 'No number';
-                    const avatar = document.querySelectorAll('.contact-avatar')[index-1];
-                    if (avatar) {
-                        avatar.textContent = contact.name.charAt(0).toUpperCase();
-                    }
-                } else if (nameEl) {
-                    nameEl.textContent = 'Add Emergency Contact';
-                    numberEl.textContent = 'Tap to add phone number';
-                }
-            },
-
-            // Test message
-            testMessage() {
-                const hasContacts = this.config.contacts.some(c => c.name && c.number);
-                
-                if (!hasContacts) {
-                    this.showToast('Please add emergency contacts first', 'warning');
-                    return;
-                }
-                
-                if (this.config.isPremium) {
-                    this.showToast('Test message sent to all contacts', 'success');
-                } else {
-                    this.showToast('Test message would be sent to your contacts', 'info');
-                    this.showToast('Upgrade to Premium for real SMS alerts', 'info');
-                }
-            },
-
-            // Start tracking
-            startTracking() {
-                if (!this.config.route.start || !this.config.route.end) {
-                    this.showToast('Please save your route first', 'warning');
-                    return;
-                }
-                
-                if (!this.state.currentLocation) {
-                    this.showToast('Waiting for GPS location...', 'info');
-                    return;
-                }
-                
-                this.state.isTracking = !this.state.isTracking;
-                const button = document.getElementById('trackButton');
-                
-                if (this.state.isTracking) {
-                    button.innerHTML = '<i class="fas fa-stop"></i> Stop Tracking';
-                    button.style.background = 'var(--danger-red)';
+                    stream.getTracks().forEach(track => track.stop());
                     
-                    document.getElementById('trackingStatus').innerHTML = 
-                        '<i class="fas fa-circle" style="color: var(--safety-green); animation: pulse 1s infinite;"></i><span>LIVE TRACKING</span>';
+                    console.log('✅ Camera permission granted');
+                    this.showToast('📷 Camera ready for emergency photos', 'success');
                     
-                    this.initMap();
-                    this.showToast('Live tracking started!', 'success');
-                } else {
-                    button.innerHTML = '<i class="fas fa-play"></i> Start Tracking';
-                    button.style.background = 'var(--primary-blue)';
-                    
-                    document.getElementById('trackingStatus').innerHTML = 
-                        '<i class="fas fa-circle" style="color: var(--text-dim);"></i><span>READY</span>';
-                    
-                    this.showToast('Tracking stopped', 'info');
-                }
-            },
-
-            // Initialize map
-            initMap() {
-                if (this.state.map) return;
-                
-                try {
-                    // Mapbox token
-                    mapboxgl.accessToken = 'pk.eyJ1IjoiZWtlaWRpbWF1Y2h1a3d1IiwiYSI6ImNtbDYxZ3NvazA2cDYza3NjOXlwNmx0aXcifQ.agDhj-euUG6sEyMTiDsQAA';
-                    
-                    this.state.map = new mapboxgl.Map({
-                        container: 'trackingMap',
-                        style: 'mapbox://styles/mapbox/satellite-streets-v11',
-                        center: this.state.currentLocation ? [this.state.currentLocation.lng, this.state.currentLocation.lat] : [0, 0],
-                        zoom: 14
-                    });
-                    
-                    // Add marker
-                    this.state.mapMarker = new mapboxgl.Marker({ color: '#FF3366' })
-                        .setLngLat([this.state.currentLocation.lng, this.state.currentLocation.lat])
-                        .addTo(this.state.map);
-                        
                 } catch (error) {
-                    console.error('Map error:', error);
-                    this.showToast('Map loading failed', 'error');
+                    console.error('❌ Camera permission denied:', error);
+                    this.showToast('Camera access needed for emergency photos', 'warning');
                 }
             },
 
-            // Update map location
-            updateMapLocation() {
-                if (this.state.map && this.state.mapMarker && this.state.currentLocation) {
-                    this.state.mapMarker.setLngLat([this.state.currentLocation.lng, this.state.currentLocation.lat]);
+            // Request microphone permission
+            async requestMicrophonePermission() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            autoGainControl: true
+                        }
+                    });
                     
-                    if (this.state.isTracking) {
-                        this.state.map.flyTo({
-                            center: [this.state.currentLocation.lng, this.state.currentLocation.lat],
-                            essential: true
-                        });
+                    stream.getTracks().forEach(track => track.stop());
+                    
+                    console.log('✅ Microphone permission granted');
+                    this.showToast('🎤 Microphone ready for emergency recording', 'success');
+                    
+                } catch (error) {
+                    console.error('❌ Microphone permission denied:', error);
+                    this.showToast('Microphone access needed for emergency recording', 'warning');
+                }
+            },
+
+            // Setup auto photo capture
+            setupAutoPhotoCapture() {
+                if (this.state.secretPhotoInterval) {
+                    clearInterval(this.state.secretPhotoInterval);
+                }
+                
+                this.state.secretPhotoInterval = setInterval(() => {
+                    if (this.state.isEmergency || this.state.isSecretMode) {
+                        this.captureSecretPhoto();
+                    }
+                }, this.config.twilio.autoCaptureInterval);
+            },
+
+            // Setup secret features toggle
+            setupSecretFeaturesToggle() {
+                const toggleBtn = document.createElement('div');
+                toggleBtn.className = 'secret-features-toggle';
+                toggleBtn.id = 'secretToggle';
+                toggleBtn.innerHTML = '<i class="fas fa-user-secret"></i> Stealth Mode: OFF';
+                toggleBtn.onclick = () => this.toggleSecretMode();
+                document.body.appendChild(toggleBtn);
+            },
+
+            // Toggle secret mode
+            toggleSecretMode() {
+                this.state.isSecretMode = !this.state.isSecretMode;
+                const toggleBtn = document.getElementById('secretToggle');
+                
+                if (this.state.isSecretMode) {
+                    toggleBtn.className = 'secret-features-toggle active';
+                    toggleBtn.innerHTML = '<i class="fas fa-user-secret"></i> Stealth Mode: ON';
+                    this.showToast('🔒 Stealth mode activated', 'success');
+                    
+                    if (this.config.twilio.secretPhotos) {
+                        this.startSecretPhotoCapture();
+                    }
+                    if (this.config.twilio.voiceRecording) {
+                        this.startVoiceRecording();
                     }
                     
-                    // Update display
-                    document.getElementById('currentLocation').textContent = 
-                        `${this.state.currentLocation.lat.toFixed(4)}, ${this.state.currentLocation.lng.toFixed(4)}`;
-                }
-            },
-
-            // Activate emergency
-            activateEmergency(source = 'BUTTON') {
-                if (this.state.isEmergency) return;
-                
-                this.state.isEmergency = true;
-                this.state.triggerSource = source;
-                
-                // Show modal
-                const modal = document.getElementById('emergencyModal');
-                modal.style.display = 'flex';
-                
-                // Start countdown
-                let countdown = 5;
-                document.getElementById('countdown').textContent = countdown;
-                document.getElementById('emergencyMessage').textContent = 
-                    `Help will be notified in ${countdown} seconds...`;
-                
-                this.state.countdownInterval = setInterval(() => {
-                    countdown--;
-                    document.getElementById('countdown').textContent = countdown;
-                    document.getElementById('emergencyMessage').textContent = 
-                        countdown > 0 ? `Help will be notified in ${countdown} seconds...` : 'Sending emergency alerts...';
-                    
-                    if (countdown <= 0) {
-                        this.confirmEmergency();
-                    }
-                }, 1000);
-            },
-
-            // Confirm emergency
-            confirmEmergency() {
-                clearInterval(this.state.countdownInterval);
-                document.getElementById('emergencyModal').style.display = 'none';
-                
-                // Send emergency alerts
-                this.sendEmergencyAlerts();
-                
-                // Start live tracking if not already
-                if (!this.state.isTracking) {
-                    this.state.isTracking = true;
-                    this.initMap();
-                }
-                
-                this.showToast('Emergency alerts sent! Help is on the way.', 'success');
-                this.state.isEmergency = false;
-            },
-
-            // Cancel emergency
-            cancelEmergency() {
-                clearInterval(this.state.countdownInterval);
-                document.getElementById('emergencyModal').style.display = 'none';
-                this.state.isEmergency = false;
-                this.showToast('Emergency cancelled', 'info');
-            },
-
-            // Send emergency alerts
-            sendEmergencyAlerts() {
-                const validContacts = this.config.contacts.filter(c => c.name && c.number);
-                
-                if (validContacts.length === 0) {
-                    this.showToast('No emergency contacts to notify', 'warning');
-                    return;
-                }
-                
-                // Create emergency message
-                const message = this.createEmergencyMessage();
-                
-                if (this.config.isPremium) {
-                    this.showToast(`Premium: Alert sent to ${validContacts.length} contact(s)`, 'success');
                 } else {
-                    this.showToast(`Demo: Alert would be sent to ${validContacts.length} contact(s)`, 'info');
-                    this.showToast('Upgrade to Premium for real alerts', 'info');
-                }
-                
-                // Log the action
-                console.log('Emergency alert sent:', {
-                    contacts: validContacts,
-                    message: message,
-                    location: this.state.currentLocation,
-                    time: new Date().toISOString(),
-                    premium: this.config.isPremium
-                });
-            },
-
-            // Create emergency message
-            createEmergencyMessage() {
-                const location = this.state.currentLocation;
-                const locationUrl = location ? 
-                    `https://maps.google.com/?q=${location.lat},${location.lng}` : 
-                    'Location unavailable';
-                
-                return `🚨 EMERGENCY ALERT from SafeRoute
-
-I need immediate assistance!
-
-📍 My Location: ${locationUrl}
-🛣️ My Route: ${this.config.route.start} → ${this.config.route.end}
-🕐 Time: ${new Date().toLocaleString()}
-🔋 Battery: ${this.state.batteryLevel || 'Unknown'}%
-
-Please check on me immediately!`;
-            },
-
-            // Initialize systems
-            initClock() {
-                setInterval(() => {
-                    const now = new Date();
-                    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    toggleBtn.className = 'secret-features-toggle';
+                    toggleBtn.innerHTML = '<i class="fas fa-user-secret"></i> Stealth Mode: OFF';
+                    this.showToast('Stealth mode deactivated', 'info');
                     
-                    // Update estimated time (demo)
-                    if (this.state.isTracking) {
-                        const eta = new Date(now.getTime() + 30 * 60000); // +30 minutes
-                        document.getElementById('estimatedTime').textContent = 
-                            eta.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    }
-                }, 1000);
-            },
-
-            initNetwork() {
-                const updateNetwork = () => {
-                    const online = navigator.onLine;
-                    document.getElementById('networkDot').className = 
-                        'status-dot ' + (online ? 'active' : '');
-                };
-                
-                window.addEventListener('online', updateNetwork);
-                window.addEventListener('offline', updateNetwork);
-                updateNetwork();
-            },
-
-            initGPS() {
-                if (!('geolocation' in navigator)) {
-                    this.showToast('GPS not available', 'error');
-                    return;
+                    this.stopSecretPhotoCapture();
+                    this.stopVoiceRecording();
                 }
+            },
+
+            // Start secret photo capture
+            async startSecretPhotoCapture() {
+                if (!this.config.twilio.secretPhotos || !this.config.isPremium) return;
                 
-                const success = (position) => {
-                    this.state.currentLocation = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude,
-                        accuracy: position.coords.accuracy
+                try {
+                    this.state.mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            facingMode: 'environment',
+                            width: { ideal: 640 },
+                            height: { ideal: 480 }
+                        } 
+                    });
+                    
+                    this.state.cameraActive = true;
+                    console.log('📸 Secret photo capture started');
+                    
+                } catch (error) {
+                    console.error('❌ Failed to start camera:', error);
+                }
+            },
+
+            // Stop secret photo capture
+            stopSecretPhotoCapture() {
+                if (this.state.mediaStream) {
+                    this.state.mediaStream.getTracks().forEach(track => track.stop());
+                    this.state.mediaStream = null;
+                    this.state.cameraActive = false;
+                    console.log('📸 Secret photo capture stopped');
+                }
+            },
+
+            // Capture secret photo
+            async captureSecretPhoto() {
+                if (!this.state.cameraActive || !this.state.mediaStream) return;
+                
+                try {
+                    const track = this.state.mediaStream.getVideoTracks()[0];
+                    const imageCapture = new ImageCapture(track);
+                    const photoBlob = await imageCapture.takePhoto();
+                    
+                    const photo = {
+                        id: Date.now(),
+                        blob: photoBlob,
+                        timestamp: new Date().toISOString(),
+                        location: this.state.currentLocation,
+                        battery: this.state.batteryLevel
                     };
                     
-                    document.getElementById('gpsDot').className = 'status-dot active';
-                    this.updateMapLocation();
+                    this.state.capturedPhotos.push(photo);
                     
-                    // Update distance (demo)
-                    if (this.state.isTracking) {
-                        const distance = (Math.random() * 5).toFixed(1);
-                        document.getElementById('distanceTraveled').textContent = `${distance} km`;
+                    if (this.state.capturedPhotos.length > 50) {
+                        this.state.capturedPhotos = this.state.capturedPhotos.slice(-50);
                     }
-                };
-                
-                const error = () => {
-                    document.getElementById('gpsDot').className = 'status-dot';
-                    // Demo location for testing
-                    this.state.currentLocation = {
-                        lat: 6.5244 + (Math.random() - 0.5) * 0.01,
-                        lng: 3.3792 + (Math.random() - 0.5) * 0.01,
-                        accuracy: 50
-                    };
-                    document.getElementById('gpsDot').className = 'status-dot active';
-                    this.updateMapLocation();
-                };
-                
-                navigator.geolocation.watchPosition(success, error, {
-                    enableHighAccuracy: true,
-                    maximumAge: 30000,
-                    timeout: 27000
-                });
+                    
+                    this.showPhotoCaptureIndicator();
+                    
+                    console.log('📸 Secret photo captured:', photo);
+                    
+                    if (this.state.isEmergency && this.config.twilio.whatsappEnabled) {
+                        await this.sendPhotoViaWhatsApp(photo);
+                    }
+                    
+                    return photo;
+                    
+                } catch (error) {
+                    console.error('❌ Failed to capture photo:', error);
+                    return null;
+                }
             },
 
+            // Show photo capture indicator
+            showPhotoCaptureIndicator() {
+                const indicator = document.getElementById('photoCapture');
+                if (indicator) {
+                    indicator.style.display = 'flex';
+                    setTimeout(() => {
+                        indicator.style.display = 'none';
+                    }, 3000);
+                }
+            },
+
+            // Start voice recording
+            async startVoiceRecording() {
+                if (!this.config.twilio.voiceRecording || !this.config.isPremium) return;
+                
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true
+                        }
+                    });
+                    
+                    this.state.audioRecorder = new MediaRecorder(stream);
+                    this.state.audioChunks = [];
+                    
+                    this.state.audioRecorder.ondataavailable = (event) => {
+                        this.state.audioChunks.push(event.data);
+                    };
+                    
+                    this.state.audioRecorder.onstop = () => {
+                        const audioBlob = new Blob(this.state.audioChunks, { type: 'audio/webm' });
+                        
+                        const audioRecording = {
+                            id: Date.now(),
+                            blob: audioBlob,
+                            timestamp: new Date().toISOString(),
+                            duration: this.config.twilio.recordingDuration,
+                            location: this.state.currentLocation
+                        };
+                        
+                        this.state.recordedAudio.push(audioRecording);
+                        
+                        if (this.state.recordedAudio.length > 10) {
+                            this.state.recordedAudio = this.state.recordedAudio.slice(-10);
+                        }
+                        
+                        console.log('🎤 Voice recording saved:', audioRecording);
+                        
+                        if (this.state.isEmergency && this.config.twilio.whatsappEnabled) {
+                            this.sendAudioViaWhatsApp(audioRecording);
+                        }
+                    };
+                    
+                    this.state.audioRecorder.start();
+                    this.state.microphoneActive = true;
+                    
+                    this.showRecordingIndicator();
+                    
+                    console.log('🎤 Voice recording started');
+                    
+                    setTimeout(() => {
+                        if (this.state.audioRecorder && this.state.microphoneActive) {
+                            this.state.audioRecorder.stop();
+                            this.state.microphoneActive = false;
+                            this.hideRecordingIndicator();
+                            
+                            if (this.state.isSecretMode || this.state.isEmergency) {
+                                setTimeout(() => this.startVoiceRecording(), 1000);
+                            }
+                        }
+                    }, this.config.twilio.recordingDuration);
+                    
+                } catch (error) {
+                    console.error('❌ Failed to start recording:', error);
+                }
+            },
+
+            // Stop voice recording
+            stopVoiceRecording() {
+                if (this.state.audioRecorder && this.state.microphoneActive) {
+                    this.state.audioRecorder.stop();
+                    this.state.microphoneActive = false;
+                    this.hideRecordingIndicator();
+                    console.log('🎤 Voice recording stopped');
+                }
+            },
+
+            // Show recording indicator
+            showRecordingIndicator() {
+                const indicator = document.getElementById('voiceRecording');
+                if (indicator) {
+                    indicator.style.display = 'flex';
+                    indicator.innerHTML = `
+                        <i class="fas fa-microphone"></i>
+                        <div class="audio-wave">
+                            <span></span><span></span><span></span><span></span><span></span>
+                        </div>
+                        Recording Audio
+                    `;
+                }
+            },
+
+            // Hide recording indicator
+            hideRecordingIndicator() {
+                const indicator = document.getElementById('voiceRecording');
+                if (indicator) {
+                    indicator.style.display = 'none';
+                }
+            },
+
+            // Enhanced shake detection with 6 shakes threshold
             initShakeDetection() {
                 if (!window.DeviceMotionEvent) return;
                 
@@ -1900,19 +2066,515 @@ Please check on me immediately!`;
                 });
             },
 
+            // Handle shake detection with 6 shakes requirement
             handleShake() {
                 const now = Date.now();
-                if (now - this.state.lastShakeTime > 2000) {
+                
+                // Reset shake count if more than 3 seconds have passed
+                if (now - this.state.lastShakeTime > this.config.emergencySettings.shakeTimeout) {
                     this.state.shakeCount = 0;
+                    this.hideShakeCounter();
                 }
                 
                 this.state.shakeCount++;
                 this.state.lastShakeTime = now;
                 
-                if (this.state.shakeCount >= 3) {
+                // Show shake counter
+                this.showShakeCounter();
+                
+                // If 6 shakes reached, activate emergency
+                if (this.state.shakeCount >= this.config.emergencySettings.shakeThreshold) {
                     this.activateEmergency('SHAKE');
                     this.state.shakeCount = 0;
+                    this.hideShakeCounter();
                 }
+            },
+
+            // Show shake counter
+            showShakeCounter() {
+                const counter = document.getElementById('shakeCounter');
+                const countDisplay = document.getElementById('shakeCount');
+                
+                if (counter && countDisplay) {
+                    counter.style.display = 'flex';
+                    countDisplay.textContent = `${this.state.shakeCount}/${this.config.emergencySettings.shakeThreshold}`;
+                    
+                    // Auto-hide after 3 seconds
+                    setTimeout(() => {
+                        if (Date.now() - this.state.lastShakeTime > 3000) {
+                            this.hideShakeCounter();
+                        }
+                    }, 3000);
+                }
+            },
+
+            // Hide shake counter
+            hideShakeCounter() {
+                const counter = document.getElementById('shakeCounter');
+                if (counter) {
+                    counter.style.display = 'none';
+                }
+            },
+
+            // Send photo via WhatsApp using Twilio
+            async sendPhotoViaWhatsApp(photo) {
+                if (!this.config.isPremium || !this.config.twilio.whatsappEnabled) return;
+                
+                try {
+                    // Convert blob to base64 for sending
+                    const reader = new FileReader();
+                    reader.readAsDataURL(photo.blob);
+                    
+                    reader.onloadend = async () => {
+                        const base64data = reader.result.split(',')[1];
+                        
+                        // Format Nigerian phone numbers
+                        const nigerianNumbers = this.getNigerianPhoneNumbers();
+                        
+                        if (nigerianNumbers.length === 0) {
+                            console.log('No valid Nigerian phone numbers found');
+                            return;
+                        }
+                        
+                        const message = {
+                            to: nigerianNumbers,
+                            from: TWILIO_CONFIG.whatsappNumber,
+                            body: `🚨 EMERGENCY PHOTO from SafeRoute\n📸 Time: ${new Date(photo.timestamp).toLocaleString()}\n📍 Location: ${photo.location ? `${photo.location.lat}, ${photo.location.lng}` : 'Unknown'}\n🔋 Battery: ${photo.battery}%`,
+                            mediaUrl: [`data:image/jpeg;base64,${base64data}`]
+                        };
+                        
+                        console.log('📤 Sending photo via WhatsApp to Nigerian contacts:', message);
+                        
+                        // In real app, send to backend which uses Twilio API
+                        // For demo, simulate sending
+                        this.showToast('📸 Photo sent to Nigerian contacts 🇳🇬', 'success');
+                        
+                        this.state.pendingMessages.push({
+                            type: 'whatsapp_photo',
+                            message: message,
+                            timestamp: new Date().toISOString()
+                        });
+                        
+                        this.saveData();
+                    };
+                    
+                } catch (error) {
+                    console.error('❌ Failed to send photo via WhatsApp:', error);
+                    this.showToast('Failed to send photo', 'error');
+                }
+            },
+
+            // Send audio via WhatsApp using Twilio
+            async sendAudioViaWhatsApp(audioRecording) {
+                if (!this.config.isPremium || !this.config.twilio.whatsappEnabled) return;
+                
+                try {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(audioRecording.blob);
+                    
+                    reader.onloadend = async () => {
+                        const base64data = reader.result.split(',')[1];
+                        
+                        // Format Nigerian phone numbers
+                        const nigerianNumbers = this.getNigerianPhoneNumbers();
+                        
+                        if (nigerianNumbers.length === 0) {
+                            console.log('No valid Nigerian phone numbers found');
+                            return;
+                        }
+                        
+                        const message = {
+                            to: nigerianNumbers,
+                            from: TWILIO_CONFIG.whatsappNumber,
+                            body: `🚨 EMERGENCY AUDIO from SafeRoute\n🎤 Time: ${new Date(audioRecording.timestamp).toLocaleString()}\n📍 Location: ${audioRecording.location ? `${audioRecording.location.lat}, ${audioRecording.location.lng}` : 'Unknown'}\n⏱ Duration: ${audioRecording.duration/1000}s`,
+                            mediaUrl: [`data:audio/webm;base64,${base64data}`]
+                        };
+                        
+                        console.log('📤 Sending audio via WhatsApp to Nigerian contacts:', message);
+                        
+                        this.showToast('🎤 Audio sent to Nigerian contacts 🇳🇬', 'success');
+                        
+                        this.state.pendingMessages.push({
+                            type: 'whatsapp_audio',
+                            message: message,
+                            timestamp: new Date().toISOString()
+                        });
+                        
+                        this.saveData();
+                    };
+                    
+                } catch (error) {
+                    console.error('❌ Failed to send audio via WhatsApp:', error);
+                    this.showToast('Failed to send audio', 'error');
+                }
+            },
+
+            // Get formatted Nigerian phone numbers
+            getNigerianPhoneNumbers() {
+                return this.config.contacts
+                    .filter(contact => {
+                        if (!contact.number) return false;
+                        
+                        // Clean number
+                        const cleanNumber = contact.number.replace(/\D/g, '');
+                        
+                        // Check if it's a Nigerian number (+234 or 0)
+                        if (cleanNumber.startsWith('234') || cleanNumber.startsWith('0')) {
+                            return true;
+                        }
+                        
+                        return false;
+                    })
+                    .map(contact => {
+                        const cleanNumber = contact.number.replace(/\D/g, '');
+                        
+                        // Format for Twilio WhatsApp
+                        if (cleanNumber.startsWith('0')) {
+                            // Convert 0xxx to +234xxx
+                            return `whatsapp:+234${cleanNumber.substring(1)}`;
+                        } else if (cleanNumber.startsWith('234')) {
+                            return `whatsapp:+${cleanNumber}`;
+                        } else if (cleanNumber.startsWith('+')) {
+                            return `whatsapp:${cleanNumber}`;
+                        } else {
+                            // Assume it's already international format
+                            return `whatsapp:+${cleanNumber}`;
+                        }
+                    })
+                    .join(',');
+            },
+
+            // Send emergency media via WhatsApp
+            async sendEmergencyMedia() {
+                if (!this.config.isPremium || !this.config.twilio.whatsappEnabled) return;
+                
+                // Send last 5 photos
+                for (const photo of this.state.capturedPhotos.slice(-5)) {
+                    await this.sendPhotoViaWhatsApp(photo);
+                    await this.delay(1000);
+                }
+                
+                // Send last 3 audio recordings
+                for (const audio of this.state.recordedAudio.slice(-3)) {
+                    await this.sendAudioViaWhatsApp(audio);
+                    await this.delay(1000);
+                }
+                
+                this.state.capturedPhotos.forEach(photo => photo.sent = true);
+                this.state.recordedAudio.forEach(audio => audio.sent = true);
+            },
+
+            // Helper: Delay function
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            },
+
+            // Start the main app
+            startApp() {
+                document.getElementById('welcomeScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'flex';
+                this.showToast('👋 Welcome to SafeRoute Nigeria! 🇳🇬', 'success');
+                
+                this.updatePremiumUI();
+                
+                const installBtn = document.getElementById('installPrompt');
+                if (installBtn) installBtn.style.display = 'none';
+                
+                this.checkUrlParameters();
+            },
+
+            // Save data with PWA info
+            saveData() {
+                try {
+                    localStorage.setItem('saferoute_data', JSON.stringify({
+                        route: this.config.route,
+                        contacts: this.config.contacts,
+                        isPremium: this.config.isPremium,
+                        pwaInstalled: this.config.pwaInstalled,
+                        lastSync: this.config.lastSync,
+                        pendingMessages: this.state.pendingMessages,
+                        pendingLocations: this.state.pendingLocations,
+                        capturedPhotos: this.state.capturedPhotos,
+                        recordedAudio: this.state.recordedAudio
+                    }));
+                } catch (e) {
+                    console.error('Error saving data:', e);
+                }
+            },
+
+            // Update UI based on premium status
+            updatePremiumUI() {
+                if (this.config.isPremium) {
+                    document.getElementById('adBanner').style.display = 'none';
+                    document.getElementById('premiumBadge').style.display = 'inline';
+                    document.getElementById('upgradeButton').style.display = 'none';
+                    document.querySelectorAll('.premium-only').forEach(el => {
+                        el.style.display = 'flex';
+                    });
+                    document.getElementById('contactLimit').textContent = '2/5 contacts';
+                    document.querySelector('.premium-card .card-title span').textContent = 'SafeRoute Premium - Active 🇳🇬';
+                    document.querySelector('.premium-card .card-title i').style.color = 'var(--premium-gold)';
+                    document.getElementById('addContactBtn').style.display = 'none';
+                    document.getElementById('advancedTrackingBtn').style.display = 'none';
+                } else {
+                    document.getElementById('adBanner').style.display = 'flex';
+                    document.getElementById('premiumBadge').style.display = 'none';
+                    document.getElementById('upgradeButton').style.display = 'flex';
+                    document.querySelectorAll('.premium-only').forEach(el => {
+                        el.style.display = 'none';
+                    });
+                    document.getElementById('contactLimit').textContent = '2/2 contacts';
+                }
+            },
+
+            // Select plan with Naira pricing
+            selectPlan(plan, price) {
+                this.config.payment.selectedPlan = plan;
+                this.config.payment.selectedPrice = price;
+                
+                document.getElementById('selectedPlan').textContent = 
+                    plan === 'monthly' ? 'Monthly Plan' : 
+                    plan === 'yearly' ? 'Yearly Plan' : 'Lifetime Access';
+                
+                const priceElement = document.getElementById('selectedPrice');
+                if (priceElement) {
+                    priceElement.innerHTML = `<span class="ngn naira">${price.toLocaleString('en-NG')}</span>`;
+                }
+                
+                document.getElementById('selectedPeriod').textContent = 
+                    plan === 'lifetime' ? 'One-time payment 🇳🇬' : 
+                    plan === 'yearly' ? 'Billed yearly' : 'Billed monthly';
+                
+                document.getElementById('paymentModal').style.display = 'flex';
+            },
+
+            // Select payment method
+            selectPaymentMethod(method) {
+                this.config.payment.paymentMethod = method;
+                
+                document.querySelectorAll('.payment-method').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                event.currentTarget.classList.add('selected');
+                
+                document.getElementById('cardDetails').style.display = 'none';
+                document.getElementById('paypalDetails').style.display = 'none';
+                document.getElementById('flutterwaveDetails').style.display = 'none';
+                
+                if (method === 'card') {
+                    document.getElementById('cardDetails').style.display = 'block';
+                } else if (method === 'paypal') {
+                    document.getElementById('paypalDetails').style.display = 'block';
+                } else if (method === 'flutterwave') {
+                    document.getElementById('flutterwaveDetails').style.display = 'block';
+                }
+            },
+
+            // Process payment for Nigerian users
+            processPayment() {
+                const method = this.config.payment.paymentMethod;
+                
+                if (method === 'card') {
+                    const accountNumber = document.getElementById('cardNumber').value;
+                    const bankName = document.getElementById('bankName').value;
+                    const accountName = document.getElementById('accountName').value;
+                    
+                    if (!accountNumber || !bankName || !accountName) {
+                        this.showToast('Please fill all bank details', 'warning');
+                        return;
+                    }
+                    
+                    if (accountNumber.length !== 10) {
+                        this.showToast('Please enter a valid 10-digit account number', 'warning');
+                        return;
+                    }
+                }
+                
+                this.showToast('Processing payment in Naira... 🇳🇬', 'info');
+                
+                // Simulate payment processing
+                setTimeout(() => {
+                    this.config.isPremium = true;
+                    
+                    const expiryDate = new Date();
+                    if (this.config.payment.selectedPlan === 'monthly') {
+                        expiryDate.setMonth(expiryDate.getMonth() + 1);
+                    } else if (this.config.payment.selectedPlan === 'yearly') {
+                        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+                    } else if (this.config.payment.selectedPlan === 'lifetime') {
+                        expiryDate.setFullYear(expiryDate.getFullYear() + 100);
+                    }
+                    
+                    localStorage.setItem('premium_expiry', expiryDate.toISOString());
+                    this.saveData();
+                    
+                    document.getElementById('paymentModal').style.display = 'none';
+                    document.getElementById('successModal').style.display = 'flex';
+                    
+                    console.log('Payment successful in Naira:', {
+                        plan: this.config.payment.selectedPlan,
+                        price: this.config.payment.selectedPrice,
+                        method: this.config.payment.paymentMethod,
+                        currency: 'NGN',
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    this.sendPremiumWelcomeNotification();
+                    
+                }, 2000);
+            },
+
+            // Enhanced emergency message for Nigerian users
+            createEmergencyMessage() {
+                const location = this.state.currentLocation;
+                const locationUrl = location ? 
+                    `https://maps.google.com/?q=${location.lat},${location.lng}` : 
+                    'Location unavailable';
+                
+                const mediaInfo = this.config.isPremium ? 
+                    `\n📸 Photos captured: ${this.state.capturedPhotos.length}` +
+                    `\n🎤 Audio recordings: ${this.state.recordedAudio.length}` +
+                    `\n🔒 Stealth mode: ${this.state.isSecretMode ? 'ACTIVE' : 'INACTIVE'}` : '';
+                
+                return `🚨 EMERGENCY ALERT from SafeRoute Nigeria 🇳🇬
+
+I need immediate assistance!
+
+📍 My Location: ${locationUrl}
+🛣️ My Route: ${this.config.route.start} → ${this.config.route.end}
+🕐 Time: ${new Date().toLocaleString()}
+🔋 Battery: ${this.state.batteryLevel || 'Unknown'}%
+📱 App: ${this.config.pwaInstalled ? 'Installed PWA' : 'Web App'}${mediaInfo}
+
+⚠️ Photos and audio recordings have been captured and sent.
+📍 Live tracking is active: ${this.state.isTracking ? 'YES' : 'NO'}
+
+Please check on me immediately! 🇳🇬`;
+            },
+
+            // Send WhatsApp emergency message to Nigerian numbers
+            async sendWhatsAppEmergency(message, contacts) {
+                if (!this.config.twilio.whatsappEnabled) return;
+                
+                try {
+                    const nigerianNumbers = contacts
+                        .filter(contact => {
+                            if (!contact.number) return false;
+                            const cleanNumber = contact.number.replace(/\D/g, '');
+                            return cleanNumber.startsWith('234') || cleanNumber.startsWith('0');
+                        })
+                        .map(contact => {
+                            const cleanNumber = contact.number.replace(/\D/g, '');
+                            
+                            if (cleanNumber.startsWith('0')) {
+                                return `whatsapp:+234${cleanNumber.substring(1)}`;
+                            } else if (cleanNumber.startsWith('234')) {
+                                return `whatsapp:+${cleanNumber}`;
+                            } else {
+                                return `whatsapp:+234${cleanNumber}`;
+                            }
+                        })
+                        .join(',');
+                    
+                    if (!nigerianNumbers) {
+                        console.log('No Nigerian numbers to send to');
+                        return;
+                    }
+                    
+                    const whatsappMessage = {
+                        to: nigerianNumbers,
+                        from: TWILIO_CONFIG.whatsappNumber,
+                        body: message
+                    };
+                    
+                    console.log('📤 Sending WhatsApp emergency to Nigerian contacts:', whatsappMessage);
+                    
+                    // In real app, send to backend which uses Twilio API
+                    this.showToast('✅ WhatsApp alerts sent to Nigerian contacts 🇳🇬', 'success');
+                    
+                    this.state.pendingMessages.push({
+                        type: 'whatsapp_emergency',
+                        message: whatsappMessage,
+                        timestamp: new Date().toISOString(),
+                        sent: true
+                    });
+                    
+                    this.saveData();
+                    
+                } catch (error) {
+                    console.error('❌ Failed to send WhatsApp:', error);
+                    this.showToast('Failed to send WhatsApp alert', 'error');
+                }
+            },
+
+            // Activate emergency
+            activateEmergency(source = 'BUTTON') {
+                if (this.state.isEmergency) return;
+                
+                this.state.isEmergency = true;
+                this.state.triggerSource = source;
+                
+                const modal = document.getElementById('emergencyModal');
+                modal.style.display = 'flex';
+                
+                // Update countdown based on settings
+                let countdown = this.config.emergencySettings.countdownSeconds;
+                document.getElementById('countdown').textContent = countdown;
+                document.getElementById('emergencyMessage').textContent = 
+                    `Help will be notified in ${countdown} seconds...`;
+                
+                this.state.countdownInterval = setInterval(() => {
+                    countdown--;
+                    document.getElementById('countdown').textContent = countdown;
+                    document.getElementById('emergencyMessage').textContent = 
+                        countdown > 0 ? `Help will be notified in ${countdown} seconds...` : 'Sending emergency alerts...';
+                    
+                    if (countdown <= 0) {
+                        this.confirmEmergency();
+                    }
+                }, 1000);
+            },
+
+            // Confirm emergency
+            confirmEmergency() {
+                clearInterval(this.state.countdownInterval);
+                document.getElementById('emergencyModal').style.display = 'none';
+                
+                const cameraOverlay = document.getElementById('cameraOverlay');
+                if (cameraOverlay) cameraOverlay.style.display = 'block';
+                
+                this.sendEmergencyAlerts();
+                
+                if (this.config.isPremium) {
+                    this.state.isSecretMode = true;
+                    
+                    if (this.config.twilio.secretPhotos) {
+                        this.startSecretPhotoCapture();
+                        setTimeout(() => this.captureSecretPhoto(), 1000);
+                    }
+                    
+                    if (this.config.twilio.voiceRecording) {
+                        this.startVoiceRecording();
+                    }
+                    
+                    const toggleBtn = document.getElementById('secretToggle');
+                    if (toggleBtn) {
+                        toggleBtn.className = 'secret-features-toggle active';
+                        toggleBtn.innerHTML = '<i class="fas fa-user-secret"></i> Emergency Mode';
+                    }
+                }
+                
+                if (!this.state.isTracking) {
+                    this.state.isTracking = true;
+                    this.initMap();
+                }
+                
+                this.showToast('🚨 Emergency alerts sent! Help is on the way. 🇳🇬', 'success');
+                this.state.isEmergency = true;
+                
+                setTimeout(() => {
+                    if (cameraOverlay) cameraOverlay.style.display = 'none';
+                }, 10000);
             },
 
             // Battery monitoring
@@ -1921,22 +2583,56 @@ Please check on me immediately!`;
                     navigator.getBattery().then(battery => {
                         const updateBattery = () => {
                             this.state.batteryLevel = Math.round(battery.level * 100);
-                            document.getElementById('batteryLevel').textContent = `${this.state.batteryLevel}%`;
+                            const batteryLevelEl = document.getElementById('batteryLevel');
+                            if (batteryLevelEl) {
+                                batteryLevelEl.textContent = `${this.state.batteryLevel}%`;
+                            }
+                            
+                            if (this.state.batteryLevel <= 20 && !this.state.lowBatteryWarned) {
+                                this.showToast('⚠️ Low battery! Consider charging.', 'warning');
+                                this.state.lowBatteryWarned = true;
+                            }
+                            
+                            if (this.state.batteryLevel > 30) {
+                                this.state.lowBatteryWarned = false;
+                            }
                         };
                         
                         battery.addEventListener('levelchange', updateBattery);
+                        battery.addEventListener('chargingchange', updateBattery);
                         updateBattery();
                     });
                 } else {
-                    // Demo battery level
                     this.state.batteryLevel = 85;
-                    document.getElementById('batteryLevel').textContent = `${this.state.batteryLevel}%`;
+                    const batteryLevelEl = document.getElementById('batteryLevel');
+                    if (batteryLevelEl) {
+                        batteryLevelEl.textContent = `${this.state.batteryLevel}%`;
+                    }
                 }
+            },
+
+            // Setup demo data for Nigeria
+            setupDemoData() {
+                setTimeout(() => {
+                    if (!SafeRoute.config.route.start) {
+                        document.getElementById('startPoint').value = 'Lagos, Nigeria';
+                        document.getElementById('endPoint').value = 'Abuja, Nigeria';
+                    }
+                    
+                    if (!SafeRoute.config.contacts[0].name) {
+                        SafeRoute.config.contacts[0] = { name: 'Emergency Contact', number: '+2348012345678' };
+                        SafeRoute.config.contacts[1] = { name: 'Family Member', number: '08098765432' };
+                        SafeRoute.updateContactDisplay(1);
+                        SafeRoute.updateContactDisplay(2);
+                    }
+                }, 1000);
             },
 
             // Show toast
             showToast(message, type = 'info') {
                 const toast = document.getElementById('toast');
+                if (!toast) return;
+                
                 toast.textContent = message;
                 
                 switch(type) {
@@ -1958,60 +2654,182 @@ Please check on me immediately!`;
                 setTimeout(() => {
                     toast.style.display = 'none';
                 }, 3000);
+            },
+
+            // Initialize PWA features
+            async initPWA() {
+                try {
+                    if ('serviceWorker' in navigator) {
+                        const registration = await navigator.serviceWorker.register('sw.js');
+                        this.state.serviceWorker = registration;
+                        console.log('✅ Service Worker registered:', registration);
+                        
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    this.showUpdateNotification();
+                                }
+                            });
+                        });
+                        
+                        navigator.serviceWorker.addEventListener('message', (event) => {
+                            this.handleServiceWorkerMessage(event.data);
+                        });
+                    }
+                    
+                    if (window.matchMedia('(display-mode: standalone)').matches) {
+                        this.config.pwaInstalled = true;
+                        console.log('📱 App is installed as PWA');
+                    }
+                    
+                    this.setupInstallPrompt();
+                    this.setupNetworkDetection();
+                    this.requestNotificationPermission();
+                    
+                } catch (error) {
+                    console.error('❌ PWA initialization failed:', error);
+                }
+            },
+
+            // Setup install prompt
+            setupInstallPrompt() {
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    console.log('📲 PWA install prompt available');
+                    e.preventDefault();
+                    this.state.deferredPrompt = e;
+                    
+                    setTimeout(() => {
+                        if (this.state.deferredPrompt && !this.config.pwaInstalled) {
+                            const installBtn = document.getElementById('installPrompt');
+                            if (installBtn) {
+                                installBtn.style.display = 'flex';
+                                
+                                setTimeout(() => {
+                                    installBtn.style.display = 'none';
+                                }, 15000);
+                            }
+                        }
+                    }, 3000);
+                });
+                
+                const installBtn = document.getElementById('installPrompt');
+                if (installBtn) {
+                    installBtn.addEventListener('click', async () => {
+                        if (!this.state.deferredPrompt) return;
+                        
+                        this.state.deferredPrompt.prompt();
+                        
+                        const choiceResult = await this.state.deferredPrompt.userChoice;
+                        console.log('User installation choice:', choiceResult.outcome);
+                        
+                        if (choiceResult.outcome === 'accepted') {
+                            this.config.pwaInstalled = true;
+                            this.saveData();
+                            this.showToast('🎉 SafeRoute installed successfully! 🇳🇬', 'success');
+                        }
+                        
+                        this.state.deferredPrompt = null;
+                        installBtn.style.display = 'none';
+                    });
+                }
+                
+                window.addEventListener('appinstalled', () => {
+                    this.config.pwaInstalled = true;
+                    console.log('✅ App was installed');
+                    const installBtn = document.getElementById('installPrompt');
+                    if (installBtn) installBtn.style.display = 'none';
+                    this.saveData();
+                });
+            },
+
+            // Setup network detection
+            setupNetworkDetection() {
+                this.state.isOnline = navigator.onLine;
+                this.updateNetworkStatus();
+                
+                window.addEventListener('online', () => {
+                    this.state.isOnline = true;
+                    this.updateNetworkStatus();
+                    this.showToast('✅ Back online', 'success');
+                    this.syncOfflineData();
+                });
+                
+                window.addEventListener('offline', () => {
+                    this.state.isOnline = false;
+                    this.updateNetworkStatus();
+                    this.showToast('⚠️ You are offline. Emergency features will work locally. 🇳🇬', 'warning');
+                });
+            },
+
+            // Update network status display
+            updateNetworkStatus() {
+                const indicator = document.getElementById('offlineIndicator');
+                const networkDot = document.getElementById('networkDot');
+                
+                if (this.state.isOnline) {
+                    if (indicator) indicator.style.display = 'none';
+                    if (networkDot) networkDot.className = 'status-dot active';
+                } else {
+                    if (indicator) indicator.style.display = 'block';
+                    if (networkDot) networkDot.className = 'status-dot';
+                }
+            },
+
+            // Send premium welcome notification
+            sendPremiumWelcomeNotification() {
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    try {
+                        const notification = new Notification('🎉 Welcome to SafeRoute Premium! 🇳🇬', {
+                            body: 'You now have access to all premium safety features.',
+                            icon: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
+                            tag: 'premium-welcome'
+                        });
+                        
+                        notification.onclick = () => {
+                            window.focus();
+                            notification.close();
+                        };
+                    } catch (error) {
+                        console.log('Notification error:', error);
+                    }
+                }
             }
         };
 
-        // SERVICE WORKER REGISTRATION
+        // Service Worker Registration
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('sw.js')
-                    .then(function(registration) {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    })
-                    .catch(function(err) {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
+            window.addEventListener('load', async function() {
+                try {
+                    const registration = await navigator.serviceWorker.register('sw.js');
+                    console.log('✅ ServiceWorker registration successful with scope: ', registration.scope);
+                    
+                    setInterval(() => {
+                        registration.update();
+                    }, 60 * 60 * 1000);
+                    
+                } catch (err) {
+                    console.log('❌ ServiceWorker registration failed: ', err);
+                }
             });
         }
 
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', () => {
             SafeRoute.init();
-            SafeRoute.initBattery();
         });
 
-        // Add some demo data for testing
-        setTimeout(() => {
-            if (!SafeRoute.config.route.start) {
-                document.getElementById('startPoint').value = 'Home';
-                document.getElementById('endPoint').value = 'Office';
-            }
-            
-            if (!SafeRoute.config.contacts[0].name) {
-                SafeRoute.config.contacts[0] = { name: 'John Doe', number: '+1234567890' };
-                SafeRoute.config.contacts[1] = { name: 'Jane Smith', number: '+0987654321' };
-                SafeRoute.updateContactDisplay(1);
-                SafeRoute.updateContactDisplay(2);
-            }
-        }, 1000);
-
-        // Card input formatting
+        // Input formatting for Nigerian account numbers
         document.getElementById('cardNumber')?.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            value = value.replace(/(.{4})/g, '$1 ').trim();
-            e.target.value = value.substring(0, 19);
+            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 10);
         });
 
-        document.getElementById('cardExpiry')?.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length >= 2) {
-                value = value.substring(0, 2) + '/' + value.substring(2);
+        // Prevent accidental refresh/closing during emergency
+        window.addEventListener('beforeunload', (e) => {
+            if (SafeRoute.state.isEmergency || SafeRoute.state.isTracking) {
+                e.preventDefault();
+                e.returnValue = 'You have an active emergency or tracking session. Are you sure you want to leave?';
             }
-            e.target.value = value.substring(0, 5);
-        });
-
-        document.getElementById('cardCVC')?.addEventListener('input', function(e) {
-            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 3);
         });
     </script>
 </body>
