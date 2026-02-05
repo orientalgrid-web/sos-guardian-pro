@@ -1127,5 +1127,26 @@
             });
         }
     </script>
+    <script>
+// Test if manifest is loading
+if ('serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window) {
+  console.log('✅ PWA supported');
+  
+  // Check manifest
+  fetch('/manifest.json')
+    .then(response => response.json())
+    .then(manifest => {
+      console.log('✅ Manifest loaded:', manifest.name);
+      console.log('📝 Description:', manifest.description);
+      
+      if (!manifest.description) {
+        console.error('❌ Manifest missing description!');
+      }
+    })
+    .catch(error => {
+      console.error('❌ Manifest loading failed:', error);
+    });
+}
+</script>
 </body>
 </html>
