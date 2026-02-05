@@ -3,7 +3,7 @@ const CACHE_NAME = 'saferoute-v2';
 const OFFLINE_CACHE = 'saferoute-offline-data';
 const EMERGENCY_CACHE = 'saferoute-emergencies';
 
-// Assets to cache for offline use
+// Update the STATIC_ASSETS array in your sw.js:
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -11,10 +11,17 @@ const STATIC_ASSETS = [
   'https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js',
   'https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
-  'https://img.icons8.com/color/180/000000/shield.png',
-  'https://img.icons8.com/color/32/000000/shield.png',
-  'https://img.icons8.com/color/16/000000/shield.png',
-  'https://img.icons8.com/color/96/000000/shield.png'
+  
+  // Corrected icon URLs
+  'https://img.icons8.com/color/72/000000/security-shield-green.png',
+  'https://img.icons8.com/color/96/000000/security-shield-green.png',
+  'https://img.icons8.com/color/144/000000/security-shield-green.png',
+  'https://img.icons8.com/color/192/000000/security-shield-green.png',
+  'https://img.icons8.com/color/512/000000/security-shield-green.png',
+  
+  // Shortcut icons
+  'https://img.icons8.com/color/96/000000/gps-device.png',
+  'https://img.icons8.com/color/96/000000/contacts.png'
 ];
 
 // Install event - cache static assets
