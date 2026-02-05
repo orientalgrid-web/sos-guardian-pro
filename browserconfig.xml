@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<browserconfig>
+    <msapplication>
+        <tile>
+            <square70x70logo src="https://img.icons8.com/color/70/000000/shield.png"/>
+            <square150x150logo src="https://img.icons8.com/color/150/000000/shield.png"/>
+            <square310x310logo src="https://img.icons8.com/color/310/000000/shield.png"/>
+            <wide310x150logo src="https://img.icons8.com/color/310x150/000000/shield.png"/>
+            <TileColor>#0A192F</TileColor>
+            <TileImage src="https://img.icons8.com/color/144/000000/shield.png"/>
+        </tile>
+        <notification>
+            <polling-uri src=""/>
+            <frequency>30</frequency>
+            <cycle>1</cycle>
+        </notification>
+    </msapplication>
+</browserconfig>
