@@ -1,6 +1,6 @@
 // Service Worker for SafeRoute Nigeria PWA
-// Version: 2.0.0
-const CACHE_NAME = 'saferoute-v2.0';
+// Version: 3.0.0
+const CACHE_NAME = 'saferoute-v3.0';
 const OFFLINE_CACHE = 'saferoute-offline-v1';
 const EMERGENCY_CACHE = 'saferoute-emergency-v1';
 
@@ -11,7 +11,9 @@ const STATIC_ASSETS = [
   '/manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
   'https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css',
-  'https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'
+  'https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js',
+  'https://img.icons8.com/color/96/000000/shield.png',
+  'https://img.icons8.com/color/192/000000/shield.png'
 ];
 
 // Install Event - Cache static assets
@@ -59,129 +61,88 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch Event - Network-first strategy with offline fallback
+// Fetch Event - Cache-first strategy with offline fallback
 self.addEventListener('fetch', event => {
-  // Skip non-GET requests and browser extensions
-  if (event.request.method !== 'GET' || 
-      event.request.url.startsWith('chrome-extension://') ||
-      event.request.url.includes('safari-extension://')) {
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') {
     return;
   }
   
   // Handle different types of requests
-  const requestUrl = new URL(event.request.url);
+  const url = new URL(event.request.url);
   
-  // Emergency data - Store for offline
-  if (requestUrl.pathname.includes('/emergency/')) {
-    handleEmergencyRequest(event);
+  // For HTML pages, try network first, then cache
+  if (event.request.headers.get('accept').includes('text/html')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          // Cache the response for future use
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseClone);
+          });
+          return response;
+        })
+        .catch(() => {
+          // If network fails, return cached version
+          return caches.match(event.request)
+            .then(cachedResponse => {
+              if (cachedResponse) {
+                return cachedResponse;
+              }
+              // Return offline page
+              return caches.match('/index.html');
+            });
+        })
+    );
     return;
   }
   
-  // External resources - Network only
-  if (requestUrl.hostname !== self.location.hostname) {
-    handleExternalRequest(event);
-    return;
-  }
-  
-  // App resources - Cache-first, then network
-  handleAppRequest(event);
-});
-
-// Handle emergency data requests
-function handleEmergencyRequest(event) {
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // Clone response to store in cache
-        const responseClone = response.clone();
-        
-        // Store emergency data for offline sync
-        caches.open(EMERGENCY_CACHE).then(cache => {
-          cache.put(event.request, responseClone);
-        });
-        
-        return response;
-      })
-      .catch(() => {
-        // If offline, try to get from cache
-        return caches.match(event.request);
-      })
-  );
-}
-
-// Handle external resources (CDNs, APIs)
-function handleExternalRequest(event) {
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // Don't cache external resources excessively
-        return response;
-      })
-      .catch(() => {
-        // For Mapbox CSS/JS, try to serve from cache
-        if (event.request.url.includes('mapbox-gl')) {
-          return caches.match(event.request);
-        }
-        // For other externals, let them fail
-        throw new Error('Network error');
-      })
-  );
-}
-
-// Handle app resources
-function handleAppRequest(event) {
+  // For other assets (CSS, JS, images), cache-first
   event.respondWith(
     caches.match(event.request)
       .then(cachedResponse => {
-        // Return cached response if available
         if (cachedResponse) {
           // Update cache in background
-          fetchAndCache(event.request);
+          fetch(event.request)
+            .then(response => {
+              const responseClone = response.clone();
+              caches.open(CACHE_NAME).then(cache => {
+                cache.put(event.request, responseClone);
+              });
+            })
+            .catch(() => {}); // Ignore fetch errors for background updates
           return cachedResponse;
         }
         
-        // Otherwise fetch from network
-        return fetchAndCache(event.request);
-      })
-      .catch(() => {
-        // If both cache and network fail, return offline page
-        if (event.request.headers.get('accept').includes('text/html')) {
-          return caches.match('/index.html');
-        }
-        
-        // For other file types, return appropriate response
-        return new Response('Offline', {
-          status: 503,
-          statusText: 'Service Unavailable',
-          headers: new Headers({
-            'Content-Type': 'text/plain'
+        // Not in cache, fetch from network
+        return fetch(event.request)
+          .then(response => {
+            // Don't cache external CDN resources excessively
+            if (url.hostname === self.location.hostname || 
+                url.hostname.includes('mapbox.com') ||
+                url.hostname.includes('cdnjs.cloudflare.com')) {
+              const responseClone = response.clone();
+              caches.open(CACHE_NAME).then(cache => {
+                cache.put(event.request, responseClone);
+              });
+            }
+            return response;
           })
-        });
+          .catch(error => {
+            console.log('Fetch failed; returning offline page:', error);
+            // Return appropriate offline response
+            if (event.request.destination === 'image') {
+              return caches.match('https://img.icons8.com/color/96/000000/shield.png');
+            }
+            return new Response('Network error happened', {
+              status: 408,
+              headers: { 'Content-Type': 'text/plain' }
+            });
+          });
       })
   );
-}
-
-// Helper: Fetch and cache
-function fetchAndCache(request) {
-  return fetch(request)
-    .then(response => {
-      // Check if we received a valid response
-      if (!response || response.status !== 200 || response.type !== 'basic') {
-        return response;
-      }
-      
-      // Clone the response
-      const responseToCache = response.clone();
-      
-      // Cache the response
-      caches.open(CACHE_NAME)
-        .then(cache => {
-          cache.put(request, responseToCache);
-        });
-      
-      return response;
-    });
-}
+});
 
 // Background Sync for Emergency Data
 self.addEventListener('sync', event => {
@@ -189,10 +150,6 @@ self.addEventListener('sync', event => {
   
   if (event.tag === 'emergency-sync') {
     event.waitUntil(syncEmergencyData());
-  }
-  
-  if (event.tag === 'location-sync') {
-    event.waitUntil(syncLocationData());
   }
 });
 
@@ -213,10 +170,11 @@ async function syncEmergencyData() {
           const data = await response.json();
           
           // In a real app, send to your backend server
+          // For demo, we'll just log it
           console.log('📤 Syncing emergency data:', data);
           
-          // Simulate server request
-          await simulateServerRequest(data);
+          // Simulate server request (1 second delay)
+          await new Promise(resolve => setTimeout(resolve, 1000));
           
           // Remove from cache after successful sync
           await cache.delete(request);
@@ -245,81 +203,51 @@ async function syncEmergencyData() {
   }
 }
 
-// Sync location data
-async function syncLocationData() {
-  try {
-    console.log('📍 Syncing location data...');
-    
-    // Get location data from IndexedDB or cache
-    // This would be implemented based on your data storage
-    
-    const clients = await self.clients.matchAll();
-    clients.forEach(client => {
-      client.postMessage({
-        type: 'LOCATION_SYNC_COMPLETE',
-        timestamp: new Date().toISOString()
-      });
-    });
-    
-  } catch (error) {
-    console.error('❌ Location sync failed:', error);
-  }
-}
-
-// Simulate server request
-function simulateServerRequest(data) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      console.log('✅ Data sent to server:', data.type || 'Unknown');
-      resolve(true);
-    }, 500);
-  });
-}
-
 // Push Notifications
 self.addEventListener('push', event => {
-  console.log('📱 Push notification received:', event);
+  console.log('📱 Push notification received');
   
-  let data = {};
+  let data = {
+    title: '🚨 SafeRoute Emergency',
+    body: 'Emergency alert from SafeRoute',
+    icon: 'https://img.icons8.com/color/96/000000/shield.png',
+    badge: 'https://img.icons8.com/color/72/000000/shield.png'
+  };
+  
   if (event.data) {
     try {
-      data = event.data.json();
+      data = { ...data, ...event.data.json() };
     } catch (e) {
-      data = { title: 'SafeRoute', body: event.data.text() };
+      data.body = event.data.text() || data.body;
     }
   }
   
   const options = {
-    body: data.body || 'Emergency alert from SafeRoute',
-    icon: 'https://img.icons8.com/color/96/000000/shield.png',
-    badge: 'https://img.icons8.com/color/72/000000/shield.png',
+    body: data.body,
+    icon: data.icon,
+    badge: data.badge,
     vibrate: [200, 100, 200, 100, 200],
     tag: 'emergency-alert',
     requireInteraction: true,
     data: {
       url: data.url || '/?emergency=true',
       timestamp: Date.now(),
-      type: data.type || 'emergency'
+      type: 'emergency'
     },
     actions: [
       {
-        action: 'view-emergency',
-        title: 'View Details',
-        icon: 'https://img.icons8.com/color/48/000000/visible.png'
+        action: 'view',
+        title: 'View Details'
       },
       {
         action: 'dismiss',
-        title: 'Dismiss',
-        icon: 'https://img.icons8.com/color/48/000000/delete-sign.png'
+        title: 'Dismiss'
       }
     ]
   };
   
   event.waitUntil(
-    self.registration.showNotification(
-      data.title || '🚨 SafeRoute Emergency',
-      options
-    )
+    self.registration.showNotification(data.title, options)
   );
 });
 
@@ -329,9 +257,7 @@ self.addEventListener('notificationclick', event => {
   
   event.notification.close();
   
-  const notificationData = event.notification.data || {};
-  
-  if (event.action === 'view-emergency' || !event.action) {
+  if (event.action === 'view' || !event.action) {
     event.waitUntil(
       self.clients.matchAll({
         type: 'window',
@@ -342,8 +268,8 @@ self.addEventListener('notificationclick', event => {
           if (client.url.includes('/') && 'focus' in client) {
             client.postMessage({
               type: 'NOTIFICATION_CLICKED',
-              action: 'view-emergency',
-              data: notificationData
+              action: 'view',
+              data: event.notification.data
             });
             return client.focus();
           }
@@ -351,16 +277,10 @@ self.addEventListener('notificationclick', event => {
         
         // If no window is open, open a new one
         if (self.clients.openWindow) {
-          return self.clients.openWindow(notificationData.url || '/?emergency=true');
+          return self.clients.openWindow(event.notification.data.url || '/?emergency=true');
         }
       })
     );
-  }
-  
-  // Handle other actions
-  if (event.action === 'dismiss') {
-    console.log('Notification dismissed');
-    // Track dismissal if needed
   }
 });
 
@@ -369,24 +289,12 @@ self.addEventListener('message', event => {
   console.log('📨 Message from client:', event.data);
   
   switch (event.data.type) {
-    case 'EMERGENCY_DATA':
+    case 'STORE_EMERGENCY':
       storeEmergencyData(event.data.payload);
-      break;
-      
-    case 'LOCATION_DATA':
-      storeLocationData(event.data.payload);
-      break;
-      
-    case 'REGISTER_SYNC':
-      registerBackgroundSync(event.data.tag);
       break;
       
     case 'SKIP_WAITING':
       self.skipWaiting();
-      break;
-      
-    case 'CHECK_UPDATE':
-      checkForUpdates();
       break;
       
     case 'CLEAR_CACHE':
@@ -399,7 +307,7 @@ self.addEventListener('message', event => {
 async function storeEmergencyData(data) {
   try {
     const cache = await caches.open(EMERGENCY_CACHE);
-    const url = `/emergency/data-${Date.now()}`;
+    const url = `/emergency/${Date.now()}`;
     
     const response = new Response(JSON.stringify({
       ...data,
@@ -414,73 +322,29 @@ async function storeEmergencyData(data) {
     
     await cache.put(url, response);
     
-    console.log('💾 Emergency data stored for sync:', data.type || 'Unknown');
+    console.log('💾 Emergency data stored for sync');
+    
+    // Register background sync
+    if ('SyncManager' in self.registration) {
+      try {
+        await self.registration.sync.register('emergency-sync');
+        console.log('✅ Background sync registered for emergency data');
+      } catch (syncError) {
+        console.log('Background sync not available:', syncError);
+      }
+    }
     
     // Notify all clients
     const clients = await self.clients.matchAll();
     clients.forEach(client => {
       client.postMessage({
-        type: 'DATA_STORED',
-        dataType: 'emergency',
+        type: 'EMERGENCY_STORED',
         timestamp: new Date().toISOString()
       });
     });
     
   } catch (error) {
     console.error('Failed to store emergency data:', error);
-  }
-}
-
-// Store location data
-async function storeLocationData(data) {
-  try {
-    // In a real app, you might use IndexedDB for location history
-    console.log('📍 Location data received:', data);
-    
-    // Store in cache for now
-    const cache = await caches.open(OFFLINE_CACHE);
-    const url = `/location/${Date.now()}`;
-    
-    const response = new Response(JSON.stringify(data), {
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
-    await cache.put(url, response);
-    
-  } catch (error) {
-    console.error('Failed to store location data:', error);
-  }
-}
-
-// Register background sync
-async function registerBackgroundSync(tag) {
-  try {
-    const registration = await self.registration;
-    await registration.sync.register(tag);
-    console.log(`✅ Background sync registered: ${tag}`);
-  } catch (error) {
-    console.error(`Failed to register sync ${tag}:`, error);
-  }
-}
-
-// Check for updates
-async function checkForUpdates() {
-  try {
-    const cache = await caches.open(CACHE_NAME);
-    const response = await fetch('/', { cache: 'no-store' });
-    
-    if (response.status === 200) {
-      const clients = await self.clients.matchAll();
-      clients.forEach(client => {
-        client.postMessage({
-          type: 'UPDATE_CHECKED',
-          hasUpdate: true,
-          timestamp: new Date().toISOString()
-        });
-      });
-    }
-  } catch (error) {
-    console.error('Update check failed:', error);
   }
 }
 
@@ -502,36 +366,36 @@ async function clearOldCaches() {
   }
 }
 
-// Periodic Sync (if supported)
+// Periodic updates (if supported)
 if ('periodicSync' in self.registration) {
   self.addEventListener('periodicsync', event => {
-    if (event.tag === 'update-content') {
-      console.log('🔄 Periodic sync triggered');
-      event.waitUntil(updateCachedContent());
+    if (event.tag === 'update-check') {
+      console.log('🔄 Periodic sync for updates');
+      event.waitUntil(checkForUpdates());
     }
   });
 }
 
-// Update cached content
-async function updateCachedContent() {
+// Check for updates
+async function checkForUpdates() {
   try {
-    const cache = await caches.open(CACHE_NAME);
-    const requests = await cache.keys();
+    console.log('🔍 Checking for updates...');
     
-    for (const request of requests) {
-      try {
-        const networkResponse = await fetch(request);
-        if (networkResponse.ok) {
-          await cache.put(request, networkResponse.clone());
-        }
-      } catch (error) {
-        console.log(`Failed to update: ${request.url}`);
-      }
+    // In a real app, check with server
+    // For demo, just check main page
+    const response = await fetch('/', { cache: 'no-store' });
+    
+    if (response.ok) {
+      const clients = await self.clients.matchAll();
+      clients.forEach(client => {
+        client.postMessage({
+          type: 'UPDATE_AVAILABLE',
+          timestamp: new Date().toISOString()
+        });
+      });
     }
     
-    console.log('✅ Cached content updated');
-    
   } catch (error) {
-    console.error('Failed to update cached content:', error);
+    console.error('Update check failed:', error);
   }
 }
