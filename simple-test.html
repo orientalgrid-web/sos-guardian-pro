@@ -1,0 +1,50 @@
+<html>
+<head><title>SOS OPay Test</title></head>
+<body style="font-family:Arial;padding:40px;">
+    <h1 style="color:green;">✅ SOS Guardian - OPay Ready</h1>
+    <div style="background:#e3f2fd;padding:30px;border-radius:10px;margin:20px 0;">
+        <h2>Your OPay Account:</h2>
+        <div style="font-size:32px;font-weight:bold;color:#2196F3;">8103365359</div>
+    </div>
+    
+    <h3>Immediate Actions:</h3>
+    <ol>
+        <li><button onclick="callOPay()" style="background:#4CAF50;color:white;padding:10px;border:none;border-radius:5px;margin:5px;">📞 Call OPay Support</button></li>
+        <li><button onclick="testAccount()" style="background:#2196F3;color:white;padding:10px;border:none;border-radius:5px;margin:5px;">💳 Test ₦10 Payment</button></li>
+        <li><button onclick="copyAccount()" style="background:#FF9800;color:white;padding:10px;border:none;border-radius:5px;margin:5px;">📋 Copy Account Number</button></li>
+    </ol>
+    
+    <div id="result" style="margin-top:30px;padding:20px;background:#f9f9f9;border-radius:5px;"></div>
+    
+    <script>
+        function callOPay() {
+            document.getElementById('result').innerHTML = '<p style="color:green;">✅ Call: <strong>0700-933-3333</strong></p><p>Say: "I need API credentials for account 8103365359"</p>';
+        }
+        
+        function testAccount() {
+            document.getElementById('result').innerHTML = `
+                <p>📱 <strong>Test Instructions:</strong></p>
+                <ol>
+                    <li>Open OPay app</li>
+                    <li>Send ₦10 to: <strong>8103365359</strong></li>
+                    <li>Reference: <strong>SOS-TEST</strong></li>
+                    <li>Wait 2 minutes</li>
+                    <li>Confirm money arrives</li>
+                </ol>
+                <p>If money doesn't arrive, call OPay: <strong>0700-933-3333</strong></p>
+            `;
+        }
+        
+        function copyAccount() {
+            navigator.clipboard.writeText('8103365359');
+            document.getElementById('result').innerHTML = '<p style="color:green;">✅ Copied: 8103365359</p>';
+        }
+        
+        // Auto-run on load
+        window.onload = function() {
+            console.log('SOS Guardian OPay Test Page Loaded');
+            console.log('Account: 8103365359');
+        }
+    </script>
+</body>
+</html>
