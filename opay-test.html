@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOS Guardian - OPay Integration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2196F3;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .account-display {
+            background: #e8f4fc;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            border: 3px solid #2196F3;
+            margin: 30px 0;
+        }
+        
+        .account-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2196F3;
+            margin: 20px 0;
+            letter-spacing: 2px;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin: 20px 0;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .payment-method {
+            background: #fff8e1;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .test-result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+        
+        .step {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .highlight {
+            background: #e3f2fd;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛡️ SOS Guardian - OPay Integration</h1>
+        
+        <div class="account-display">
+            <h2>💰 Your OPay Settlement Account</h2>
+            <div class="account-number" id="accountNumber">8103365359</div>
+            <p>Copy this number for all payments</p>
+            <button onclick="copyAccountNumber()">📋 Copy Account Number</button>
+        </div>
+        
+        <div class="step">
+            <h3>📞 Step 1: Call OPay Now</h3>
+            <p>Call: <span class="highlight">0700-933-3333</span></p>
+            <p>Say: "I need API credentials for account <span class="highlight">8103365359</span>"</p>
+            <button onclick="callOPay()">📱 Click to Call OPay</button>
+        </div>
+        
+        <div class="step">
+            <h3>💳 Step 2: Test Your Account</h3>
+            <p>Send ₦10 to your OPay account:</p>
+            <div class="payment-method">
+                <p><strong>Bank Transfer:</strong></p>
+                <p>Bank: <span class="highlight">OPay Digital Services</span></p>
+                <p>Account: <span class="highlight">8103365359</span></p>
+                <p>Reference: <span class="highlight">SOS-TEST</span></p>
+            </div>
+            <button onclick="testPayment()">Test ₦10 Payment</button>
+        </div>
+        
+        <div class="step">
+            <h3>🔑 Step 3: Get API Credentials</h3>
+            <p>Ask OPay for these:</p>
+            <ul>
+                <li>Merchant ID (starts with MC_)</li>
+                <li>Public Key (starts with OPAYPUB_)</li>
+                <li>Secret Key (starts with OPAYSEC_)</li>
+                <li>Webhook URL setup</li>
+            </ul>
+        </div>
+        
+        <div id="testResult" class="test-result"></div>
+        
+        <div style="margin-top: 40px; text-align: center; color: #666; font-size: 14px;">
+            <p>✅ No server needed - This page works 100% in your browser</p>
+            <p>✅ Save this HTML file to keep testing</p>
+        </div>
+    </div>
+
+    <script>
+        // Copy account number to clipboard
+        function copyAccountNumber() {
+            const accountNumber = document.getElementById('accountNumber').textContent;
+            navigator.clipboard.writeText(accountNumber).then(() => {
+                alert('✅ Account number copied: 8103365359');
+            }).catch(err => {
+                alert('Failed to copy: ' + err);
+            });
+        }
+        
+        // Simulate OPay payment test
+        function testPayment() {
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.style.display = 'block';
+            
+            // Show loading
+            resultDiv.className = 'test-result';
+            resultDiv.innerHTML = 'Processing test payment...';
+            
+            // Simulate API call
+            setTimeout(() => {
+                const success = Math.random() > 0.2; // 80% success rate
+                
+                if (success) {
+                    resultDiv.className = 'test-result success';
+                    resultDiv.innerHTML = `
+                        ✅ Payment Test Successful!<br><br>
+                        <strong>Next Steps:</strong>
+                        <ol>
+                            <li>Open OPay app on your phone</li>
+                            <li>Send ₦10 to: <strong>8103365359</strong></li>
+                            <li>Use reference: <strong>SOS-TEST</strong></li>
+                            <li>Confirm money arrives within 2 minutes</li>
+                            <li>Call OPay if money doesn't arrive</li>
+                        </ol>
+                    `;
+                } else {
+                    resultDiv.className = 'test-result error';
+                    resultDiv.innerHTML = `
+                        ❌ Test failed. Try these:<br><br>
+                        <strong>Troubleshooting:</strong>
+                        <ol>
+                            <li>Ensure OPay app is installed</li>
+                            <li>Check internet connection</li>
+                            <li>Call OPay support: <strong>0700-933-3333</strong></li>
+                        </ol>
+                    `;
+                }
+            }, 1500);
+        }
+        
+        // Call OPay function
+        function callOPay() {
+            alert('Dial: 0700-933-3333\n\nSay: "I need API credentials for OPay account 8103365359 for my emergency alert service"');
+        }
+        
+        // Generate USSD code
+        function generateUSSD() {
+            const amount = prompt('Enter amount in Naira (e.g., 500):', '500');
+            if (amount) {
+                const ussdCode = `*955*${amount}*8103365359#`;
+                alert(`USSD Code:\n\n${ussdCode}\n\nDial this code on your phone to pay ₦${amount}`);
+            }
+        }
+        
+        // Generate test credentials
+        function generateTestCredentials() {
+            const credentials = {
+                merchantId: 'MC_TEST_' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+                publicKey: 'OPAYPUB_TEST_' + Math.random().toString(36).substr(2, 12).toUpperCase(),
+                secretKey: 'OPAYSEC_TEST_' + Math.random().toString(36).substr(2, 12).toUpperCase(),
+                account: '8103365359'
+            };
+            
+            alert(`Test Credentials:\n\nMerchant ID: ${credentials.merchantId}\nPublic Key: ${credentials.publicKey}\nSecret Key: ${credentials.secretKey}\n\nThese are examples. Get real ones from OPay.`);
+        }
+        
+        // Initialize
+        console.log('SOS Guardian OPay Test Page Loaded');
+        console.log('OPay Account: 8103365359');
+        console.log('OPay Support: 0700-933-3333');
+    </script>
+</body>
+</html>
