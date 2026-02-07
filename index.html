@@ -1569,6 +1569,245 @@
                 showNotification('⚠️ SECURITY: Change Twilio auth token immediately!', 'error');
             }, 3000);
         });
-    </script>
+    <!-- SAFE EMERGENCY FEATURES - No credentials exposed -->
+<script>
+// ========== SECURE EMERGENCY FEATURES ==========
+
+// 1. WHATSAPP SHARING FUNCTION
+function shareViaWhatsApp() {
+    navigator.geolocation.getCurrentPosition(function(position) {
+        const lat = position.coords.latitude.toFixed(6);
+        const lng = position.coords.longitude.toFixed(6);
+        const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
+        
+        const message = `🚨 EMERGENCY ALERT from SOS Guardian Pro!\n\n📍 Location: ${lat}, ${lng}\n🗺️ Map: ${mapsUrl}\n🕒 Time: ${new Date().toLocaleString()}\n\nUser needs emergency assistance!`;
+        
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+        
+        window.open(whatsappUrl, '_blank');
+        showNotification('📱 Opening WhatsApp to share emergency alert', 'info');
+        
+    }, function() {
+        // Fallback without location
+        const fallbackMessage = `🚨 EMERGENCY ALERT from SOS Guardian Pro!\n\n📍 Location: GPS access needed\n🕒 Time: ${new Date().toLocaleString()}\n\nUser needs emergency assistance!`;
+        const encodedMessage = encodeURIComponent(fallbackMessage);
+        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+        window.open(whatsappUrl, '_blank');
+    });
+}
+
+// 2. SMS ALERTS FUNCTION (User initiates from browser)
+function sendEmergencySMS() {
+    navigator.geolocation.getCurrentPosition(function(position) {
+        const lat = position.coords.latitude.toFixed(6);
+        const lng = position.coords.longitude.toFixed(6);
+        const smsBody = `🚨 SOS EMERGENCY! Location: ${lat}, ${lng}. Time: ${new Date().toLocaleTimeString()}. Please respond!`;
+        
+        // Ask for emergency contacts
+        const contact1 = prompt('Enter 1st emergency contact (Nigeria number):', '+2348012345678');
+        const contact2 = prompt('Enter 2nd emergency contact:', '+2348023456789');
+        
+        // Create SMS links
+        let smsPanel = document.createElement('div');
+        smsPanel.innerHTML = `
+            <div style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:30px; border-radius:15px; box-shadow:0 20px 60px rgba(0,0,0,0.4); z-index:10000; max-width:400px; width:90%; color:#333;">
+                <h3 style="color:#f44336; margin-top:0;">📲 Send Emergency SMS</h3>
+                <p><strong>Message:</strong><br>${smsBody}</p>
+                <div style="margin:20px 0;">
+                    <a href="sms:${contact1.replace(/\D/g,'')}?body=${encodeURIComponent(smsBody)}" 
+                       style="display:block; background:#4CAF50; color:white; padding:15px; text-align:center; border-radius:8px; margin:10px 0; text-decoration:none;">
+                       📱 Send to ${contact1}
+                    </a>
+                    ${contact2 ? `<a href="sms:${contact2.replace(/\D/g,'')}?body=${encodeURIComponent(smsBody)}" 
+                       style="display:block; background:#2196F3; color:white; padding:15px; text-align:center; border-radius:8px; margin:10px 0; text-decoration:none;">
+                       📱 Send to ${contact2}
+                    </a>` : ''}
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" 
+                        style="background:#666; color:white; padding:12px; width:100%; border:none; border-radius:8px; margin-top:10px;">
+                    Close
+                </button>
+            </div>
+            <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7); z-index:9999;"></div>
+        `;
+        document.body.appendChild(smsPanel);
+        
+    }, function() {
+        alert('📍 GPS access required for location-based SMS alerts');
+    });
+}
+
+// 3. CAMERA PHOTO CAPTURE FUNCTION
+function captureEmergencyPhoto() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('Camera not available on this device/browser');
+        return;
+    }
+    
+    // Request camera access
+    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        .then(function(stream) {
+            // Create camera interface
+            const cameraUI = document.createElement('div');
+            cameraUI.innerHTML = `
+                <div style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#111; padding:20px; border-radius:15px; z-index:10000; max-width:500px; width:95%;">
+                    <h3 style="color:white; text-align:center; margin:0 0 15px 0;">📸 Emergency Photo Evidence</h3>
+                    <video id="liveCamera" autoplay style="width:100%; border-radius:10px;"></video>
+                    <div style="text-align:center; margin:20px 0;">
+                        <button onclick="takePhotoSnapshot()" style="background:#f44336; color:white; border:none; padding:15px 30px; border-radius:50px; font-size:16px; margin:5px;">
+                            📸 Capture Photo
+                        </button>
+                        <button onclick="closeCamera()" style="background:#666; color:white; border:none; padding:15px 25px; border-radius:8px; margin:5px;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+                <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.9); z-index:9999;"></div>
+            `;
+            document.body.appendChild(cameraUI);
+            
+            // Show camera feed
+            const video = document.getElementById('liveCamera');
+            video.srcObject = stream;
+            window.currentCameraStream = stream;
+            
+        })
+        .catch(function(error) {
+            alert('Camera permission denied. Enable camera access for emergency photos.');
+        });
+}
+
+// 4. TAKE PHOTO SNAPSHOT
+function takePhotoSnapshot() {
+    const video = document.getElementById('liveCamera');
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Convert to image
+    const photoData = canvas.toDataURL('image/jpeg');
+    
+    // Save locally
+    localStorage.setItem('sos_emergency_photo_' + Date.now(), photoData);
+    
+    // Show preview
+    const preview = document.createElement('div');
+    preview.innerHTML = `
+        <div style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:25px; border-radius:15px; z-index:10001; max-width:400px; width:90%; text-align:center;">
+            <h3 style="color:#4CAF50;">✅ Photo Captured</h3>
+            <img src="${photoData}" style="max-width:100%; border-radius:10px; margin:15px 0;">
+            <p style="color:#666;">Emergency evidence saved locally</p>
+            <button onclick="sharePhotoViaWhatsApp('${photoData}')" style="background:#25D366; color:white; padding:12px 25px; border:none; border-radius:8px; margin:5px;">
+                📤 Share via WhatsApp
+            </button>
+            <button onclick="this.parentElement.parentElement.remove(); closeCamera();" style="background:#666; color:white; padding:12px 25px; border:none; border-radius:8px; margin:5px;">
+                Done
+            </button>
+        </div>
+        <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); z-index:10000;"></div>
+    `;
+    document.body.appendChild(preview);
+}
+
+// 5. CLOSE CAMERA
+function closeCamera() {
+    if (window.currentCameraStream) {
+        window.currentCameraStream.getTracks().forEach(track => track.stop());
+    }
+    
+    // Remove camera UI
+    document.querySelectorAll('div').forEach(div => {
+        if (div.style.position === 'fixed' && div.style.zIndex === '10000') {
+            div.remove();
+        }
+    });
+}
+
+// 6. SHARE PHOTO VIA WHATSAPP
+function sharePhotoViaWhatsApp(photoData) {
+    alert('📤 WhatsApp Web limitation: Direct photo sharing requires server upload.\n\nFor now, photo is saved locally. In production, upload to server then share link.');
+    
+    // Alternative: Share as text with photo info
+    const message = `🚨 EMERGENCY PHOTO EVIDENCE\n\nTime: ${new Date().toLocaleString()}\nPhoto evidence captured. Saved to SOS Guardian Pro system.`;
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+    window.open(whatsappUrl, '_blank');
+}
+
+// 7. CONNECT TO YOUR SOS BUTTON (Modify your existing function)
+function activateFullEmergency() {
+    if (confirm('🚨 ACTIVATE FULL EMERGENCY PROTOCOL?\n\nThis will:\n1. Capture location\n2. Take photo evidence\n3. Send WhatsApp alert\n4. Send SMS to contacts\n\nProceed?')) {
+        // Step 1: Get location and capture photo
+        navigator.geolocation.getCurrentPosition(async function() {
+            // Capture photo first
+            await captureEmergencyPhoto();
+            
+            // Wait 3 seconds, then send alerts
+            setTimeout(() => {
+                shareViaWhatsApp();
+                setTimeout(() => {
+                    sendEmergencySMS();
+                }, 2000);
+            }, 3000);
+            
+        }, function() {
+            // If location fails, just send alerts
+            shareViaWhatsApp();
+            sendEmergencySMS();
+        });
+    }
+}
+
+// ========== SECURE NOTIFICATION FUNCTION ==========
+function showNotification(message, type = 'info') {
+    // Reuse your existing notification system
+    console.log(`Notification (${type}): ${message}`);
+    
+    // Create simple alert for now
+    const alertDiv = document.createElement('div');
+    alertDiv.style.cssText = `
+        position: fixed; bottom: 20px; right: 20px; 
+        background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+        color: white; padding: 15px 25px; border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 9999;
+    `;
+    alertDiv.textContent = message;
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => alertDiv.remove(), 5000);
+}
+
+// ========== ADD BUTTONS TO YOUR PAGE ==========
+// Add this code after your existing buttons to create quick-access buttons
+document.addEventListener('DOMContentLoaded', function() {
+    // Add emergency buttons panel
+    const buttonPanel = document.createElement('div');
+    buttonPanel.style.cssText = `
+        position: fixed; bottom: 100px; right: 20px; 
+        background: rgba(0,0,0,0.8); padding: 15px; 
+        border-radius: 15px; z-index: 1000; 
+        backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
+    `;
+    
+    buttonPanel.innerHTML = `
+        <h4 style="color:#FFD700; margin:0 0 10px 0; font-size:14px;">🛡️ Quick Emergency Actions:</h4>
+        <button onclick="shareViaWhatsApp()" style="background:#25D366; color:white; border:none; padding:10px 15px; border-radius:8px; margin:5px; width:100%; font-size:14px;">
+            📱 WhatsApp Alert
+        </button>
+        <button onclick="sendEmergencySMS()" style="background:#2196F3; color:white; border:none; padding:10px 15px; border-radius:8px; margin:5px; width:100%; font-size:14px;">
+            📲 SMS Contacts
+        </button>
+        <button onclick="captureEmergencyPhoto()" style="background:#9C27B0; color:white; border:none; padding:10px 15px; border-radius:8px; margin:5px; width:100%; font-size:14px;">
+            📸 Photo Evidence
+        </button>
+    `;
+    
+    document.body.appendChild(buttonPanel);
+});
+</script>
 </body>
 </html>
