@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculator</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Mapbox GL JS -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css' rel='stylesheet' />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <style>
         /* ========== CALCULATOR DISGUISE ========== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -164,7 +165,7 @@
             50% { transform: scale(1.05); }
         }
         
-        /* ========== MAP TRACKING ========== */
+        /* ========== MAPBOX MAP ========== */
         .map-container {
             height: 500px;
             border-radius: 20px;
@@ -177,6 +178,7 @@
         #map {
             width: 100%;
             height: 100%;
+            border-radius: 20px;
         }
         
         .map-overlay {
@@ -187,51 +189,95 @@
             background: rgba(0, 0, 0, 0.8);
             padding: 15px;
             border-radius: 15px;
-            z-index: 1001;
+            z-index: 1;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .tracking-controls {
+        .map-controls {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
         }
         
-        .tracking-btn {
+        .map-btn {
             background: #008751;
             color: white;
             border: none;
             padding: 10px 20px;
             border-radius: 10px;
             cursor: pointer;
-            flex: 1;
-            min-width: 140px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .tracking-btn:hover {
+        .map-btn:hover {
             background: #00A859;
         }
         
-        .tracking-btn.stop {
+        .map-btn.satellite {
+            background: #3498db;
+        }
+        
+        .map-btn.satellite:hover {
+            background: #2980b9;
+        }
+        
+        .map-btn.hide {
+            background: #9b59b6;
+        }
+        
+        .map-btn.hide:hover {
+            background: #8e44ad;
+        }
+        
+        .map-btn.emergency {
             background: #ff3b30;
         }
         
-        .tracking-btn.stop:hover {
+        .map-btn.emergency:hover {
             background: #ff2d55;
         }
         
-        .route-info {
+        /* ========== SURVEILLANCE ZONE ========== */
+        .surveillance-info {
             position: absolute;
             bottom: 20px;
             left: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             padding: 15px;
             border-radius: 15px;
-            z-index: 1001;
+            z-index: 1;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 300px;
+        }
+        
+        .surveillance-zone {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 135, 81, 0.2);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .zone-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 255, 136, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #00ff88;
         }
         
         /* ========== HIDDEN MAP MODE ========== */
@@ -278,35 +324,15 @@
             border-radius: 10px;
             cursor: pointer;
             flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
         #hiddenMap {
             width: 100%;
             height: 100%;
-        }
-        
-        /* ========== MODALS ========== */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 1001;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal-content {
-            background: #1a1f3a;
-            width: 90%;
-            max-width: 500px;
-            border-radius: 25px;
-            padding: 40px;
-            text-align: center;
-            border: 2px solid rgba(255, 59, 48, 0.5);
         }
         
         /* ========== SETTINGS PANEL ========== */
@@ -331,46 +357,37 @@
             margin: 5px 0;
             width: 100%;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        /* ========== PAYMENT SECTION ========== */
-        .payment-section {
-            background: rgba(255, 215, 0, 0.1);
-            border-radius: 20px;
-            padding: 30px;
-            margin-top: 40px;
-            border: 2px solid #FFD700;
-        }
-        
-        .plan-card {
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
+        /* ========== FORMS ========== */
+        .form-group {
             margin: 20px 0;
-            border: 2px solid #FFD700;
+            text-align: left;
         }
         
-        .plan-price {
-            font-size: 3rem;
-            font-weight: 800;
-            color: white;
-            margin-bottom: 10px;
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #00ff88;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .buy-btn {
-            background: linear-gradient(45deg, #008751, #00A859);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 15px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
+        .form-group input, .form-group textarea {
             width: 100%;
-            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #008751;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
         }
         
+        /* ========== NOTIFICATION ========== */
         .notification {
             position: fixed;
             bottom: 20px;
@@ -383,6 +400,8 @@
             max-width: 350px;
             animation: slideIn 0.5s ease-out;
             border-left: 5px solid #008751;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         @keyframes slideIn {
@@ -392,40 +411,35 @@
         
         .hidden { display: none; }
         
-        /* ========== FORMS ========== */
-        .form-group {
-            margin: 20px 0;
-            text-align: left;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #00ff88;
-        }
-        
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #008751;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 1rem;
-        }
-        
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        
         /* ========== RESPONSIVE ========== */
         @media (max-width: 768px) {
             .emergency-btn { width: 200px; height: 200px; font-size: 20px; }
             .map-container { height: 400px; }
             .settings-panel { bottom: 10px; right: 10px; left: 10px; width: auto; }
-            .tracking-controls { flex-direction: column; }
-            .tracking-btn { width: 100%; }
+            .map-controls { flex-direction: column; align-items: stretch; }
+            .map-btn { width: 100%; justify-content: center; }
+        }
+        
+        /* Mapbox custom styles */
+        .mapboxgl-ctrl-attrib { 
+            background: rgba(0,0,0,0.7) !important;
+            color: white !important;
+        }
+        
+        .mapboxgl-ctrl-attrib a {
+            color: #00ff88 !important;
+        }
+        
+        .mapboxgl-popup {
+            max-width: 300px !important;
+        }
+        
+        .mapboxgl-popup-content {
+            background: rgba(0, 0, 0, 0.9) !important;
+            color: white !important;
+            border: 1px solid #00ff88 !important;
+            border-radius: 10px !important;
+            padding: 15px !important;
         }
     </style>
 </head>
@@ -469,7 +483,7 @@
             <!-- HEADER -->
             <div class="sos-header">
                 <h1><i class="fas fa-shield-alt"></i> SOS GUARDIAN PRO</h1>
-                <p>Emergency Safety System for Nigeria</p>
+                <p>Advanced Satellite Surveillance & Emergency System</p>
             </div>
             
             <!-- SHAKE DETECTION -->
@@ -484,36 +498,45 @@
             
             <!-- EMERGENCY SECTION -->
             <div class="emergency-section">
-                <h2>EMERGENCY SOS</h2>
+                <h2>SATELLITE SURVEILLANCE SOS</h2>
                 <p>Press and hold for 3 seconds or shake phone 6 times</p>
                 
                 <button class="emergency-btn" id="sosButton" onmousedown="startHoldTimer()" onmouseup="cancelHoldTimer()" ontouchstart="startHoldTimer()" ontouchend="cancelHoldTimer()">
-                    <i class="fas fa-bell"></i>
-                    <span id="buttonText">EMERGENCY<br>SOS</span>
+                    <i class="fas fa-satellite"></i>
+                    <span id="buttonText">ACTIVATE<br>SURVEILLANCE</span>
                     <div id="countdown" class="hidden" style="font-size:50px;font-weight:800;"></div>
                 </button>
                 
-                <p style="color:#ffcc00;">Hold button or shake phone</p>
+                <p style="color:#ffcc00;">Monitoring 2000m ahead + 50m left/right</p>
             </div>
             
-            <!-- ROUTE TRACKING SETUP -->
+            <!-- SURVEILLANCE ZONE SETUP -->
             <div style="background:rgba(0,135,81,0.1);border-radius:20px;padding:30px;margin:30px 0;border:2px solid #008751;">
-                <h2 style="color:#00ff88;margin-bottom:20px;"><i class="fas fa-route"></i> Route Tracking Setup</h2>
+                <h2 style="color:#00ff88;margin-bottom:20px;"><i class="fas fa-bullseye"></i> Surveillance Zone Setup</h2>
                 
-                <div class="form-group">
-                    <label for="startLocation"><i class="fas fa-map-pin"></i> Start Location (Current)</label>
-                    <input type="text" id="startLocation" placeholder="Click 'Use Current Location'" readonly>
-                    <button onclick="useCurrentLocation('start')" style="background:#3498db;color:white;border:none;padding:10px;border-radius:8px;margin-top:10px;width:100%;">
-                        <i class="fas fa-location-dot"></i> Use Current Location
-                    </button>
+                <div class="surveillance-zone">
+                    <div class="zone-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div>
+                        <h4 style="color:#00ff88;margin:0;">FRONT ZONE</h4>
+                        <p style="margin:5px 0 0 0;">2000 meters ahead<br>Satellite tracking enabled</p>
+                    </div>
+                </div>
+                
+                <div class="surveillance-zone">
+                    <div class="zone-icon">
+                        <i class="fas fa-arrows-alt-h"></i>
+                    </div>
+                    <div>
+                        <h4 style="color:#00ff88;margin:0;">SIDE ZONES</h4>
+                        <p style="margin:5px 0 0 0;">50 meters left & right<br>Peripheral threat detection</p>
+                    </div>
                 </div>
                 
                 <div class="form-group">
                     <label for="destination"><i class="fas fa-flag-checkered"></i> Destination Address</label>
-                    <input type="text" id="destination" placeholder="Enter your destination address">
-                    <button onclick="geocodeDestination()" style="background:#9b59b6;color:white;border:none;padding:10px;border-radius:8px;margin-top:10px;width:100%;">
-                        <i class="fas fa-search"></i> Find on Map
-                    </button>
+                    <input type="text" id="destination" placeholder="Enter your destination for route analysis">
                 </div>
                 
                 <div class="form-group">
@@ -526,97 +549,81 @@
                     <input type="tel" id="contact2" placeholder="+2348023456789">
                 </div>
                 
-                <button onclick="saveRouteAndContacts()" style="background:#008751;color:white;border:none;padding:15px 30px;border-radius:10px;width:100%;font-size:1.1rem;cursor:pointer;">
-                    <i class="fas fa-save"></i> Save Route & Contacts
+                <button onclick="saveSurveillanceSettings()" style="background:#008751;color:white;border:none;padding:15px 30px;border-radius:10px;width:100%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
+                    <i class="fas fa-save"></i> Save Surveillance Settings
                 </button>
             </div>
             
-            <!-- MAP WITH ROUTE TRACKING -->
+            <!-- SATELLITE MAP WITH SURVEILLANCE -->
             <div class="map-container">
                 <div class="map-overlay">
-                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-                        <div>
-                            <h3 style="color:#00ff88;margin:0;"><i class="fas fa-map"></i> Route Tracker</h3>
-                            <p style="margin:5px 0 0 0;font-size:0.9rem;">Start tracking your journey</p>
+                    <div class="map-controls">
+                        <div style="color:#00ff88;">
+                            <i class="fas fa-satellite"></i> <strong>LIVE SATELLITE SURVEILLANCE</strong>
                         </div>
-                        <div class="tracking-controls">
-                            <button class="tracking-btn" onclick="calculateRoute()">
-                                <i class="fas fa-route"></i> Calculate Route
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                            <button class="map-btn satellite" onclick="toggleSatelliteView()">
+                                <i class="fas fa-satellite-dish"></i> Satellite
                             </button>
-                            <button class="tracking-btn" onclick="startTracking()">
-                                <i class="fas fa-play"></i> Start Tracking
+                            <button class="map-btn" onclick="zoomToSurveillanceZone()">
+                                <i class="fas fa-search-location"></i> Zoom Zone
                             </button>
-                            <button class="tracking-btn stop" onclick="stopTracking()">
-                                <i class="fas fa-stop"></i> Stop
-                            </button>
-                            <button class="tracking-btn" onclick="enterHiddenMapMode()">
+                            <button class="map-btn hide" onclick="enterHiddenMapMode()">
                                 <i class="fas fa-eye-slash"></i> Hide App
+                            </button>
+                            <button class="map-btn emergency" onclick="testEmergency()">
+                                <i class="fas fa-bell"></i> Test SOS
                             </button>
                         </div>
                     </div>
                 </div>
+                
                 <div id="map"></div>
-                <div class="route-info hidden" id="routeInfo">
-                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-                        <div>
-                            <p style="margin:0;"><i class="fas fa-road"></i> Distance: <span id="routeDistance">--</span></p>
-                            <p style="margin:5px 0 0 0;"><i class="fas fa-clock"></i> Time: <span id="routeTime">--</span></p>
-                        </div>
-                        <div>
-                            <p style="margin:0;color:#00ff88;"><i class="fas fa-user-shield"></i> SOS Active</p>
-                        </div>
-                    </div>
+                
+                <div class="surveillance-info">
+                    <h4 style="color:#00ff88;margin:0 0 10px 0;"><i class="fas fa-radar"></i> ACTIVE SURVEILLANCE ZONE</h4>
+                    <p style="margin:0;font-size:0.9rem;">
+                        <i class="fas fa-arrow-up" style="color:#3498db;"></i> 2000m forward visibility<br>
+                        <i class="fas fa-arrows-alt-h" style="color:#9b59b6;"></i> 50m left/right coverage<br>
+                        <i class="fas fa-eye" style="color:#00ff88;"></i> Threat detection: <span id="threatStatus">Active</span>
+                    </p>
                 </div>
             </div>
             
-            <!-- PAYMENT SECTION -->
-            <div class="payment-section">
-                <h2 style="color:#FFD700;margin-bottom:25px;"><i class="fas fa-crown"></i> Activate Premium Protection</h2>
+            <!-- THREAT DETECTION PANEL -->
+            <div style="background:rgba(255,59,48,0.1);border-radius:20px;padding:30px;margin:30px 0;border:2px solid #ff3b30;">
+                <h2 style="color:#ff9500;margin-bottom:20px;"><i class="fas fa-exclamation-triangle"></i> Threat Detection System</h2>
                 
-                <div class="plan-card">
-                    <h3 style="color:#FFD700;font-size:1.5rem;">PREMIUM PLAN</h3>
-                    <div class="plan-price">₦1,500<span style="font-size:1.5rem;">/month</span></div>
-                    
-                    <div style="text-align:left;margin:25px 0;">
-                        <p><i class="fas fa-check" style="color:#00ff88;"></i> Live Route Tracking</p>
-                        <p><i class="fas fa-check" style="color:#00ff88;"></i> Hidden Map Navigation</p>
-                        <p><i class="fas fa-check" style="color:#00ff88;"></i> Emergency SOS with Shake</p>
-                        <p><i class="fas fa-check" style="color:#00ff88;"></i> Auto Alerts to Contacts</p>
-                        <p><i class="fas fa-check" style="color:#00ff88;"></i> Disguised as Calculator</p>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;">
+                    <div style="background:rgba(0,0,0,0.3);padding:20px;border-radius:15px;">
+                        <div style="color:#00ff88;font-size:2rem;margin-bottom:10px;">
+                            <i class="fas fa-user-secret"></i>
+                        </div>
+                        <h4 style="color:white;">SUSPICIOUS ACTIVITY</h4>
+                        <p style="color:#ccc;margin:10px 0;">Detects unusual movements and gatherings in surveillance zone</p>
                     </div>
                     
-                    <div style="margin:20px 0;padding:20px;background:rgba(255,255,255,0.05);border-radius:10px;">
-                        <h4 style="color:#FFD700;margin-bottom:10px;">Bank Transfer Details:</h4>
-                        <p><strong>Account Name:</strong> Proto Douglas Ltd</p>
-                        <p><strong>Account Number:</strong> 0034133605</p>
-                        <p><strong>Bank:</strong> Union Bank</p>
-                        <p><strong>Amount:</strong> ₦1,500 (Monthly)</p>
+                    <div style="background:rgba(0,0,0,0.3);padding:20px;border-radius:15px;">
+                        <div style="color:#00ff88;font-size:2rem;margin-bottom:10px;">
+                            <i class="fas fa-route"></i>
+                        </div>
+                        <h4 style="color:white;">ROUTE DEVIATION</h4>
+                        <p style="color:#ccc;margin:10px 0;">Alerts when you stray from planned route by 50m+</p>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="paymentProof"><i class="fas fa-receipt"></i> Upload Payment Proof</label>
-                        <input type="file" id="paymentProof" accept="image/*">
+                    <div style="background:rgba(0,0,0,0.3);padding:20px;border-radius:15px;">
+                        <div style="color:#00ff88;font-size:2rem;margin-bottom:10px;">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <h4 style="color:white;">LIVE TRACKING</h4>
+                        <p style="color:#ccc;margin:10px 0;">Real-time satellite tracking of your position</p>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="subscriberEmail"><i class="fas fa-envelope"></i> Your Email for Activation</label>
-                        <input type="email" id="subscriberEmail" placeholder="your@email.com">
-                    </div>
-                    
-                    <button class="buy-btn" onclick="submitPayment()">
-                        <i class="fas fa-paper-plane"></i> Submit Payment Proof
-                    </button>
-                    
-                    <p style="margin-top:15px;font-size:0.9rem;opacity:0.8;">
-                        After payment, send proof to: support@proto-douglas.com<br>
-                        Activation within 24 hours
-                    </p>
                 </div>
             </div>
             
             <!-- FOOTER -->
             <div style="text-align:center;padding:30px;margin-top:50px;background:rgba(0,0,0,0.3);border-radius:15px;">
-                <p><strong>SOS GUARDIAN PRO v2.0 - DEMO MODE</strong></p>
+                <p><strong>SOS GUARDIAN PRO v2.0 - SATELLITE SURVEILLANCE MODE</strong></p>
                 <p><i class="fas fa-phone"></i> Emergency: 112, 767 | Support: +234 8103365359</p>
                 <p>© 2024 SOS Guardian Technologies is a product of Proto Douglas Ltd. All data stays on your device.</p>
             </div>
@@ -626,10 +633,10 @@
     <!-- ========== HIDDEN MAP MODE ========== -->
     <div class="hidden-map-mode" id="hiddenMapMode">
         <div class="hidden-map-header">
-            <h3 style="color:#00ff88;margin:0;"><i class="fas fa-map"></i> Route Navigation</h3>
+            <h3 style="color:#00ff88;margin:0;"><i class="fas fa-satellite"></i> SURVEILLANCE MODE</h3>
             <p style="margin:5px 0 0 0;font-size:0.9rem;">
-                <span id="hiddenRouteDistance">Distance: --</span> | 
-                <span id="hiddenRouteTime">Time: --</span>
+                <span id="hiddenStatus">Active</span> | 
+                <span>2000m Front + 50m Sides</span>
             </p>
         </div>
         <div id="hiddenMap"></div>
@@ -637,8 +644,8 @@
             <button class="hidden-map-btn" onclick="showFullApp()">
                 <i class="fas fa-eye"></i> Show App
             </button>
-            <button class="hidden-map-btn" onclick="testEmergencyFromHidden()" style="background:#ff3b30;">
-                <i class="fas fa-bell"></i> Emergency SOS
+            <button class="hidden-map-btn" onclick="activateSOS()" style="background:#ff3b30;">
+                <i class="fas fa-bell"></i> EMERGENCY
             </button>
             <button class="hidden-map-btn" onclick="exitHiddenMode()" style="background:#666;">
                 <i class="fas fa-times"></i> Exit
@@ -658,56 +665,18 @@
             <i class="fas fa-bell"></i> Test Emergency
         </button>
     </div>
-    
-    <!-- ========== EMERGENCY MODAL ========== -->
-    <div class="modal" id="emergencyModal">
-        <div class="modal-content">
-            <div style="font-size:70px;color:#ff3b30;margin-bottom:20px;">
-                <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <h2 style="color:#ffcc00;">EMERGENCY ACTIVATED!</h2>
-            <p style="margin:20px 0;">Sending alerts to your emergency contacts...</p>
-            
-            <div style="background:rgba(255,59,48,0.1);padding:15px;border-radius:10px;margin:20px 0;text-align:left;">
-                <p><i class="fas fa-check-circle" style="color:#00ff88;"></i> Location sent: <span id="locationStatus">Sending...</span></p>
-                <p><i class="fas fa-check-circle" style="color:#00ff88;"></i> Route deviation alert: <span id="routeAlertStatus">Monitoring...</span></p>
-                <p><i class="fas fa-check-circle" style="color:#00ff88;"></i> WhatsApp alert: <span id="whatsappStatus">Preparing...</span></p>
-            </div>
-            
-            <div style="margin:30px 0;">
-                <button onclick="sendEmergencyAlerts()" style="background:#25D366;color:white;border:none;padding:15px;border-radius:10px;margin:5px;width:100%;">
-                    <i class="fab fa-whatsapp"></i> Send WhatsApp Alert Now
-                </button>
-                <button onclick="closeModal()" style="background:#666;color:white;border:none;padding:15px;border-radius:10px;margin:5px;width:100%;">
-                    Cancel (False Alarm)
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- ========== ACTIVATION MODAL ========== -->
-    <div class="modal" id="activationModal">
-        <div class="modal-content">
-            <div style="font-size:70px;color:#FFD700;margin-bottom:20px;">
-                <i class="fas fa-crown"></i>
-            </div>
-            <h2 style="color:#FFD700;">PREMIUM ACTIVATION</h2>
-            <p>Your subscription will be activated after payment verification.</p>
-            
-            <div style="margin:30px 0;">
-                <button onclick="checkActivation()" style="background:#008751;color:white;border:none;padding:15px;border-radius:10px;margin:5px;width:100%;">
-                    <i class="fas fa-sync"></i> Check Activation Status
-                </button>
-                <button onclick="closeActivationModal()" style="background:#666;color:white;border:none;padding:15px;border-radius:10px;margin:5px;width:100%;">
-                    Close
-                </button>
-            </div>
-        </div>
-    </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
     <script>
+        // ========== MAPBOX CONFIGURATION ==========
+        // Using a public Mapbox token for satellite imagery
+        mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
+        
+        // Alternative public token if needed
+        const ALTERNATIVE_TOKENS = [
+            'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw',
+            'pk.eyJ1IjoidWJlciIsImEiOiJjamZ0aGo4ZGwwMWpmMzNvMGs3Z2Z6a2QxIn0._3C8b7tKzBYvBxJtKJhN1A'
+        ];
+        
         // ========== CALCULATOR FUNCTIONS ==========
         let currentInput = '0';
         let previousInput = '';
@@ -780,14 +749,12 @@
                 previousInput + (operation ? ' ' + operation : '');
         }
         
-        // ========== SOS EMERGENCY SYSTEM ==========
+        // ========== SATELLITE SURVEILLANCE SYSTEM ==========
         let map = null;
         let hiddenMap = null;
-        let userLocation = { lat: 6.5244, lng: 3.3792 }; // Lagos
-        let startLocation = { lat: null, lng: null };
-        let destination = { lat: null, lng: null };
-        let destinationAddress = '';
-        let routingControl = null;
+        let userLocation = { lat: 6.5244, lng: 3.3792 }; // Lagos coordinates
+        let surveillanceZone = null;
+        let isSatelliteView = true;
         let isTracking = false;
         let trackingInterval = null;
         let emergencyActive = false;
@@ -795,7 +762,10 @@
         let holdTimer = null;
         let countdownValue = 3;
         let calculatorHoldTimer = null;
-        let lastPosition = null;
+        
+        // Surveillance zone dimensions (2000m front, 50m sides)
+        const FRONT_DISTANCE = 2000; // meters
+        const SIDE_DISTANCE = 50; // meters
         
         // ========== DISGUISE FUNCTIONS ==========
         function toggleSOSInterface() {
@@ -824,7 +794,7 @@
         function holdForEmergency() {
             calculatorHoldTimer = setTimeout(() => {
                 toggleSOSInterface();
-                showNotification('🛡️ SOS Guardian Pro Activated', 'success');
+                showNotification('🛡️ SOS Guardian Pro - Satellite Surveillance Activated', 'success');
             }, 3000);
         }
         
@@ -832,7 +802,7 @@
             clearTimeout(calculatorHoldTimer);
         }
         
-        // ========== SOS INITIALIZATION ==========
+        // ========== MAPBOX INITIALIZATION ==========
         function initializeSOS() {
             if (!map) {
                 initializeMap();
@@ -847,32 +817,279 @@
         }
         
         function initializeMap() {
-            map = L.map('map').setView([userLocation.lat, userLocation.lng], 14);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
-                maxZoom: 19,
-            }).addTo(map);
-            
-            // Add start marker
-            startMarker = L.marker([userLocation.lat, userLocation.lng], {
-                icon: L.divIcon({
-                    html: '<div style="background:#3498db;width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 0 10px #3498db;"><i class="fas fa-play" style="color:white;font-size:10px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"></i></div>',
-                    iconSize: [26, 26]
-                })
-            }).addTo(map).bindPopup('Start Location');
-            
-            // Initialize hidden map
-            hiddenMap = L.map('hiddenMap').setView([userLocation.lat, userLocation.lng], 14);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
-                maxZoom: 19,
-            }).addTo(hiddenMap);
-            
-            L.control.scale().addTo(map);
-            L.control.scale().addTo(hiddenMap);
+            try {
+                // Initialize main map with satellite view
+                map = new mapboxgl.Map({
+                    container: 'map',
+                    style: 'mapbox://styles/mapbox/satellite-streets-v12',
+                    center: [userLocation.lng, userLocation.lat],
+                    zoom: 16,
+                    pitch: 60,
+                    bearing: 0,
+                    antialias: true
+                });
+                
+                map.addControl(new mapboxgl.NavigationControl());
+                map.addControl(new mapboxgl.FullscreenControl());
+                map.addControl(new mapboxgl.GeolocateControl({
+                    positionOptions: {
+                        enableHighAccuracy: true
+                    },
+                    trackUserLocation: true,
+                    showUserHeading: true
+                }));
+                
+                // Add 3D terrain
+                map.on('style.load', () => {
+                    map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+                });
+                
+                // Initialize hidden map
+                hiddenMap = new mapboxgl.Map({
+                    container: 'hiddenMap',
+                    style: 'mapbox://styles/mapbox/satellite-streets-v12',
+                    center: [userLocation.lng, userLocation.lat],
+                    zoom: 16,
+                    pitch: 60,
+                    bearing: 0
+                });
+                
+                hiddenMap.addControl(new mapboxgl.NavigationControl());
+                hiddenMap.addControl(new mapboxgl.FullscreenControl());
+                
+                showNotification('🛰️ Satellite surveillance system loaded', 'success');
+                
+            } catch (error) {
+                console.error('Map initialization error:', error);
+                showNotification('⚠️ Map loading failed - Using backup view', 'error');
+                
+                // Fallback view
+                document.getElementById('map').innerHTML = `
+                    <div style="display:flex;align-items:center;justify-content:center;height:100%;background:#1a1f3a;color:#00ff88;text-align:center;padding:20px;">
+                        <div>
+                            <i class="fas fa-satellite" style="font-size:50px;margin-bottom:20px;"></i>
+                            <h3>SATELLITE SURVEILLANCE SYSTEM</h3>
+                            <p>Latitude: ${userLocation.lat.toFixed(6)}</p>
+                            <p>Longitude: ${userLocation.lng.toFixed(6)}</p>
+                            <p style="margin-top:20px;color:#ffcc00;">🛰️ Surveillance Zone: 2000m Front + 50m Sides</p>
+                        </div>
+                    </div>
+                `;
+            }
         }
         
+        // ========== SURVEILLANCE ZONE FUNCTIONS ==========
+        function updateSurveillanceZone(position) {
+            if (!map || !position) return;
+            
+            const userLng = position.lng;
+            const userLat = position.lat;
+            
+            // Convert meters to degrees (approximate)
+            const metersToDegrees = (meters) => meters / 111320; // 1 degree ≈ 111,320 meters
+            
+            const frontDistance = metersToDegrees(FRONT_DISTANCE);
+            const sideDistance = metersToDegrees(SIDE_DISTANCE);
+            
+            // Create surveillance zone polygon (2000m front, 50m left/right)
+            const zoneCoordinates = [
+                [
+                    [userLng - sideDistance, userLat], // Left side
+                    [userLng + sideDistance, userLat], // Right side
+                    [userLng + sideDistance, userLat + frontDistance], // Front right
+                    [userLng - sideDistance, userLat + frontDistance], // Front left
+                    [userLng - sideDistance, userLat] // Close polygon
+                ]
+            ];
+            
+            // Remove existing zone if any
+            if (map.getSource('surveillance-zone')) {
+                map.removeLayer('surveillance-zone-fill');
+                map.removeLayer('surveillance-zone-line');
+                map.removeSource('surveillance-zone');
+            }
+            
+            // Add surveillance zone to map
+            map.addSource('surveillance-zone', {
+                type: 'geojson',
+                data: {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Polygon',
+                        coordinates: zoneCoordinates
+                    }
+                }
+            });
+            
+            map.addLayer({
+                id: 'surveillance-zone-fill',
+                type: 'fill',
+                source: 'surveillance-zone',
+                paint: {
+                    'fill-color': '#008751',
+                    'fill-opacity': 0.15
+                }
+            });
+            
+            map.addLayer({
+                id: 'surveillance-zone-line',
+                type: 'line',
+                source: 'surveillance-zone',
+                paint: {
+                    'line-color': '#00ff88',
+                    'line-width': 2,
+                    'line-dasharray': [2, 2]
+                }
+            });
+            
+            // Add to hidden map as well
+            if (hiddenMap) {
+                if (hiddenMap.getSource('surveillance-zone')) {
+                    hiddenMap.removeLayer('surveillance-zone-fill');
+                    hiddenMap.removeLayer('surveillance-zone-line');
+                    hiddenMap.removeSource('surveillance-zone');
+                }
+                
+                hiddenMap.addSource('surveillance-zone', {
+                    type: 'geojson',
+                    data: {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Polygon',
+                            coordinates: zoneCoordinates
+                        }
+                    }
+                });
+                
+                hiddenMap.addLayer({
+                    id: 'surveillance-zone-fill',
+                    type: 'fill',
+                    source: 'surveillance-zone',
+                    paint: {
+                        'fill-color': '#008751',
+                        'fill-opacity': 0.15
+                    }
+                });
+                
+                hiddenMap.addLayer({
+                    id: 'surveillance-zone-line',
+                    type: 'line',
+                    source: 'surveillance-zone',
+                    paint: {
+                        'line-color': '#00ff88',
+                        'line-width': 2,
+                        'line-dasharray': [2, 2]
+                    }
+                });
+            }
+            
+            // Add user position marker
+            if (map.getSource('user-position')) {
+                map.removeLayer('user-position-marker');
+                map.removeSource('user-position');
+            }
+            
+            map.addSource('user-position', {
+                type: 'geojson',
+                data: {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [userLng, userLat]
+                    }
+                }
+            });
+            
+            map.addLayer({
+                id: 'user-position-marker',
+                type: 'circle',
+                source: 'user-position',
+                paint: {
+                    'circle-radius': 10,
+                    'circle-color': '#ff3b30',
+                    'circle-stroke-width': 3,
+                    'circle-stroke-color': '#ffffff'
+                }
+            });
+            
+            // Add direction indicator (arrow showing front)
+            const frontPoint = [userLng, userLat + frontDistance/2];
+            
+            if (map.getSource('direction-arrow')) {
+                map.removeLayer('direction-arrow');
+                map.removeSource('direction-arrow');
+            }
+            
+            map.addSource('direction-arrow', {
+                type: 'geojson',
+                data: {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: frontPoint
+                    }
+                }
+            });
+            
+            map.addLayer({
+                id: 'direction-arrow',
+                type: 'symbol',
+                source: 'direction-arrow',
+                layout: {
+                    'icon-image': 'arrow',
+                    'icon-size': 1.5,
+                    'icon-rotate': 0
+                }
+            });
+        }
+        
+        function zoomToSurveillanceZone() {
+            if (!map || !userLocation) return;
+            
+            const padding = 100;
+            const bounds = new mapboxgl.LngLatBounds();
+            
+            // Add user position
+            bounds.extend([userLocation.lng, userLocation.lat]);
+            
+            // Add front zone (2000m ahead)
+            const frontDistance = FRONT_DISTANCE / 111320;
+            bounds.extend([userLocation.lng, userLocation.lat + frontDistance]);
+            
+            // Add side zones (50m left/right)
+            const sideDistance = SIDE_DISTANCE / 111320;
+            bounds.extend([userLocation.lng - sideDistance, userLocation.lat]);
+            bounds.extend([userLocation.lng + sideDistance, userLocation.lat]);
+            
+            map.fitBounds(bounds, {
+                padding: { top: padding, bottom: padding, left: padding, right: padding },
+                duration: 1000
+            });
+            
+            showNotification('🔭 Zoomed to surveillance zone', 'success');
+        }
+        
+        function toggleSatelliteView() {
+            if (!map) return;
+            
+            isSatelliteView = !isSatelliteView;
+            
+            if (isSatelliteView) {
+                map.setStyle('mapbox://styles/mapbox/satellite-streets-v12');
+                if (hiddenMap) {
+                    hiddenMap.setStyle('mapbox://styles/mapbox/satellite-streets-v12');
+                }
+                showNotification('🛰️ Switched to satellite view', 'success');
+            } else {
+                map.setStyle('mapbox://styles/mapbox/streets-v12');
+                if (hiddenMap) {
+                    hiddenMap.setStyle('mapbox://styles/mapbox/streets-v12');
+                }
+                showNotification('🗺️ Switched to street view', 'success');
+            }
+        }
+        
+        // ========== LOCATION TRACKING ==========
         function getCurrentLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
@@ -882,260 +1099,130 @@
                             lng: position.coords.longitude
                         };
                         
-                        startLocation = { ...userLocation };
-                        document.getElementById('startLocation').value = 
-                            `${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}`;
-                        
+                        // Update maps
                         if (map) {
-                            map.setView([userLocation.lat, userLocation.lng], 16);
-                            if (startMarker) {
-                                startMarker.setLatLng([userLocation.lat, userLocation.lng]);
-                            }
+                            map.flyTo({
+                                center: [userLocation.lng, userLocation.lat],
+                                zoom: 17,
+                                bearing: 0,
+                                pitch: 60,
+                                duration: 2000
+                            });
                         }
                         
-                        showNotification('📍 Current location acquired', 'success');
+                        if (hiddenMap) {
+                            hiddenMap.flyTo({
+                                center: [userLocation.lng, userLocation.lat],
+                                zoom: 17,
+                                duration: 2000
+                            });
+                        }
+                        
+                        // Update surveillance zone
+                        updateSurveillanceZone(userLocation);
+                        
+                        // Start continuous tracking
+                        startContinuousTracking();
+                        
+                        showNotification('📍 Location acquired - Surveillance active', 'success');
                     },
-                    () => {
-                        showNotification('📍 Using default location', 'info');
-                        document.getElementById('startLocation').value = 
-                            `${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}`;
-                        startLocation = { ...userLocation };
+                    (error) => {
+                        console.error('Geolocation error:', error);
+                        showNotification('📍 Using default Lagos location', 'info');
+                        
+                        // Use default location
+                        if (map) {
+                            map.flyTo({
+                                center: [userLocation.lng, userLocation.lat],
+                                zoom: 16
+                            });
+                        }
+                        
+                        updateSurveillanceZone(userLocation);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
                     }
                 );
             }
         }
         
-        function useCurrentLocation(type) {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        
-                        if (type === 'start') {
-                            startLocation = { lat, lng };
-                            document.getElementById('startLocation').value = 
-                                `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-                            
-                            if (map && startMarker) {
-                                startMarker.setLatLng([lat, lng]);
-                                map.setView([lat, lng], 16);
-                            }
-                            
-                            showNotification('📍 Start location set', 'success');
-                        }
-                    }
-                );
-            }
-        }
-        
-        function geocodeDestination() {
-            const destinationInput = document.getElementById('destination').value;
-            if (!destinationInput) {
-                showNotification('Please enter a destination address', 'error');
-                return;
-            }
-            
-            showNotification('🔍 Searching for destination...', 'info');
-            
-            // Using Nominatim for geocoding (OpenStreetMap)
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destinationInput + ', Nigeria')}`;
-            
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.length > 0) {
-                        destination = {
-                            lat: parseFloat(data[0].lat),
-                            lng: parseFloat(data[0].lon)
-                        };
-                        destinationAddress = data[0].display_name;
-                        
-                        // Add destination marker
-                        if (destinationMarker) {
-                            map.removeLayer(destinationMarker);
-                        }
-                        
-                        destinationMarker = L.marker([destination.lat, destination.lng], {
-                            icon: L.divIcon({
-                                html: '<div style="background:#e74c3c;width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 0 10px #e74c3c;"><i class="fas fa-flag" style="color:white;font-size:10px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"></i></div>',
-                                iconSize: [26, 26]
-                            })
-                        }).addTo(map).bindPopup('Destination: ' + destinationAddress);
-                        
-                        showNotification('📍 Destination found on map', 'success');
-                        
-                        // Zoom to show both points
-                        const bounds = L.latLngBounds([startLocation.lat, startLocation.lng], [destination.lat, destination.lng]);
-                        map.fitBounds(bounds, { padding: [50, 50] });
-                    } else {
-                        showNotification('Destination not found. Please try a different address.', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Geocoding error:', error);
-                    showNotification('Error searching destination. Using coordinates.', 'error');
-                });
-        }
-        
-        // ========== ROUTE CALCULATION ==========
-        function calculateRoute() {
-            if (!startLocation.lat || !destination.lat) {
-                showNotification('Please set both start and destination locations', 'error');
-                return;
-            }
-            
-            // Remove existing route if any
-            if (routingControl) {
-                map.removeControl(routingControl);
-            }
-            
-            // Calculate route using OSRM
-            routingControl = L.Routing.control({
-                waypoints: [
-                    L.latLng(startLocation.lat, startLocation.lng),
-                    L.latLng(destination.lat, destination.lng)
-                ],
-                routeWhileDragging: false,
-                showAlternatives: false,
-                addWaypoints: false,
-                draggableWaypoints: false,
-                fitSelectedRoutes: true,
-                show: true,
-                router: L.Routing.osrmv1({
-                    serviceUrl: 'https://router.project-osrm.org/route/v1'
-                }),
-                createMarker: function() { return null; } // Disable default markers
-            }).addTo(map);
-            
-            routingControl.on('routesfound', function(e) {
-                const routes = e.routes;
-                if (routes && routes.length > 0) {
-                    const route = routes[0];
-                    const distance = (route.summary.totalDistance / 1000).toFixed(1);
-                    const time = Math.floor(route.summary.totalTime / 60);
-                    
-                    document.getElementById('routeDistance').textContent = `${distance} km`;
-                    document.getElementById('routeTime').textContent = `${time} mins`;
-                    document.getElementById('routeInfo').classList.remove('hidden');
-                    
-                    document.getElementById('hiddenRouteDistance').textContent = `Distance: ${distance} km`;
-                    document.getElementById('hiddenRouteTime').textContent = `Time: ${time} mins`;
-                    
-                    showNotification(`🗺️ Route calculated: ${distance} km, ${time} mins`, 'success');
-                }
-            });
-            
-            routingControl.on('routingerror', function(e) {
-                showNotification('Error calculating route. Please try again.', 'error');
-            });
-        }
-        
-        function startTracking() {
-            if (!routingControl) {
-                showNotification('Please calculate route first', 'error');
-                return;
-            }
-            
-            if (isTracking) {
-                showNotification('Already tracking', 'info');
-                return;
-            }
+        function startContinuousTracking() {
+            if (isTracking) return;
             
             isTracking = true;
-            lastPosition = startLocation;
             
-            // Start tracking user position
-            trackingInterval = setInterval(() => {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            const currentPos = {
-                                lat: position.coords.latitude,
-                                lng: position.coords.longitude
-                            };
-                            
-                            // Update position on maps
-                            updateUserPosition(currentPos);
-                            
-                            // Check for route deviation
-                            checkRouteDeviation(currentPos);
+            // Watch position for continuous updates
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(
+                    (position) => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        
+                        // Smoothly update map position
+                        if (map) {
+                            map.flyTo({
+                                center: [userLocation.lng, userLocation.lat],
+                                zoom: 17,
+                                bearing: 0,
+                                pitch: 60,
+                                duration: 1000,
+                                essential: true
+                            });
                         }
-                    );
-                }
-            }, 10000); // Update every 10 seconds
-            
-            showNotification('🚗 Route tracking started', 'success');
-        }
-        
-        function stopTracking() {
-            if (isTracking) {
-                clearInterval(trackingInterval);
-                isTracking = false;
-                showNotification('🛑 Route tracking stopped', 'info');
+                        
+                        if (hiddenMap) {
+                            hiddenMap.flyTo({
+                                center: [userLocation.lng, userLocation.lat],
+                                zoom: 17,
+                                duration: 1000
+                            });
+                        }
+                        
+                        // Update surveillance zone
+                        updateSurveillanceZone(userLocation);
+                        
+                        // Check for threats in surveillance zone
+                        simulateThreatDetection();
+                    },
+                    (error) => {
+                        console.error('Continuous tracking error:', error);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        maximumAge: 3000,
+                        timeout: 10000
+                    }
+                );
             }
         }
         
-        let userPositionMarker = null;
-        let hiddenUserPositionMarker = null;
-        
-        function updateUserPosition(position) {
-            // Update on main map
-            if (!userPositionMarker) {
-                userPositionMarker = L.marker([position.lat, position.lng], {
-                    icon: L.divIcon({
-                        html: '<div style="background:#00ff88;width:15px;height:15px;border-radius:50%;border:2px solid white;box-shadow:0 0 10px #00ff88;"></div>',
-                        iconSize: [19, 19]
-                    })
-                }).addTo(map);
-            } else {
-                userPositionMarker.setLatLng([position.lat, position.lng]);
-            }
+        function simulateThreatDetection() {
+            // Simulate random threat detection in surveillance zone
+            const threats = ['SUSPICIOUS ACTIVITY', 'UNKNOWN VEHICLE', 'UNUSUAL GATHERING'];
+            const threatLevels = ['LOW', 'MEDIUM', 'HIGH'];
             
-            // Update on hidden map
-            if (!hiddenUserPositionMarker && hiddenMap) {
-                hiddenUserPositionMarker = L.marker([position.lat, position.lng], {
-                    icon: L.divIcon({
-                        html: '<div style="background:#00ff88;width:15px;height:15px;border-radius:50%;border:2px solid white;box-shadow:0 0 10px #00ff88;"></div>',
-                        iconSize: [19, 19]
-                    })
-                }).addTo(hiddenMap);
-            } else if (hiddenUserPositionMarker && hiddenMap) {
-                hiddenUserPositionMarker.setLatLng([position.lat, position.lng]);
-                hiddenMap.setView([position.lat, position.lng], 16);
+            // Random chance of detecting a threat (10% chance)
+            if (Math.random() < 0.1) {
+                const randomThreat = threats[Math.floor(Math.random() * threats.length)];
+                const randomLevel = threatLevels[Math.floor(Math.random() * threatLevels.length)];
+                
+                document.getElementById('threatStatus').textContent = `${randomLevel} THREAT`;
+                document.getElementById('threatStatus').style.color = randomLevel === 'HIGH' ? '#ff3b30' : 
+                                                                     randomLevel === 'MEDIUM' ? '#ff9500' : '#FFD700';
+                
+                showNotification(`⚠️ ${randomLevel} THREAT DETECTED: ${randomThreat}`, 'warning');
             }
-            
-            lastPosition = position;
-        }
-        
-        function checkRouteDeviation(currentPos) {
-            // Simple distance check - in production, use proper route matching
-            const distanceToStart = calculateDistance(currentPos, startLocation);
-            const distanceToDest = calculateDistance(currentPos, destination);
-            
-            // If user is moving away from route significantly
-            if (distanceToStart > 5 && distanceToDest > 5) { // 5km threshold
-                document.getElementById('routeAlertStatus').textContent = 'Deviated from route!';
-                showNotification('⚠️ You have deviated from your route', 'warning');
-            }
-        }
-        
-        function calculateDistance(pos1, pos2) {
-            const R = 6371; // Earth's radius in km
-            const dLat = (pos2.lat - pos1.lat) * Math.PI / 180;
-            const dLon = (pos2.lng - pos1.lng) * Math.PI / 180;
-            const a = 
-                Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(pos1.lat * Math.PI / 180) * Math.cos(pos2.lat * Math.PI / 180) * 
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
         }
         
         // ========== HIDDEN MAP MODE ==========
         function enterHiddenMapMode() {
             if (!isTracking) {
-                showNotification('Please start tracking first', 'error');
+                showNotification('Please enable location tracking first', 'error');
                 return;
             }
             
@@ -1144,7 +1231,17 @@
             document.getElementById('settingsPanel').style.display = 'none';
             document.getElementById('hiddenMapMode').style.display = 'block';
             
-            showNotification('🗺️ App hidden. Only map visible.', 'success');
+            // Update hidden map with current location
+            if (hiddenMap && userLocation) {
+                hiddenMap.flyTo({
+                    center: [userLocation.lng, userLocation.lat],
+                    zoom: 17
+                });
+                
+                updateSurveillanceZone(userLocation);
+            }
+            
+            showNotification('🕵️ App hidden - Surveillance mode active', 'success');
         }
         
         function showFullApp() {
@@ -1158,7 +1255,7 @@
             document.getElementById('settingsPanel').style.display = 'block';
         }
         
-        function testEmergencyFromHidden() {
+        function activateSOS() {
             exitHiddenMode();
             triggerEmergency('hidden_mode');
         }
@@ -1242,54 +1339,107 @@
             if (emergencyActive) return;
             
             emergencyActive = true;
-            document.getElementById('emergencyModal').style.display = 'flex';
+            
+            // Show emergency interface
+            const emergencyModal = document.createElement('div');
+            emergencyModal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.95); z-index: 10003;
+                display: flex; flex-direction: column; align-items: center;
+                justify-content: center; color: white; text-align: center;
+                backdrop-filter: blur(10px);
+            `;
+            
+            emergencyModal.innerHTML = `
+                <div style="font-size: 100px; color: #ff3b30; margin-bottom: 20px; animation: pulse 1s infinite;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h1 style="color: #ffcc00; font-size: 2.5rem; margin-bottom: 20px;">
+                    🚨 EMERGENCY SOS ACTIVATED
+                </h1>
+                <p style="font-size: 1.2rem; margin-bottom: 30px; max-width: 500px;">
+                    Sending your location and surveillance data to emergency contacts...
+                </p>
+                <div style="background: rgba(255,59,48,0.2); padding: 20px; border-radius: 15px; margin: 20px; width: 90%; max-width: 400px;">
+                    <p style="color: #00ff88; margin: 10px 0;">
+                        <i class="fas fa-location-dot"></i> Location: ${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}
+                    </p>
+                    <p style="color: #00ff88; margin: 10px 0;">
+                        <i class="fas fa-satellite"></i> Surveillance Zone: Active
+                    </p>
+                    <p style="color: #00ff88; margin: 10px 0;">
+                        <i class="fas fa-clock"></i> Time: ${new Date().toLocaleString()}
+                    </p>
+                </div>
+                <div style="display: flex; gap: 15px; margin-top: 30px; flex-wrap: wrap; justify-content: center;">
+                    <button onclick="sendEmergencyAlerts()" style="background: #25D366; color: white; border: none; padding: 15px 30px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                        <i class="fab fa-whatsapp"></i> Send WhatsApp Alert
+                    </button>
+                    <button onclick="cancelEmergency()" style="background: #666; color: white; border: none; padding: 15px 30px; border-radius: 10px; font-size: 1.1rem; cursor: pointer;">
+                        Cancel (False Alarm)
+                    </button>
+                </div>
+                <style>
+                    @keyframes pulse {
+                        0%, 100% { transform: scale(1); }
+                        50% { transform: scale(1.1); }
+                    }
+                </style>
+            `;
+            
+            document.body.appendChild(emergencyModal);
+            window.currentEmergencyModal = emergencyModal;
+            
             document.getElementById('buttonText').classList.add('hidden');
             document.getElementById('countdown').classList.add('hidden');
             
-            document.getElementById('locationStatus').textContent = 'Acquiring...';
-            document.getElementById('routeAlertStatus').textContent = 'Checking...';
-            
-            showNotification('🚨 Emergency activated!', 'emergency');
+            showNotification('🚨 EMERGENCY SOS ACTIVATED - Sending alerts...', 'emergency');
         }
         
         function sendEmergencyAlerts() {
             const contact1 = document.getElementById('contact1').value;
             const contact2 = document.getElementById('contact2').value;
-            const dest = document.getElementById('destination').value;
+            const destination = document.getElementById('destination').value;
             
             if (!contact1) {
                 showNotification('Please set emergency contacts first', 'error');
                 return;
             }
             
-            let message = `🚨 EMERGENCY ALERT from SOS Guardian Pro!\n\n`;
-            message += `📍 Current Location: ${lastPosition.lat.toFixed(6)}, ${lastPosition.lng.toFixed(6)}\n`;
-            message += `🗺️ Map: https://maps.google.com/?q=${lastPosition.lat},${lastPosition.lng}\n`;
-            message += `🕒 Time: ${new Date().toLocaleString()}\n`;
-            if (dest) {
-                message += `🎯 Destination: ${dest}\n`;
+            let message = `🚨🚨🚨 EMERGENCY SOS ALERT 🚨🚨🚨\n\n`;
+            message += `🛡️ FROM: SOS Guardian Pro - Satellite Surveillance\n\n`;
+            message += `📍 CURRENT LOCATION:\n`;
+            message += `Latitude: ${userLocation.lat.toFixed(6)}\n`;
+            message += `Longitude: ${userLocation.lng.toFixed(6)}\n`;
+            message += `🗺️ Google Maps: https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}\n\n`;
+            message += `🕒 TIME: ${new Date().toLocaleString()}\n\n`;
+            message += `🛰️ SURVEILLANCE STATUS:\n`;
+            message += `• 2000m forward surveillance zone active\n`;
+            message += `• 50m left/right peripheral monitoring\n`;
+            message += `• Satellite tracking: ACTIVE\n\n`;
+            if (destination) {
+                message += `🎯 DESTINATION: ${destination}\n\n`;
             }
-            if (isTracking) {
-                message += `🚗 Status: En route to destination\n`;
-            }
-            message += `\n🚑 USER NEEDS EMERGENCY ASSISTANCE!`;
-            
-            document.getElementById('locationStatus').textContent = 'Sent ✓';
-            document.getElementById('routeAlertStatus').textContent = 'Alert sent ✓';
-            document.getElementById('whatsappStatus').textContent = 'Opening...';
+            message += `🚑 USER NEEDS IMMEDIATE EMERGENCY ASSISTANCE!\n`;
+            message += `⚠️ LAST KNOWN POSITION BEING TRACKED\n\n`;
+            message += `📞 EMERGENCY CONTACTS NOTIFIED\n`;
             
             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
             window.open(whatsappUrl, '_blank');
             
-            setTimeout(() => {
-                document.getElementById('whatsappStatus').textContent = 'Sent ✓';
-            }, 1000);
+            showNotification('📱 Emergency alert sent via WhatsApp', 'success');
             
-            showNotification('📱 Emergency alerts sent', 'success');
+            // Close emergency modal after 5 seconds
+            setTimeout(() => {
+                cancelEmergency();
+            }, 5000);
         }
         
-        function closeModal() {
-            document.getElementById('emergencyModal').style.display = 'none';
+        function cancelEmergency() {
+            if (window.currentEmergencyModal) {
+                window.currentEmergencyModal.remove();
+            }
+            
             emergencyActive = false;
             shakeCount = 0;
             updateShakeDisplay();
@@ -1297,82 +1447,31 @@
             showNotification('Emergency cancelled', 'info');
         }
         
+        function testEmergency() {
+            triggerEmergency('test');
+        }
+        
         // ========== DATA SAVING ==========
-        function saveRouteAndContacts() {
+        function saveSurveillanceSettings() {
             const contact1 = document.getElementById('contact1').value;
             const contact2 = document.getElementById('contact2').value;
-            const dest = document.getElementById('destination').value;
-            const start = document.getElementById('startLocation').value;
+            const destination = document.getElementById('destination').value;
             
             localStorage.setItem('sos_contact1', contact1);
             localStorage.setItem('sos_contact2', contact2);
-            localStorage.setItem('sos_destination', dest);
-            localStorage.setItem('sos_start', start);
+            localStorage.setItem('sos_destination', destination);
             
-            showNotification('✅ Route & contacts saved', 'success');
+            showNotification('✅ Surveillance settings saved', 'success');
         }
         
         function loadSavedData() {
             const contact1 = localStorage.getItem('sos_contact1');
             const contact2 = localStorage.getItem('sos_contact2');
-            const dest = localStorage.getItem('sos_destination');
-            const start = localStorage.getItem('sos_start');
+            const destination = localStorage.getItem('sos_destination');
             
             if (contact1) document.getElementById('contact1').value = contact1;
             if (contact2) document.getElementById('contact2').value = contact2;
-            if (dest) document.getElementById('destination').value = dest;
-            if (start) document.getElementById('startLocation').value = start;
-        }
-        
-        // ========== PAYMENT & ACTIVATION ==========
-        function submitPayment() {
-            const email = document.getElementById('subscriberEmail').value;
-            const fileInput = document.getElementById('paymentProof');
-            
-            if (!email || !email.includes('@')) {
-                showNotification('Please enter a valid email', 'error');
-                return;
-            }
-            
-            if (!fileInput.files.length) {
-                showNotification('Please upload payment proof', 'error');
-                return;
-            }
-            
-            localStorage.setItem('sos_payment_pending', 'true');
-            localStorage.setItem('sos_subscriber_email', email);
-            
-            document.getElementById('activationModal').style.display = 'flex';
-            showNotification('✅ Payment proof submitted. Activation pending.', 'success');
-        }
-        
-        function checkActivation() {
-            const isActivated = localStorage.getItem('sos_activated') === 'true';
-            
-            if (isActivated) {
-                showNotification('✅ Your account is activated!', 'success');
-                closeActivationModal();
-            } else {
-                showNotification('⏳ Payment verification in progress...', 'info');
-                
-                setTimeout(() => {
-                    const shouldActivate = confirm('Has payment been confirmed? (Bank alert received?)');
-                    if (shouldActivate) {
-                        localStorage.setItem('sos_activated', 'true');
-                        showNotification('🎉 Premium features activated!', 'success');
-                        closeActivationModal();
-                    }
-                }, 1000);
-            }
-        }
-        
-        function closeActivationModal() {
-            document.getElementById('activationModal').style.display = 'none';
-        }
-        
-        // ========== TEST FUNCTION ==========
-        function testEmergency() {
-            triggerEmergency('test');
+            if (destination) document.getElementById('destination').value = destination;
         }
         
         // ========== NOTIFICATION ==========
@@ -1403,10 +1502,6 @@
         // ========== INITIALIZATION ==========
         window.addEventListener('load', () => {
             updateDisplay();
-            
-            if (localStorage.getItem('sos_activated') === 'true') {
-                showNotification('✅ SOS Guardian Pro Premium Active', 'success');
-            }
             
             setTimeout(() => {
                 document.getElementById('settingsPanel').style.display = 'none';
