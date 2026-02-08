@@ -6,6 +6,7 @@
     <title>Calculator</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <style>
         /* ========== CALCULATOR DISGUISE ========== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -163,12 +164,14 @@
             50% { transform: scale(1.05); }
         }
         
+        /* ========== MAP TRACKING ========== */
         .map-container {
-            height: 400px;
+            height: 500px;
             border-radius: 20px;
             overflow: hidden;
             margin: 30px 0;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            position: relative;
         }
         
         #map {
@@ -176,6 +179,113 @@
             height: 100%;
         }
         
+        .map-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 15px;
+            z-index: 1001;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .tracking-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .tracking-btn {
+            background: #008751;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            flex: 1;
+            min-width: 140px;
+        }
+        
+        .tracking-btn:hover {
+            background: #00A859;
+        }
+        
+        .tracking-btn.stop {
+            background: #ff3b30;
+        }
+        
+        .tracking-btn.stop:hover {
+            background: #ff2d55;
+        }
+        
+        .route-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 15px;
+            z-index: 1001;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* ========== HIDDEN MAP MODE ========== */
+        .hidden-map-mode {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0c0e2a;
+            z-index: 10000;
+        }
+        
+        .hidden-map-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 15px;
+            z-index: 10001;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .hidden-map-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10001;
+        }
+        
+        .hidden-map-btn {
+            background: #008751;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        #hiddenMap {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* ========== MODALS ========== */
         .modal {
             display: none;
             position: fixed;
@@ -312,8 +422,10 @@
         /* ========== RESPONSIVE ========== */
         @media (max-width: 768px) {
             .emergency-btn { width: 200px; height: 200px; font-size: 20px; }
-            .map-container { height: 300px; }
+            .map-container { height: 400px; }
             .settings-panel { bottom: 10px; right: 10px; left: 10px; width: auto; }
+            .tracking-controls { flex-direction: column; }
+            .tracking-btn { width: 100%; }
         }
     </style>
 </head>
@@ -384,14 +496,25 @@
                 <p style="color:#ffcc00;">Hold button or shake phone</p>
             </div>
             
-            <!-- MAP CONTAINER -->
-            <div class="map-container">
-                <div id="map"></div>
-            </div>
-            
-            <!-- EMERGENCY CONTACTS SETUP -->
+            <!-- ROUTE TRACKING SETUP -->
             <div style="background:rgba(0,135,81,0.1);border-radius:20px;padding:30px;margin:30px 0;border:2px solid #008751;">
-                <h2 style="color:#00ff88;margin-bottom:20px;"><i class="fas fa-user-friends"></i> Emergency Contacts Setup</h2>
+                <h2 style="color:#00ff88;margin-bottom:20px;"><i class="fas fa-route"></i> Route Tracking Setup</h2>
+                
+                <div class="form-group">
+                    <label for="startLocation"><i class="fas fa-map-pin"></i> Start Location (Current)</label>
+                    <input type="text" id="startLocation" placeholder="Click 'Use Current Location'" readonly>
+                    <button onclick="useCurrentLocation('start')" style="background:#3498db;color:white;border:none;padding:10px;border-radius:8px;margin-top:10px;width:100%;">
+                        <i class="fas fa-location-dot"></i> Use Current Location
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="destination"><i class="fas fa-flag-checkered"></i> Destination Address</label>
+                    <input type="text" id="destination" placeholder="Enter your destination address">
+                    <button onclick="geocodeDestination()" style="background:#9b59b6;color:white;border:none;padding:10px;border-radius:8px;margin-top:10px;width:100%;">
+                        <i class="fas fa-search"></i> Find on Map
+                    </button>
+                </div>
                 
                 <div class="form-group">
                     <label for="contact1"><i class="fas fa-phone"></i> Primary Emergency Contact</label>
@@ -403,14 +526,47 @@
                     <input type="tel" id="contact2" placeholder="+2348023456789">
                 </div>
                 
-                <div class="form-group">
-                    <label for="destination"><i class="fas fa-map-marker-alt"></i> Your Destination Address</label>
-                    <input type="text" id="destination" placeholder="Enter your destination address">
-                </div>
-                
-                <button onclick="saveContacts()" style="background:#008751;color:white;border:none;padding:15px 30px;border-radius:10px;width:100%;font-size:1.1rem;cursor:pointer;">
-                    <i class="fas fa-save"></i> Save Contacts & Destination
+                <button onclick="saveRouteAndContacts()" style="background:#008751;color:white;border:none;padding:15px 30px;border-radius:10px;width:100%;font-size:1.1rem;cursor:pointer;">
+                    <i class="fas fa-save"></i> Save Route & Contacts
                 </button>
+            </div>
+            
+            <!-- MAP WITH ROUTE TRACKING -->
+            <div class="map-container">
+                <div class="map-overlay">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                        <div>
+                            <h3 style="color:#00ff88;margin:0;"><i class="fas fa-map"></i> Route Tracker</h3>
+                            <p style="margin:5px 0 0 0;font-size:0.9rem;">Start tracking your journey</p>
+                        </div>
+                        <div class="tracking-controls">
+                            <button class="tracking-btn" onclick="calculateRoute()">
+                                <i class="fas fa-route"></i> Calculate Route
+                            </button>
+                            <button class="tracking-btn" onclick="startTracking()">
+                                <i class="fas fa-play"></i> Start Tracking
+                            </button>
+                            <button class="tracking-btn stop" onclick="stopTracking()">
+                                <i class="fas fa-stop"></i> Stop
+                            </button>
+                            <button class="tracking-btn" onclick="enterHiddenMapMode()">
+                                <i class="fas fa-eye-slash"></i> Hide App
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="map"></div>
+                <div class="route-info hidden" id="routeInfo">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                        <div>
+                            <p style="margin:0;"><i class="fas fa-road"></i> Distance: <span id="routeDistance">--</span></p>
+                            <p style="margin:5px 0 0 0;"><i class="fas fa-clock"></i> Time: <span id="routeTime">--</span></p>
+                        </div>
+                        <div>
+                            <p style="margin:0;color:#00ff88;"><i class="fas fa-user-shield"></i> SOS Active</p>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <!-- PAYMENT SECTION -->
@@ -422,11 +578,10 @@
                     <div class="plan-price">₦1,500<span style="font-size:1.5rem;">/month</span></div>
                     
                     <div style="text-align:left;margin:25px 0;">
-                        <p><i class="fas fa-check" style="color:#00ff88;"></i> Emergency SOS with Shake Detection</p>
-                        <p><i class="fas fa-check" style="color:#00ff88;"></i> 24/7 Location Tracking</p>
-                        <p><i class="fas fa-check" style="color:#00ff88;"></i> Route Monitoring to Destination</p>
-                        <p><i class="fas fa-check" style="color:#00ff88;"></i> WhatsApp/SMS Alerts to Contacts</p>
-                        <p><i class="fas fa-check" style="color:#00ff88;"></i> Photo Evidence Capture</p>
+                        <p><i class="fas fa-check" style="color:#00ff88;"></i> Live Route Tracking</p>
+                        <p><i class="fas fa-check" style="color:#00ff88;"></i> Hidden Map Navigation</p>
+                        <p><i class="fas fa-check" style="color:#00ff88;"></i> Emergency SOS with Shake</p>
+                        <p><i class="fas fa-check" style="color:#00ff88;"></i> Auto Alerts to Contacts</p>
                         <p><i class="fas fa-check" style="color:#00ff88;"></i> Disguised as Calculator</p>
                     </div>
                     
@@ -468,6 +623,29 @@
         </div>
     </div>
     
+    <!-- ========== HIDDEN MAP MODE ========== -->
+    <div class="hidden-map-mode" id="hiddenMapMode">
+        <div class="hidden-map-header">
+            <h3 style="color:#00ff88;margin:0;"><i class="fas fa-map"></i> Route Navigation</h3>
+            <p style="margin:5px 0 0 0;font-size:0.9rem;">
+                <span id="hiddenRouteDistance">Distance: --</span> | 
+                <span id="hiddenRouteTime">Time: --</span>
+            </p>
+        </div>
+        <div id="hiddenMap"></div>
+        <div class="hidden-map-controls">
+            <button class="hidden-map-btn" onclick="showFullApp()">
+                <i class="fas fa-eye"></i> Show App
+            </button>
+            <button class="hidden-map-btn" onclick="testEmergencyFromHidden()" style="background:#ff3b30;">
+                <i class="fas fa-bell"></i> Emergency SOS
+            </button>
+            <button class="hidden-map-btn" onclick="exitHiddenMode()" style="background:#666;">
+                <i class="fas fa-times"></i> Exit
+            </button>
+        </div>
+    </div>
+    
     <!-- ========== SETTINGS PANEL ========== -->
     <div class="settings-panel" id="settingsPanel">
         <button class="settings-btn" onclick="toggleSOSInterface()">
@@ -492,8 +670,8 @@
             
             <div style="background:rgba(255,59,48,0.1);padding:15px;border-radius:10px;margin:20px 0;text-align:left;">
                 <p><i class="fas fa-check-circle" style="color:#00ff88;"></i> Location sent: <span id="locationStatus">Sending...</span></p>
+                <p><i class="fas fa-check-circle" style="color:#00ff88;"></i> Route deviation alert: <span id="routeAlertStatus">Monitoring...</span></p>
                 <p><i class="fas fa-check-circle" style="color:#00ff88;"></i> WhatsApp alert: <span id="whatsappStatus">Preparing...</span></p>
-                <p><i class="fas fa-check-circle" style="color:#00ff88;"></i> SMS alert: <span id="smsStatus">Ready</span></p>
             </div>
             
             <div style="margin:30px 0;">
@@ -528,6 +706,7 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
     <script>
         // ========== CALCULATOR FUNCTIONS ==========
         let currentInput = '0';
@@ -603,13 +782,20 @@
         
         // ========== SOS EMERGENCY SYSTEM ==========
         let map = null;
-        let marker = null;
+        let hiddenMap = null;
         let userLocation = { lat: 6.5244, lng: 3.3792 }; // Lagos
+        let startLocation = { lat: null, lng: null };
+        let destination = { lat: null, lng: null };
+        let destinationAddress = '';
+        let routingControl = null;
+        let isTracking = false;
+        let trackingInterval = null;
         let emergencyActive = false;
         let shakeCount = 0;
         let holdTimer = null;
         let countdownValue = 3;
         let calculatorHoldTimer = null;
+        let lastPosition = null;
         
         // ========== DISGUISE FUNCTIONS ==========
         function toggleSOSInterface() {
@@ -650,13 +836,11 @@
         function initializeSOS() {
             if (!map) {
                 initializeMap();
-                getLocation();
+                getCurrentLocation();
             }
             
-            // Load saved contacts
             loadSavedData();
             
-            // Initialize shake detection
             if (window.DeviceMotionEvent) {
                 window.addEventListener('devicemotion', handleShake);
             }
@@ -670,17 +854,26 @@
                 maxZoom: 19,
             }).addTo(map);
             
-            marker = L.marker([userLocation.lat, userLocation.lng], {
+            // Add start marker
+            startMarker = L.marker([userLocation.lat, userLocation.lng], {
                 icon: L.divIcon({
-                    html: '<div style="background:#ff3b30;width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 0 10px red;"></div>',
+                    html: '<div style="background:#3498db;width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 0 10px #3498db;"><i class="fas fa-play" style="color:white;font-size:10px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"></i></div>',
                     iconSize: [26, 26]
                 })
-            }).addTo(map);
+            }).addTo(map).bindPopup('Start Location');
+            
+            // Initialize hidden map
+            hiddenMap = L.map('hiddenMap').setView([userLocation.lat, userLocation.lng], 14);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19,
+            }).addTo(hiddenMap);
             
             L.control.scale().addTo(map);
+            L.control.scale().addTo(hiddenMap);
         }
         
-        function getLocation() {
+        function getCurrentLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
@@ -689,16 +882,285 @@
                             lng: position.coords.longitude
                         };
                         
-                        if (map && marker) {
+                        startLocation = { ...userLocation };
+                        document.getElementById('startLocation').value = 
+                            `${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}`;
+                        
+                        if (map) {
                             map.setView([userLocation.lat, userLocation.lng], 16);
-                            marker.setLatLng([userLocation.lat, userLocation.lng]);
+                            if (startMarker) {
+                                startMarker.setLatLng([userLocation.lat, userLocation.lng]);
+                            }
                         }
                         
-                        showNotification('📍 Location acquired', 'success');
+                        showNotification('📍 Current location acquired', 'success');
                     },
-                    () => showNotification('📍 Using default location', 'info')
+                    () => {
+                        showNotification('📍 Using default location', 'info');
+                        document.getElementById('startLocation').value = 
+                            `${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}`;
+                        startLocation = { ...userLocation };
+                    }
                 );
             }
+        }
+        
+        function useCurrentLocation(type) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        if (type === 'start') {
+                            startLocation = { lat, lng };
+                            document.getElementById('startLocation').value = 
+                                `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                            
+                            if (map && startMarker) {
+                                startMarker.setLatLng([lat, lng]);
+                                map.setView([lat, lng], 16);
+                            }
+                            
+                            showNotification('📍 Start location set', 'success');
+                        }
+                    }
+                );
+            }
+        }
+        
+        function geocodeDestination() {
+            const destinationInput = document.getElementById('destination').value;
+            if (!destinationInput) {
+                showNotification('Please enter a destination address', 'error');
+                return;
+            }
+            
+            showNotification('🔍 Searching for destination...', 'info');
+            
+            // Using Nominatim for geocoding (OpenStreetMap)
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destinationInput + ', Nigeria')}`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        destination = {
+                            lat: parseFloat(data[0].lat),
+                            lng: parseFloat(data[0].lon)
+                        };
+                        destinationAddress = data[0].display_name;
+                        
+                        // Add destination marker
+                        if (destinationMarker) {
+                            map.removeLayer(destinationMarker);
+                        }
+                        
+                        destinationMarker = L.marker([destination.lat, destination.lng], {
+                            icon: L.divIcon({
+                                html: '<div style="background:#e74c3c;width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 0 10px #e74c3c;"><i class="fas fa-flag" style="color:white;font-size:10px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"></i></div>',
+                                iconSize: [26, 26]
+                            })
+                        }).addTo(map).bindPopup('Destination: ' + destinationAddress);
+                        
+                        showNotification('📍 Destination found on map', 'success');
+                        
+                        // Zoom to show both points
+                        const bounds = L.latLngBounds([startLocation.lat, startLocation.lng], [destination.lat, destination.lng]);
+                        map.fitBounds(bounds, { padding: [50, 50] });
+                    } else {
+                        showNotification('Destination not found. Please try a different address.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Geocoding error:', error);
+                    showNotification('Error searching destination. Using coordinates.', 'error');
+                });
+        }
+        
+        // ========== ROUTE CALCULATION ==========
+        function calculateRoute() {
+            if (!startLocation.lat || !destination.lat) {
+                showNotification('Please set both start and destination locations', 'error');
+                return;
+            }
+            
+            // Remove existing route if any
+            if (routingControl) {
+                map.removeControl(routingControl);
+            }
+            
+            // Calculate route using OSRM
+            routingControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(startLocation.lat, startLocation.lng),
+                    L.latLng(destination.lat, destination.lng)
+                ],
+                routeWhileDragging: false,
+                showAlternatives: false,
+                addWaypoints: false,
+                draggableWaypoints: false,
+                fitSelectedRoutes: true,
+                show: true,
+                router: L.Routing.osrmv1({
+                    serviceUrl: 'https://router.project-osrm.org/route/v1'
+                }),
+                createMarker: function() { return null; } // Disable default markers
+            }).addTo(map);
+            
+            routingControl.on('routesfound', function(e) {
+                const routes = e.routes;
+                if (routes && routes.length > 0) {
+                    const route = routes[0];
+                    const distance = (route.summary.totalDistance / 1000).toFixed(1);
+                    const time = Math.floor(route.summary.totalTime / 60);
+                    
+                    document.getElementById('routeDistance').textContent = `${distance} km`;
+                    document.getElementById('routeTime').textContent = `${time} mins`;
+                    document.getElementById('routeInfo').classList.remove('hidden');
+                    
+                    document.getElementById('hiddenRouteDistance').textContent = `Distance: ${distance} km`;
+                    document.getElementById('hiddenRouteTime').textContent = `Time: ${time} mins`;
+                    
+                    showNotification(`🗺️ Route calculated: ${distance} km, ${time} mins`, 'success');
+                }
+            });
+            
+            routingControl.on('routingerror', function(e) {
+                showNotification('Error calculating route. Please try again.', 'error');
+            });
+        }
+        
+        function startTracking() {
+            if (!routingControl) {
+                showNotification('Please calculate route first', 'error');
+                return;
+            }
+            
+            if (isTracking) {
+                showNotification('Already tracking', 'info');
+                return;
+            }
+            
+            isTracking = true;
+            lastPosition = startLocation;
+            
+            // Start tracking user position
+            trackingInterval = setInterval(() => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const currentPos = {
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude
+                            };
+                            
+                            // Update position on maps
+                            updateUserPosition(currentPos);
+                            
+                            // Check for route deviation
+                            checkRouteDeviation(currentPos);
+                        }
+                    );
+                }
+            }, 10000); // Update every 10 seconds
+            
+            showNotification('🚗 Route tracking started', 'success');
+        }
+        
+        function stopTracking() {
+            if (isTracking) {
+                clearInterval(trackingInterval);
+                isTracking = false;
+                showNotification('🛑 Route tracking stopped', 'info');
+            }
+        }
+        
+        let userPositionMarker = null;
+        let hiddenUserPositionMarker = null;
+        
+        function updateUserPosition(position) {
+            // Update on main map
+            if (!userPositionMarker) {
+                userPositionMarker = L.marker([position.lat, position.lng], {
+                    icon: L.divIcon({
+                        html: '<div style="background:#00ff88;width:15px;height:15px;border-radius:50%;border:2px solid white;box-shadow:0 0 10px #00ff88;"></div>',
+                        iconSize: [19, 19]
+                    })
+                }).addTo(map);
+            } else {
+                userPositionMarker.setLatLng([position.lat, position.lng]);
+            }
+            
+            // Update on hidden map
+            if (!hiddenUserPositionMarker && hiddenMap) {
+                hiddenUserPositionMarker = L.marker([position.lat, position.lng], {
+                    icon: L.divIcon({
+                        html: '<div style="background:#00ff88;width:15px;height:15px;border-radius:50%;border:2px solid white;box-shadow:0 0 10px #00ff88;"></div>',
+                        iconSize: [19, 19]
+                    })
+                }).addTo(hiddenMap);
+            } else if (hiddenUserPositionMarker && hiddenMap) {
+                hiddenUserPositionMarker.setLatLng([position.lat, position.lng]);
+                hiddenMap.setView([position.lat, position.lng], 16);
+            }
+            
+            lastPosition = position;
+        }
+        
+        function checkRouteDeviation(currentPos) {
+            // Simple distance check - in production, use proper route matching
+            const distanceToStart = calculateDistance(currentPos, startLocation);
+            const distanceToDest = calculateDistance(currentPos, destination);
+            
+            // If user is moving away from route significantly
+            if (distanceToStart > 5 && distanceToDest > 5) { // 5km threshold
+                document.getElementById('routeAlertStatus').textContent = 'Deviated from route!';
+                showNotification('⚠️ You have deviated from your route', 'warning');
+            }
+        }
+        
+        function calculateDistance(pos1, pos2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (pos2.lat - pos1.lat) * Math.PI / 180;
+            const dLon = (pos2.lng - pos1.lng) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(pos1.lat * Math.PI / 180) * Math.cos(pos2.lat * Math.PI / 180) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+        
+        // ========== HIDDEN MAP MODE ==========
+        function enterHiddenMapMode() {
+            if (!isTracking) {
+                showNotification('Please start tracking first', 'error');
+                return;
+            }
+            
+            document.getElementById('sosInterface').style.display = 'none';
+            document.getElementById('calculator').style.display = 'none';
+            document.getElementById('settingsPanel').style.display = 'none';
+            document.getElementById('hiddenMapMode').style.display = 'block';
+            
+            showNotification('🗺️ App hidden. Only map visible.', 'success');
+        }
+        
+        function showFullApp() {
+            document.getElementById('hiddenMapMode').style.display = 'none';
+            document.getElementById('sosInterface').style.display = 'block';
+        }
+        
+        function exitHiddenMode() {
+            document.getElementById('hiddenMapMode').style.display = 'none';
+            document.getElementById('calculator').style.display = 'block';
+            document.getElementById('settingsPanel').style.display = 'block';
+        }
+        
+        function testEmergencyFromHidden() {
+            exitHiddenMode();
+            triggerEmergency('hidden_mode');
         }
         
         // ========== SHAKE DETECTION ==========
@@ -748,7 +1210,7 @@
             }
         }
         
-        // ========== EMERGENCY BUTTON ==========
+        // ========== EMERGENCY FUNCTIONS ==========
         function startHoldTimer() {
             if (emergencyActive) return;
             
@@ -784,11 +1246,8 @@
             document.getElementById('buttonText').classList.add('hidden');
             document.getElementById('countdown').classList.add('hidden');
             
-            // Get current location
-            getLocation();
-            
-            // Update modal status
             document.getElementById('locationStatus').textContent = 'Acquiring...';
+            document.getElementById('routeAlertStatus').textContent = 'Checking...';
             
             showNotification('🚨 Emergency activated!', 'emergency');
         }
@@ -796,58 +1255,37 @@
         function sendEmergencyAlerts() {
             const contact1 = document.getElementById('contact1').value;
             const contact2 = document.getElementById('contact2').value;
-            const destination = document.getElementById('destination').value;
+            const dest = document.getElementById('destination').value;
             
             if (!contact1) {
                 showNotification('Please set emergency contacts first', 'error');
                 return;
             }
             
-            // Prepare message
             let message = `🚨 EMERGENCY ALERT from SOS Guardian Pro!\n\n`;
-            message += `📍 User Location: ${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}\n`;
-            message += `🗺️ Map: https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}\n`;
+            message += `📍 Current Location: ${lastPosition.lat.toFixed(6)}, ${lastPosition.lng.toFixed(6)}\n`;
+            message += `🗺️ Map: https://maps.google.com/?q=${lastPosition.lat},${lastPosition.lng}\n`;
             message += `🕒 Time: ${new Date().toLocaleString()}\n`;
-            if (destination) {
-                message += `🎯 Destination: ${destination}\n`;
+            if (dest) {
+                message += `🎯 Destination: ${dest}\n`;
+            }
+            if (isTracking) {
+                message += `🚗 Status: En route to destination\n`;
             }
             message += `\n🚑 USER NEEDS EMERGENCY ASSISTANCE!`;
             
-            // Update status
             document.getElementById('locationStatus').textContent = 'Sent ✓';
-            document.getElementById('whatsappStatus').textContent = 'Sending...';
+            document.getElementById('routeAlertStatus').textContent = 'Alert sent ✓';
+            document.getElementById('whatsappStatus').textContent = 'Opening...';
             
-            // Send via WhatsApp
             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
             window.open(whatsappUrl, '_blank');
             
-            // Update status
             setTimeout(() => {
                 document.getElementById('whatsappStatus').textContent = 'Sent ✓';
-                document.getElementById('smsStatus').textContent = 'Ready to send';
             }, 1000);
             
-            // Offer SMS
-            setTimeout(() => {
-                if (confirm('Send SMS alert to emergency contacts?')) {
-                    sendSMSToContacts(contact1, contact2, message);
-                }
-            }, 1500);
-            
-            showNotification('📱 Alerts sent to emergency contacts', 'success');
-        }
-        
-        function sendSMSToContacts(contact1, contact2, message) {
-            const smsBody = `SOS EMERGENCY! Location: ${userLocation.lat.toFixed(6)},${userLocation.lng.toFixed(6)}. Time: ${new Date().toLocaleTimeString()}. Please respond!`;
-            
-            // Create SMS links
-            let smsLinks = `sms:${contact1.replace(/\D/g,'')}?body=${encodeURIComponent(smsBody)}`;
-            
-            if (contact2) {
-                smsLinks += `&${contact2.replace(/\D/g,'')}`;
-            }
-            
-            window.location.href = smsLinks;
+            showNotification('📱 Emergency alerts sent', 'success');
         }
         
         function closeModal() {
@@ -860,26 +1298,30 @@
         }
         
         // ========== DATA SAVING ==========
-        function saveContacts() {
+        function saveRouteAndContacts() {
             const contact1 = document.getElementById('contact1').value;
             const contact2 = document.getElementById('contact2').value;
-            const destination = document.getElementById('destination').value;
+            const dest = document.getElementById('destination').value;
+            const start = document.getElementById('startLocation').value;
             
             localStorage.setItem('sos_contact1', contact1);
             localStorage.setItem('sos_contact2', contact2);
-            localStorage.setItem('sos_destination', destination);
+            localStorage.setItem('sos_destination', dest);
+            localStorage.setItem('sos_start', start);
             
-            showNotification('✅ Contacts & destination saved', 'success');
+            showNotification('✅ Route & contacts saved', 'success');
         }
         
         function loadSavedData() {
             const contact1 = localStorage.getItem('sos_contact1');
             const contact2 = localStorage.getItem('sos_contact2');
-            const destination = localStorage.getItem('sos_destination');
+            const dest = localStorage.getItem('sos_destination');
+            const start = localStorage.getItem('sos_start');
             
             if (contact1) document.getElementById('contact1').value = contact1;
             if (contact2) document.getElementById('contact2').value = contact2;
-            if (destination) document.getElementById('destination').value = destination;
+            if (dest) document.getElementById('destination').value = dest;
+            if (start) document.getElementById('startLocation').value = start;
         }
         
         // ========== PAYMENT & ACTIVATION ==========
@@ -897,7 +1339,6 @@
                 return;
             }
             
-            // Simulate payment submission
             localStorage.setItem('sos_payment_pending', 'true');
             localStorage.setItem('sos_subscriber_email', email);
             
@@ -906,7 +1347,6 @@
         }
         
         function checkActivation() {
-            // Simulate checking bank alert
             const isActivated = localStorage.getItem('sos_activated') === 'true';
             
             if (isActivated) {
@@ -915,7 +1355,6 @@
             } else {
                 showNotification('⏳ Payment verification in progress...', 'info');
                 
-                // Simulate manual activation (in real app, this would be server-side)
                 setTimeout(() => {
                     const shouldActivate = confirm('Has payment been confirmed? (Bank alert received?)');
                     if (shouldActivate) {
@@ -965,23 +1404,14 @@
         window.addEventListener('load', () => {
             updateDisplay();
             
-            // Check if already activated
             if (localStorage.getItem('sos_activated') === 'true') {
                 showNotification('✅ SOS Guardian Pro Premium Active', 'success');
             }
             
-            // Auto-hide settings after 10 seconds
             setTimeout(() => {
                 document.getElementById('settingsPanel').style.display = 'none';
             }, 10000);
         });
-        
-        // Periodic location update
-        setInterval(() => {
-            if (document.getElementById('sosInterface').style.display === 'block') {
-                getLocation();
-            }
-        }, 30000);
     </script>
 </body>
 </html>
