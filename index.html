@@ -7,10 +7,6 @@
     <!-- Mapbox GL JS -->
     <script src='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css' rel='stylesheet' />
-    <!-- Twilio SDK -->
-    <script src="https://sdk.twilio.com/js/video/releases/2.20.1/twilio-video.min.js"></script>
-    <!-- Paystack for Nigerian payments -->
-    <script src="https://js.paystack.co/v1/inline.js"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -114,21 +110,30 @@
         .flag-white { background: white; flex: 1; }
         .flag-green2 { background: #008751; flex: 1; }
         
-        /* MONETIZATION BANNER */
-        .monetization-banner {
-            background: linear-gradient(90deg, #FFD700 0%, #FFC200 100%);
-            color: #000;
+        /* DEMO BANNER */
+        .demo-banner {
+            background: linear-gradient(90deg, #ff3b30 0%, #ff2d55 100%);
+            color: white;
             padding: 15px;
             border-radius: 15px;
             margin: 20px 0;
             text-align: center;
             font-weight: bold;
-            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
-            border: 2px solid #B8860B;
+            box-shadow: 0 8px 25px rgba(255, 59, 48, 0.3);
+            border: 2px solid #ff9500;
+        }
+        
+        .demo-warning {
+            background: #ff9500;
+            color: black;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 0.9rem;
         }
         
         .naira {
-            color: #008751;
+            color: #FFD700;
             font-weight: 800;
             font-size: 1.2rem;
         }
@@ -626,6 +631,49 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
         
+        /* QUICK ACTIONS PANEL */
+        .quick-actions {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 15px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 200px;
+        }
+        
+        .quick-actions h4 {
+            color: #FFD700;
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+        
+        .action-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 5px 0;
+            width: 100%;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .action-btn.whatsapp { background: #25D366; }
+        .action-btn.sms { background: #2196F3; }
+        .action-btn.photo { background: #9C27B0; }
+        .action-btn.location { background: #4CAF50; }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
         /* RESPONSIVE */
         @media (max-width: 768px) {
             .container {
@@ -661,6 +709,13 @@
             .plan-card.popular {
                 transform: none;
             }
+            
+            .quick-actions {
+                bottom: 20px;
+                right: 20px;
+                left: 20px;
+                width: auto;
+            }
         }
         
         /* UTILITY CLASSES */
@@ -681,7 +736,7 @@
         .notification {
             position: fixed;
             bottom: 20px;
-            right: 20px;
+            left: 20px;
             background: rgba(0, 0, 0, 0.9);
             color: white;
             padding: 15px 25px;
@@ -696,13 +751,25 @@
         }
         
         @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- DEMO WARNING BANNER -->
+        <div class="demo-banner">
+            <div>
+                <i class="fas fa-exclamation-triangle"></i> DEMO VERSION - SAFE TO USE
+                <span class="naira">₦</span> - Mock Payments Only
+            </div>
+            <div class="demo-warning">
+                <i class="fas fa-shield-alt"></i> This is a frontend demo. All data stays on your device.
+                No API keys exposed. Safe for testing.
+            </div>
+        </div>
+        
         <!-- HEADER -->
         <div class="header">
             <div class="logo">
@@ -718,31 +785,6 @@
                         </span>
                     </h1>
                     <p class="tagline">Complete Emergency Safety System - Made for Nigeria</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- MONETIZATION BANNER -->
-        <div class="monetization-banner">
-            <div>
-                <i class="fas fa-gem"></i> PREMIUM EMERGENCY PROTECTION
-                <span class="naira">₦</span> - Affordable Nigerian Pricing
-            </div>
-            <div class="pricing">
-                <div class="price-card">
-                    <div class="price-amount">₦500</div>
-                    <div class="price-period">Weekly Plan</div>
-                    <button class="subscribe-btn" onclick="subscribe('weekly')">Subscribe</button>
-                </div>
-                <div class="price-card">
-                    <div class="price-amount">₦1,500</div>
-                    <div class="price-period">Monthly Plan</div>
-                    <button class="subscribe-btn" onclick="subscribe('monthly')">Subscribe</button>
-                </div>
-                <div class="price-card">
-                    <div class="price-amount">₦15,000</div>
-                    <div class="price-period">Annual Plan</div>
-                    <button class="subscribe-btn" onclick="subscribe('annual')">Subscribe</button>
                 </div>
             </div>
         </div>
@@ -774,7 +816,7 @@
             <div class="map-overlay">
                 <h3><i class="fas fa-satellite"></i> LIVE SATELLITE TRACKING</h3>
                 <p>Tracking 2000m ahead + 50m left/right of route<br>
-                <span class="status-active">• GPS ACTIVE</span> | <span class="status-active">• SATELLITE CONNECTED</span></p>
+                <span class="status-active">• GPS ACTIVE</span> | <span class="status-active">• DEMO MODE</span></p>
             </div>
             <div id="map"></div>
         </div>
@@ -787,7 +829,7 @@
                 </div>
                 <h3>Auto Emergency Alert</h3>
                 <p>Activates automatically after 6 shakes. Sends location, photos, and voice recording to emergency contacts via WhatsApp/Twilio.</p>
-                <span class="feature-status">ACTIVE</span>
+                <span class="feature-status">DEMO ACTIVE</span>
             </div>
             
             <div class="feature-card" onclick="showFeature('satellite')">
@@ -803,9 +845,9 @@
                 <div class="feature-icon">
                     <i class="fab fa-whatsapp"></i>
                 </div>
-                <h3>WhatsApp/Twilio Integration</h3>
+                <h3>WhatsApp Integration</h3>
                 <p>Sends automatic alerts with photos, location, and voice recordings to loved ones and emergency services.</p>
-                <span class="feature-status">READY</span>
+                <span class="feature-status">DEMO READY</span>
             </div>
             
             <div class="feature-card" onclick="showFeature('monetization')">
@@ -814,7 +856,7 @@
                 </div>
                 <h3>Affordable Nigerian Pricing</h3>
                 <p>₦500 weekly, ₦1,500 monthly, ₦15,000 annually. Pay with bank transfer, card, or USSD.</p>
-                <span class="feature-status">₦ NAIRA</span>
+                <span class="feature-status">DEMO MODE</span>
             </div>
         </div>
         
@@ -837,7 +879,7 @@
                         <li><i class="fas fa-times"></i> No WhatsApp Alerts</li>
                         <li><i class="fas fa-times"></i> No Voice Recording</li>
                     </ul>
-                    <button class="buy-btn" onclick="processPayment(500, 'Weekly Plan')">Buy Now</button>
+                    <button class="buy-btn" onclick="processPayment(500, 'Weekly Plan')">Buy Now (Demo)</button>
                 </div>
                 
                 <div class="plan-card popular">
@@ -850,9 +892,9 @@
                         <li><i class="fas fa-check"></i> Auto Photo Capture</li>
                         <li><i class="fas fa-check"></i> Voice Recording</li>
                         <li><i class="fas fa-check"></i> 5 Emergency Contacts</li>
-                        <li><i class="fas fa-check"></i> WhatsApp/Twilio Alerts</li>
+                        <li><i class="fas fa-check"></i> WhatsApp Alerts</li>
                     </ul>
-                    <button class="buy-btn" onclick="processPayment(1500, 'Monthly Pro Plan')">Buy Now</button>
+                    <button class="buy-btn" onclick="processPayment(1500, 'Monthly Pro Plan')">Buy Now (Demo)</button>
                 </div>
                 
                 <div class="plan-card">
@@ -866,36 +908,34 @@
                         <li><i class="fas fa-check"></i> Priority Alert Routing</li>
                         <li><i class="fas fa-check"></i> Family Plan (5 users)</li>
                     </ul>
-                    <button class="buy-btn" onclick="processPayment(15000, 'Annual Premium Plan')">Buy Now</button>
-                </div>
-            </div>
-            
-            <!-- PAYMENT METHODS -->
-            <div style="margin-top: 40px; text-align: center;">
-                <h3 style="color: #FFD700; margin-bottom: 20px;"><i class="fas fa-credit-card"></i> ACCEPTED PAYMENT METHODS</h3>
-                <div class="payment-methods">
-                    <div class="payment-method">
-                        <i class="fas fa-university"></i> Bank Transfer
-                    </div>
-                    <div class="payment-method">
-                        <i class="fas fa-credit-card"></i> Debit/Credit Card
-                    </div>
-                    <div class="payment-method">
-                        <i class="fas fa-mobile-alt"></i> USSD (*723*...)
-                    </div>
-                    <div class="payment-method">
-                        <i class="fab fa-paypal"></i> PayPal
-                    </div>
+                    <button class="buy-btn" onclick="processPayment(15000, 'Annual Premium Plan')">Buy Now (Demo)</button>
                 </div>
             </div>
         </div>
         
         <!-- FOOTER -->
         <div class="footer">
-            <p><span class="version">SOS GUARDIAN PRO v2.0 - NIGERIAN EDITION</span></p>
+            <p><span class="version">SOS GUARDIAN PRO v2.0 - DEMO MODE</span></p>
             <p><i class="fas fa-phone"></i> Emergency: 112, 767 | <i class="fab fa-whatsapp"></i> Support: +234 800 000 0000</p>
-            <p>© 2024 SOS Guardian Technologies Nigeria Ltd. RC: 1234567</p>
+            <p>© 2024 SOS Guardian Technologies Nigeria Ltd. All data stays on your device.</p>
         </div>
+    </div>
+    
+    <!-- QUICK ACTIONS PANEL -->
+    <div class="quick-actions">
+        <h4><i class="fas fa-bolt"></i> Quick Emergency Actions:</h4>
+        <button class="action-btn whatsapp" onclick="shareViaWhatsApp()">
+            <i class="fab fa-whatsapp"></i> WhatsApp Alert
+        </button>
+        <button class="action-btn sms" onclick="sendEmergencySMS()">
+            <i class="fas fa-sms"></i> SMS Contacts
+        </button>
+        <button class="action-btn photo" onclick="captureEmergencyPhoto()">
+            <i class="fas fa-camera"></i> Photo Evidence
+        </button>
+        <button class="action-btn location" onclick="shareLocation()">
+            <i class="fas fa-map-marker-alt"></i> Share Location
+        </button>
     </div>
     
     <!-- EMERGENCY MODAL -->
@@ -907,42 +947,18 @@
             <h2>EMERGENCY ALERT ACTIVATED!</h2>
             <p>Your emergency protocol has been triggered. The following actions are being taken:</p>
             <div style="text-align: left; margin: 20px 0; padding: 15px; background: rgba(255, 59, 48, 0.1); border-radius: 10px;">
-                <p><i class="fas fa-check-circle" style="color: #00ff88;"></i> <strong>Location</strong> sent to emergency contacts</p>
-                <p><i class="fas fa-check-circle" style="color: #00ff88;"></i> <strong>Photo captured</strong> and sent via WhatsApp</p>
-                <p><i class="fas fa-check-circle" style="color: #00ff88;"></i> <strong>Voice recording</strong> started and being sent</p>
-                <p><i class="fas fa-check-circle" style="color: #00ff88;"></i> <strong>Satellite tracking</strong> activated (2000m ahead)</p>
-                <p><i class="fas fa-check-circle" style="color: #00ff88;"></i> <strong>Emergency services</strong> notified via Twilio</p>
+                <p><i class="fas fa-check-circle" style="color: #00ff88;"></i> <strong>Location</strong> ready to share</p>
+                <p><i class="fas fa-check-circle" style="color: #00ff88;"></i> <strong>Photo</strong> capture available</p>
+                <p><i class="fas fa-check-circle" style="color: #00ff88;"></i> <strong>WhatsApp message</strong> prepared</p>
+                <p><i class="fas fa-check-circle" style="color: #00ff88;"></i> <strong>Satellite tracking</strong> active</p>
+                <p><i class="fas fa-check-circle" style="color: #00ff88;"></i> <strong>Emergency contacts</strong> ready</p>
             </div>
-            <p style="color: #ffcc00; font-weight: 600;">Help is on the way! Stay calm and safe.</p>
+            <p style="color: #ffcc00; font-weight: 600;">Click buttons below to share alerts</p>
             
             <div class="modal-buttons">
-                <button class="modal-btn cancel-btn" onclick="closeModal()">CANCEL (False Alarm)</button>
-                <button class="modal-btn confirm-btn" onclick="confirmEmergency()">CONFIRM EMERGENCY</button>
+                <button class="modal-btn cancel-btn" onclick="closeModal()">Cancel (False Alarm)</button>
+                <button class="modal-btn confirm-btn" onclick="activateFullEmergency()">Share Alerts Now</button>
             </div>
-        </div>
-    </div>
-    
-    <!-- PAYMENT MODAL -->
-    <div class="modal" id="paymentModal">
-        <div class="modal-content">
-            <div class="modal-icon" style="color: #008751;">
-                <i class="fas fa-lock"></i>
-            </div>
-            <h2 style="color: #008751;">SECURE PAYMENT</h2>
-            <div id="paymentDetails">
-                <!-- Payment details will be inserted here -->
-            </div>
-            <div style="margin: 25px 0;">
-                <button class="buy-btn" onclick="processPaystackPayment()" style="font-size: 1.2rem; padding: 20px;">
-                    <i class="fas fa-lock"></i> PAY SECURELY WITH PAYSTACK
-                </button>
-            </div>
-            <p style="font-size: 0.9rem; opacity: 0.8;">
-                <i class="fas fa-shield-alt"></i> Your payment is 100% secure. SSL encrypted.
-            </p>
-            <button class="modal-btn cancel-btn" onclick="closePaymentModal()" style="margin-top: 20px;">
-                Cancel Payment
-            </button>
         </div>
     </div>
     
@@ -950,26 +966,13 @@
     <div id="notificationContainer"></div>
     
     <script>
-        // ========== SECURITY WARNING ==========
-        console.warn("⚠️ SECURITY WARNING: This HTML contains real API keys. Do not commit to public GitHub!");
-        console.warn("For production, use environment variables and a backend server.");
-        
-        // ========== CONFIGURATION WITH REAL CREDENTIALS ==========
+        // ========== SAFE CONFIGURATION (NO CREDENTIALS) ==========
         const CONFIG = {
-            // YOUR MAPBOX TOKEN
-            mapboxToken: 'pk.eyJ1IjoiZWtlaWRpbWF1Y2hlY2h1a3d1IiwiYSI6ImNtbDYxZ3NvazA2cDYza3NjOXlwNmx0aXcifQ.agDhj-euUG6sEyMTiDsQAA',
-            
-            // YOUR TWILIO CREDENTIALS (CHANGE AUTH TOKEN IMMEDIATELY!)
-            twilioSID: 'AC4fb1c1b8af2739e2e06c3fb593eb664f',
-            twilioToken: 'f37fbe63a7057e2b67003b36b2290a41', // ⚠️ CHANGE THIS NOW!
-            twilioNumber: '+12608297880',
-            
-            // PAYSTACK PUBLIC KEY (Get from paystack.com)
-            paystackPublicKey: 'pk_test_YOUR_PAYSTACK_PUBLIC_KEY', // Replace with your Paystack key
+            // Public Mapbox token (safe to share)
+            mapboxToken: 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA',
             
             // Nigerian Emergency Numbers
-            emergencyNumbers: ['+234112', '+234767', '+2348061234567'],
-            whatsappGroup: 'sos-guardian-nigeria',
+            emergencyNumbers: ['112', '767'],
             requiredShakes: 6,
             holdDuration: 3000,
             trackingDistance: 2000,
@@ -991,19 +994,11 @@
         let countdownValue = 3;
         let userLocation = { lat: 6.5244, lng: 3.3792 }; // Default Lagos, Nigeria
         
-        // Current payment details
-        let currentPayment = {
-            amount: 0,
-            plan: '',
-            email: '',
-            reference: ''
-        };
-        
         // ========== INITIALIZE MAPBOX ==========
         mapboxgl.accessToken = CONFIG.mapboxToken;
         const map = new mapboxgl.Map({
             container: 'map',
-            style: 'mapbox://styles/mapbox/satellite-streets-v12',
+            style: 'mapbox://styles/mapbox/satellite-streets-v11',
             center: [userLocation.lng, userLocation.lat],
             zoom: 14,
             pitch: 45,
@@ -1029,7 +1024,7 @@
             const distance = CONFIG.trackingDistance;
             const width = CONFIG.trackingWidth;
             
-            // Create polygon for Nigeria-specific tracking
+            // Create polygon for tracking
             const coordinates = [
                 [
                     [userLocation.lng - width/111320, userLocation.lat],
@@ -1101,8 +1096,8 @@
                         showNotification('📍 GPS location acquired - Tracking active', 'success');
                     },
                     (error) => {
-                        console.error('Geolocation error:', error);
-                        showNotification('Using Lagos location. Enable GPS for accurate tracking.', 'warning');
+                        console.log('Using Lagos default location. Enable GPS for accurate tracking.');
+                        showNotification('📍 Using Lagos default location', 'info');
                     }
                 );
             }
@@ -1138,11 +1133,6 @@
                 lastShakeTime = now;
                 
                 updateShakeDisplay();
-                
-                // Take photo on each shake
-                if (shakeCount <= CONFIG.requiredShakes) {
-                    simulateTakePhoto();
-                }
                 
                 if (shakeCount >= CONFIG.requiredShakes) {
                     triggerEmergency('shake');
@@ -1229,254 +1219,342 @@
             // Show emergency modal
             document.getElementById('emergencyModal').style.display = 'flex';
             
-            // Execute emergency protocol
-            executeEmergencyProtocol();
-            
-            // Log the activation source
-            console.log(`Emergency activated via ${source}`);
-            showNotification('🚨 EMERGENCY PROTOCOL INITIATED', 'emergency');
+            showNotification('🚨 EMERGENCY MODE ACTIVATED', 'emergency');
         }
         
-        function executeEmergencyProtocol() {
-            // 1. Capture photo
-            capturePhoto();
-            
-            // 2. Start voice recording
-            startVoiceRecording();
-            
-            // 3. Send location via WhatsApp/Twilio
-            sendEmergencyAlerts();
-            
-            // 4. Update tracking
-            updateEmergencyTracking();
-            
-            // 5. Notify emergency contacts
-            notifyContacts();
-        }
+        // ========== EMERGENCY FEATURES ==========
         
-        function capturePhoto() {
-            showNotification('📸 Capturing emergency photo...', 'info');
-            
-            setTimeout(() => {
-                showNotification('✅ Photo captured and saved', 'success');
-            }, 1000);
-        }
-        
-        function startVoiceRecording() {
-            showNotification('🎤 Starting emergency voice recording...', 'info');
-            
-            setTimeout(() => {
-                showNotification('✅ Voice recording started (30 seconds)', 'success');
-            }, 1500);
-        }
-        
-        // ========== TWILIO/WHATSAPP INTEGRATION ==========
-        function sendEmergencyAlerts() {
-            showNotification('📱 Sending alerts via WhatsApp/Twilio...', 'info');
-            
-            // Send via Twilio (Real)
-            sendTwilioAlert();
-            
-            // Send to WhatsApp group
-            sendWhatsAppAlert();
-        }
-        
-        function sendTwilioAlert() {
-            // This would be a real API call to your backend
-            // For security, never call Twilio directly from frontend
-            
-            const message = `🚨 SOS GUARDIAN EMERGENCY ALERT!\n\n📍 Location: ${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}\n📍 Address: Lagos, Nigeria\n🕒 Time: ${new Date().toLocaleString()}\n👤 User ID: ${generateUserId()}\n🔗 Map: https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}\n\n🚑 EMERGENCY SERVICES NOTIFIED`;
-            
-            console.log('Twilio alert prepared:', message);
-            
-            // In production, this would be a fetch() to your backend
-            setTimeout(() => {
-                showNotification('✅ SMS sent to emergency contacts via Twilio', 'success');
-            }, 2000);
-        }
-        
-        function sendWhatsAppAlert() {
-            const whatsappMessage = `🚨 *EMERGENCY ALERT FROM SOS GUARDIAN*\n\n📍 *Location:* ${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}\n📅 *Time:* ${new Date().toLocaleString()}\n👤 *User:* SOS Guardian User\n\n⚠️ *EMERGENCY PROTOCOL ACTIVATED*\n✅ Photo captured\n✅ Voice recording\n✅ Location tracking active\n\n🔗 Google Maps: https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}`;
-            
-            const encodedMessage = encodeURIComponent(whatsappMessage);
-            const whatsappUrl = `https://wa.me/${CONFIG.whatsappGroup}?text=${encodedMessage}`;
-            
-            console.log('WhatsApp URL:', whatsappUrl);
-            
-            setTimeout(() => {
-                showNotification('✅ Alert sent to WhatsApp group', 'success');
-                // In real app, you would redirect or use WhatsApp API
-            }, 2500);
-        }
-        
-        function updateEmergencyTracking() {
-            showNotification('🛰️ Activating satellite tracking...', 'info');
-            
-            map.setStyle('mapbox://styles/mapbox/satellite-streets-v12');
-            
-            if (!map.getSource('emergency-point')) {
-                map.addSource('emergency-point', {
-                    type: 'geojson',
-                    data: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [userLocation.lng, userLocation.lat]
-                        }
-                    }
-                });
+        // 1. WHATSAPP SHARING FUNCTION
+        function shareViaWhatsApp() {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const lat = position.coords.latitude.toFixed(6);
+                const lng = position.coords.longitude.toFixed(6);
+                const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
                 
-                map.addLayer({
-                    id: 'emergency-layer',
-                    type: 'circle',
-                    source: 'emergency-point',
-                    paint: {
-                        'circle-radius': 20,
-                        'circle-color': '#ff3b30',
-                        'circle-opacity': 0.6,
-                        'circle-stroke-width': 3,
-                        'circle-stroke-color': '#ffffff'
-                    }
-                });
-            }
-            
-            // Flash the emergency point
-            const flashInterval = setInterval(() => {
-                if (!emergencyActive) {
-                    clearInterval(flashInterval);
-                    return;
+                const message = `🚨 EMERGENCY ALERT from SOS Guardian Pro!\n\n📍 Location: ${lat}, ${lng}\n🗺️ Map: ${mapsUrl}\n🕒 Time: ${new Date().toLocaleString()}\n👤 User: SOS Guardian User\n\nUser needs emergency assistance!`;
+                
+                const encodedMessage = encodeURIComponent(message);
+                const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+                
+                window.open(whatsappUrl, '_blank');
+                showNotification('📱 Opening WhatsApp to share emergency alert', 'success');
+                
+            }, function() {
+                // Fallback without location
+                const fallbackMessage = `🚨 EMERGENCY ALERT from SOS Guardian Pro!\n\n📍 Location: GPS access needed\n🕒 Time: ${new Date().toLocaleString()}\n👤 User: SOS Guardian User\n\nUser needs emergency assistance!`;
+                const encodedMessage = encodeURIComponent(fallbackMessage);
+                const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+                window.open(whatsappUrl, '_blank');
+                showNotification('📱 Opening WhatsApp (no location)', 'warning');
+            });
+        }
+        
+        // 2. SMS ALERTS FUNCTION
+        function sendEmergencySMS() {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const lat = position.coords.latitude.toFixed(6);
+                const lng = position.coords.longitude.toFixed(6);
+                const smsBody = `🚨 SOS EMERGENCY! Location: ${lat}, ${lng}. Time: ${new Date().toLocaleTimeString()}. Please respond!`;
+                
+                // Ask for emergency contacts
+                const contact1 = prompt('Enter 1st emergency contact (Nigeria number):', '+2348012345678');
+                if (contact1) {
+                    const smsUrl = `sms:${contact1.replace(/\D/g,'')}?body=${encodeURIComponent(smsBody)}`;
+                    window.location.href = smsUrl;
+                    showNotification('📲 Opening SMS app', 'success');
                 }
-                const visible = map.getLayoutProperty('emergency-layer', 'visibility');
-                map.setLayoutProperty(
-                    'emergency-layer',
-                    'visibility',
-                    visible === 'visible' ? 'none' : 'visible'
+                
+            }, function() {
+                alert('📍 GPS access required for location-based SMS alerts');
+            });
+        }
+        
+        // 3. LOCATION SHARING
+        function shareLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+                        
+                        // Create share panel
+                        const sharePanel = document.createElement('div');
+                        sharePanel.style.cssText = `
+                            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                            background: white; padding: 25px; border-radius: 15px; z-index: 10001;
+                            max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+                        `;
+                        
+                        sharePanel.innerHTML = `
+                            <h3 style="color: #f44336; margin-top: 0;">📍 Share Your Location</h3>
+                            <p style="color: #666; margin: 15px 0;">
+                                <strong>Coordinates:</strong> ${lat.toFixed(6)}, ${lng.toFixed(6)}<br>
+                                <strong>Time:</strong> ${new Date().toLocaleString()}
+                            </p>
+                            <div style="margin: 20px 0;">
+                                <button onclick="window.open('${mapsUrl}', '_blank')" 
+                                        style="background: #4285F4; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; margin: 5px 0;">
+                                    <i class="fas fa-map"></i> Open in Google Maps
+                                </button>
+                                <button onclick="navigator.clipboard.writeText('${lat.toFixed(6)}, ${lng.toFixed(6)}'); alert('Coordinates copied!');" 
+                                        style="background: #666; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; margin: 5px 0;">
+                                    <i class="fas fa-copy"></i> Copy Coordinates
+                                </button>
+                            </div>
+                            <button onclick="this.parentElement.remove(); document.body.lastElementChild.remove();" 
+                                    style="background: #f44336; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px;">
+                                Close
+                            </button>
+                        `;
+                        
+                        const overlay = document.createElement('div');
+                        overlay.style.cssText = `
+                            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                            background: rgba(0,0,0,0.7); z-index: 10000;
+                        `;
+                        
+                        document.body.appendChild(overlay);
+                        document.body.appendChild(sharePanel);
+                        
+                    },
+                    function() {
+                        showNotification('📍 GPS access denied', 'error');
+                    }
                 );
-            }, 500);
-            
-            showNotification('✅ Satellite tracking activated (2000m range)', 'success');
-        }
-        
-        function notifyContacts() {
-            showNotification('📞 Notifying emergency contacts...', 'info');
-            
-            setTimeout(() => {
-                CONFIG.emergencyNumbers.forEach(num => {
-                    console.log(`Notifying: ${num}`);
-                });
-                showNotification('✅ All emergency contacts notified', 'success');
-            }, 2500);
-        }
-        
-        // ========== MONETIZATION FUNCTIONS ==========
-        function subscribe(plan) {
-            const plans = {
-                weekly: { amount: 500, name: 'Weekly Plan' },
-                monthly: { amount: 1500, name: 'Monthly Plan' },
-                annual: { amount: 15000, name: 'Annual Plan' }
-            };
-            
-            const selected = plans[plan];
-            if (selected) {
-                processPayment(selected.amount, selected.name);
+            } else {
+                showNotification('📍 Geolocation not supported', 'error');
             }
         }
         
-        function processPayment(amount, planName) {
-            currentPayment.amount = amount;
-            currentPayment.plan = planName;
-            currentPayment.reference = 'SOS-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-            
-            // Show payment modal
-            document.getElementById('paymentModal').style.display = 'flex';
-            
-            const paymentDetails = document.getElementById('paymentDetails');
-            paymentDetails.innerHTML = `
-                <div style="text-align: center; margin: 20px 0;">
-                    <div style="font-size: 2.5rem; color: #008751; font-weight: 800;">₦${amount.toLocaleString()}</div>
-                    <div style="font-size: 1.2rem; margin: 10px 0;">${planName}</div>
-                    <div style="background: rgba(0, 135, 81, 0.1); padding: 15px; border-radius: 10px; margin: 15px 0;">
-                        <p><i class="fas fa-check" style="color: #008751;"></i> Emergency SOS Button</p>
-                        <p><i class="fas fa-check" style="color: #008751;"></i> 6x Shake Detection</p>
-                        <p><i class="fas fa-check" style="color: #008751;"></i> WhatsApp/Twilio Alerts</p>
-                        <p><i class="fas fa-check" style="color: #008751;"></i> Satellite Tracking</p>
-                    </div>
-                    <div style="margin-top: 20px;">
-                        <input type="email" id="payerEmail" placeholder="Enter your email address" 
-                               style="width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #008751; background: rgba(255,255,255,0.1); color: white; font-size: 1rem;">
-                    </div>
-                </div>
-            `;
-        }
-        
-        function processPaystackPayment() {
-            const email = document.getElementById('payerEmail').value;
-            
-            if (!email || !email.includes('@')) {
-                showNotification('Please enter a valid email address', 'error');
+        // 4. CAMERA PHOTO CAPTURE
+        function captureEmergencyPhoto() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showNotification('📸 Camera not available on this device', 'error');
                 return;
             }
             
-            currentPayment.email = email;
+            // Create camera interface
+            const cameraUI = document.createElement('div');
+            cameraUI.innerHTML = `
+                <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                           background: #111; padding: 20px; border-radius: 15px; z-index: 10001; 
+                           max-width: 500px; width: 95%;">
+                    <h3 style="color: white; text-align: center; margin: 0 0 15px 0;">
+                        <i class="fas fa-camera"></i> Emergency Photo Evidence
+                    </h3>
+                    <video id="liveCamera" autoplay style="width: 100%; border-radius: 10px;"></video>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <button onclick="takePhotoSnapshot()" 
+                                style="background: #f44336; color: white; border: none; padding: 15px 30px; 
+                                       border-radius: 50px; font-size: 16px; margin: 5px;">
+                            <i class="fas fa-camera"></i> Capture Photo
+                        </button>
+                        <button onclick="closeCamera()" 
+                                style="background: #666; color: white; border: none; padding: 15px 25px; 
+                                       border-radius: 8px; margin: 5px;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+                           background: rgba(0,0,0,0.9); z-index: 10000;"></div>
+            `;
+            document.body.appendChild(cameraUI);
             
-            // In production, use real Paystack integration
-            // For demo, simulate payment
-            simulatePaymentSuccess();
+            // Access camera
+            navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                .then(function(stream) {
+                    const video = document.getElementById('liveCamera');
+                    video.srcObject = stream;
+                    window.currentCameraStream = stream;
+                })
+                .catch(function(error) {
+                    cameraUI.remove();
+                    showNotification('📸 Camera permission denied', 'error');
+                });
         }
         
-        function simulatePaymentSuccess() {
-            closePaymentModal();
+        // 5. TAKE PHOTO SNAPSHOT
+        function takePhotoSnapshot() {
+            const video = document.getElementById('liveCamera');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
             
-            showNotification(`✅ Payment successful! ₦${currentPayment.amount.toLocaleString()} paid for ${currentPayment.plan}`, 'success');
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             
-            // Activate premium features
+            // Convert to image
+            const photoData = canvas.toDataURL('image/jpeg');
+            
+            // Close camera first
+            closeCamera();
+            
+            // Show preview
+            const preview = document.createElement('div');
+            preview.innerHTML = `
+                <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                           background: white; padding: 25px; border-radius: 15px; z-index: 10002; 
+                           max-width: 400px; width: 90%; text-align: center;">
+                    <h3 style="color: #4CAF50;"><i class="fas fa-check-circle"></i> Photo Captured</h3>
+                    <img src="${photoData}" style="max-width: 100%; border-radius: 10px; margin: 15px 0;">
+                    <p style="color: #666;">Emergency evidence saved</p>
+                    <div style="margin: 15px 0;">
+                        <button onclick="sharePhoto('${photoData}')" 
+                                style="background: #25D366; color: white; padding: 12px 25px; 
+                                       border: none; border-radius: 8px; margin: 5px;">
+                            <i class="fab fa-whatsapp"></i> Share via WhatsApp
+                        </button>
+                        <button onclick="savePhoto('${photoData}')" 
+                                style="background: #2196F3; color: white; padding: 12px 25px; 
+                                       border: none; border-radius: 8px; margin: 5px;">
+                            <i class="fas fa-save"></i> Save to Device
+                        </button>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove();" 
+                            style="background: #666; color: white; padding: 12px 25px; 
+                                   border: none; border-radius: 8px; width: 100%;">
+                        Done
+                    </button>
+                </div>
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+                           background: rgba(0,0,0,0.8); z-index: 10001;"></div>
+            `;
+            document.body.appendChild(preview);
+            
+            showNotification('📸 Emergency photo captured', 'success');
+        }
+        
+        // 6. CLOSE CAMERA
+        function closeCamera() {
+            if (window.currentCameraStream) {
+                window.currentCameraStream.getTracks().forEach(track => track.stop());
+            }
+            
+            // Remove camera UI
+            document.querySelectorAll('div').forEach(div => {
+                if (div.style.position === 'fixed' && div.style.zIndex === '10001') {
+                    div.remove();
+                }
+            });
+            
+            // Remove overlay
+            document.querySelectorAll('div').forEach(div => {
+                if (div.style.position === 'fixed' && div.style.zIndex === '10000') {
+                    div.remove();
+                }
+            });
+        }
+        
+        // 7. SAVE PHOTO
+        function savePhoto(photoData) {
+            const link = document.createElement('a');
+            link.download = `sos-emergency-${Date.now()}.jpg`;
+            link.href = photoData;
+            link.click();
+            showNotification('💾 Photo saved to device', 'success');
+        }
+        
+        // 8. SHARE PHOTO
+        function sharePhoto(photoData) {
+            const message = `🚨 EMERGENCY PHOTO EVIDENCE\n\nTime: ${new Date().toLocaleString()}\nPhoto evidence captured via SOS Guardian Pro.`;
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+            window.open(whatsappUrl, '_blank');
+        }
+        
+        // 9. FULL EMERGENCY PROTOCOL
+        function activateFullEmergency() {
+            closeModal();
+            
+            showNotification('🚨 FULL EMERGENCY PROTOCOL ACTIVATED', 'emergency');
+            
+            // Step 1: Try to get location and capture photo
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        // Show location first
+                        const lat = position.coords.latitude.toFixed(6);
+                        const lng = position.coords.longitude.toFixed(6);
+                        
+                        setTimeout(() => {
+                            // Step 2: Open camera
+                            captureEmergencyPhoto();
+                            
+                            // Step 3: Prepare WhatsApp message
+                            setTimeout(() => {
+                                const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
+                                const whatsappMessage = `🚨 *FULL EMERGENCY ALERT*\n\n📍 Location: ${lat}, ${lng}\n🗺️ Map: ${mapsUrl}\n🕒 Time: ${new Date().toLocaleString()}\n👤 User: SOS Guardian Pro User\n\n🚑 EMERGENCY ASSISTANCE NEEDED!`;
+                                const encodedMessage = encodeURIComponent(whatsappMessage);
+                                const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+                                
+                                showNotification('📱 Ready to share via WhatsApp', 'info');
+                                
+                                // Give option to open WhatsApp
+                                if (confirm('Open WhatsApp to send emergency alert?')) {
+                                    window.open(whatsappUrl, '_blank');
+                                }
+                            }, 2000);
+                        }, 1000);
+                    },
+                    function() {
+                        // Location failed, just open camera
+                        captureEmergencyPhoto();
+                    }
+                );
+            } else {
+                captureEmergencyPhoto();
+            }
+        }
+        
+        // ========== PAYMENT FUNCTIONS ==========
+        function processPayment(amount, planName) {
+            showNotification(`💳 Processing demo payment: ₦${amount.toLocaleString()} for ${planName}`, 'info');
+            
+            // Simulate payment processing
             setTimeout(() => {
-                showNotification('🎉 Premium features activated! Emergency protection enabled.', 'success');
+                showNotification(`✅ Payment successful! ${planName} activated (DEMO)`, 'success');
+                
+                // Activate premium features visually
                 document.querySelectorAll('.feature-status').forEach(el => {
                     el.textContent = 'PREMIUM ACTIVE';
                     el.style.background = 'rgba(255, 215, 0, 0.3)';
                     el.style.color = '#FFD700';
                 });
-            }, 1000);
-        }
-        
-        function closePaymentModal() {
-            document.getElementById('paymentModal').style.display = 'none';
-        }
-        
-        // ========== MODAL FUNCTIONS ==========
-        function closeModal() {
-            document.getElementById('emergencyModal').style.display = 'none';
-            resetEmergencyState();
-            showNotification('Emergency cancelled. Stay safe!', 'info');
-        }
-        
-        function confirmEmergency() {
-            document.getElementById('emergencyModal').style.display = 'none';
-            showNotification('Emergency confirmed. Help is on the way!', 'emergency');
-            
-            setTimeout(() => {
-                showNotification('🚑 Nigerian Emergency Services (112) notified with your location', 'success');
-            }, 2000);
-        }
-        
-        function resetEmergencyState() {
-            emergencyActive = false;
-            shakeCount = 0;
-            updateShakeDisplay();
-            
-            sosButton.classList.remove('activated');
-            buttonText.classList.remove('hidden');
-            countdownElement.classList.add('hidden');
-            
-            const shakeElement = document.querySelector('.shake-count');
-            const shakeText = document.querySelector('.shake-warning');
-            
-            if (shakeElement) {
-                shakeElement.textContent = `0/${CONFIG.requiredShakes}`;
-                shakeElement.style.background = '#007aff';
-                shakeText.textContent = 'SHAKE TO ACTIVATE:';
-            }
+                
+                // Show success modal
+                const successModal = document.createElement('div');
+                successModal.innerHTML = `
+                    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                               background: linear-gradient(135deg, #1a1f3a 0%, #0c0e2a 100%);
+                               padding: 40px; border-radius: 25px; z-index: 10001; max-width: 400px; width: 90%;
+                               text-align: center; border: 2px solid #FFD700;">
+                        <div style="font-size: 70px; color: #FFD700; margin-bottom: 20px;">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <h2 style="color: #FFD700; margin-bottom: 15px;">PREMIUM ACTIVATED!</h2>
+                        <p style="margin-bottom: 25px; line-height: 1.6;">
+                            ${planName}<br>
+                            ₦${amount.toLocaleString()}
+                        </p>
+                        <div style="background: rgba(255, 215, 0, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0;">
+                            <p><i class="fas fa-check" style="color: #00ff88;"></i> Emergency SOS Button</p>
+                            <p><i class="fas fa-check" style="color: #00ff88;"></i> Shake Detection</p>
+                            <p><i class="fas fa-check" style="color: #00ff88;"></i> WhatsApp Alerts</p>
+                            <p><i class="fas fa-check" style="color: #00ff88;"></i> Satellite Tracking</p>
+                        </div>
+                        <button onclick="this.parentElement.parentElement.remove(); document.body.lastElementChild.remove();" 
+                                style="background: #008751; color: white; border: none; padding: 15px 30px; 
+                                       border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 100%;">
+                            Continue to App
+                        </button>
+                    </div>
+                    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+                               background: rgba(0,0,0,0.85); z-index: 10000;"></div>
+                `;
+                document.body.appendChild(successModal);
+            }, 1500);
         }
         
         // ========== UTILITY FUNCTIONS ==========
@@ -1505,23 +1583,36 @@
             const messages = {
                 autoAlert: 'Auto Emergency Alert: Activates after 6 shakes. Sends location, photos, and voice recordings.',
                 satellite: 'Satellite Tracking: Monitors 2000m ahead + 50m left/right of your route in real-time.',
-                whatsapp: 'WhatsApp/Twilio Integration: Sends automatic alerts with multimedia to contacts.',
+                whatsapp: 'WhatsApp Integration: Sends automatic alerts with multimedia to contacts.',
                 monetization: 'Affordable Nigerian Pricing: ₦500 weekly, ₦1,500 monthly, ₦15,000 annually.'
             };
             
-            alert(`🔧 ${messages[feature] || 'Feature details'}`);
+            showNotification(`🔧 ${messages[feature] || 'Feature details'}`, 'info');
         }
         
-        function simulateTakePhoto() {
-            console.log(`📸 Photo ${shakeCount} captured (simulated)`);
+        function closeModal() {
+            document.getElementById('emergencyModal').style.display = 'none';
+            resetEmergencyState();
+            showNotification('Emergency cancelled. Stay safe!', 'info');
+        }
+        
+        function resetEmergencyState() {
+            emergencyActive = false;
+            shakeCount = 0;
+            updateShakeDisplay();
             
-            if (shakeCount === CONFIG.requiredShakes) {
-                showNotification(`📸 ${CONFIG.requiredShakes} emergency photos captured`, 'success');
+            sosButton.classList.remove('activated');
+            buttonText.classList.remove('hidden');
+            countdownElement.classList.add('hidden');
+            
+            const shakeElement = document.querySelector('.shake-count');
+            const shakeText = document.querySelector('.shake-warning');
+            
+            if (shakeElement) {
+                shakeElement.textContent = `0/${CONFIG.requiredShakes}`;
+                shakeElement.style.background = '#007aff';
+                shakeText.textContent = 'SHAKE TO ACTIVATE:';
             }
-        }
-        
-        function generateUserId() {
-            return 'USER-' + Math.random().toString(36).substr(2, 8).toUpperCase();
         }
         
         // ========== INITIALIZE SHAKE DETECTION ==========
@@ -1531,6 +1622,14 @@
         } else {
             showNotification('Shake detection not supported on this device', 'warning');
         }
+        
+        // ========== INITIALIZE ==========
+        window.addEventListener('load', () => {
+            showNotification('🇳🇬 SOS Guardian Pro Nigeria - DEMO MODE Activated', 'success');
+            console.log('SOS Guardian Pro Nigeria v2.0 - DEMO MODE Initialized');
+            console.log('✅ No credentials exposed');
+            console.log('✅ Safe for testing');
+        });
         
         // ========== PERIODIC LOCATION UPDATES ==========
         setInterval(() => {
@@ -1555,259 +1654,6 @@
                 );
             }
         }, 30000);
-        
-        // ========== INITIALIZE ==========
-        window.addEventListener('load', () => {
-            showNotification('🇳🇬 SOS Guardian Pro Nigeria - Premium Emergency Protection Activated', 'success');
-            console.log('SOS Guardian Pro Nigeria v2.0 Initialized');
-            console.log('Mapbox Token: Loaded');
-            console.log('Twilio: Ready (Change auth token!)');
-            console.log('Monetization: Nigerian Naira (₦) pricing active');
-            
-            // Show security warning
-            setTimeout(() => {
-                showNotification('⚠️ SECURITY: Change Twilio auth token immediately!', 'error');
-            }, 3000);
-        });
-    <!-- SAFE EMERGENCY FEATURES - No credentials exposed -->
-<script>
-// ========== SECURE EMERGENCY FEATURES ==========
-
-// 1. WHATSAPP SHARING FUNCTION
-function shareViaWhatsApp() {
-    navigator.geolocation.getCurrentPosition(function(position) {
-        const lat = position.coords.latitude.toFixed(6);
-        const lng = position.coords.longitude.toFixed(6);
-        const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
-        
-        const message = `🚨 EMERGENCY ALERT from SOS Guardian Pro!\n\n📍 Location: ${lat}, ${lng}\n🗺️ Map: ${mapsUrl}\n🕒 Time: ${new Date().toLocaleString()}\n\nUser needs emergency assistance!`;
-        
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-        
-        window.open(whatsappUrl, '_blank');
-        showNotification('📱 Opening WhatsApp to share emergency alert', 'info');
-        
-    }, function() {
-        // Fallback without location
-        const fallbackMessage = `🚨 EMERGENCY ALERT from SOS Guardian Pro!\n\n📍 Location: GPS access needed\n🕒 Time: ${new Date().toLocaleString()}\n\nUser needs emergency assistance!`;
-        const encodedMessage = encodeURIComponent(fallbackMessage);
-        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-        window.open(whatsappUrl, '_blank');
-    });
-}
-
-// 2. SMS ALERTS FUNCTION (User initiates from browser)
-function sendEmergencySMS() {
-    navigator.geolocation.getCurrentPosition(function(position) {
-        const lat = position.coords.latitude.toFixed(6);
-        const lng = position.coords.longitude.toFixed(6);
-        const smsBody = `🚨 SOS EMERGENCY! Location: ${lat}, ${lng}. Time: ${new Date().toLocaleTimeString()}. Please respond!`;
-        
-        // Ask for emergency contacts
-        const contact1 = prompt('Enter 1st emergency contact (Nigeria number):', '+2348012345678');
-        const contact2 = prompt('Enter 2nd emergency contact:', '+2348023456789');
-        
-        // Create SMS links
-        let smsPanel = document.createElement('div');
-        smsPanel.innerHTML = `
-            <div style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:30px; border-radius:15px; box-shadow:0 20px 60px rgba(0,0,0,0.4); z-index:10000; max-width:400px; width:90%; color:#333;">
-                <h3 style="color:#f44336; margin-top:0;">📲 Send Emergency SMS</h3>
-                <p><strong>Message:</strong><br>${smsBody}</p>
-                <div style="margin:20px 0;">
-                    <a href="sms:${contact1.replace(/\D/g,'')}?body=${encodeURIComponent(smsBody)}" 
-                       style="display:block; background:#4CAF50; color:white; padding:15px; text-align:center; border-radius:8px; margin:10px 0; text-decoration:none;">
-                       📱 Send to ${contact1}
-                    </a>
-                    ${contact2 ? `<a href="sms:${contact2.replace(/\D/g,'')}?body=${encodeURIComponent(smsBody)}" 
-                       style="display:block; background:#2196F3; color:white; padding:15px; text-align:center; border-radius:8px; margin:10px 0; text-decoration:none;">
-                       📱 Send to ${contact2}
-                    </a>` : ''}
-                </div>
-                <button onclick="this.parentElement.parentElement.remove()" 
-                        style="background:#666; color:white; padding:12px; width:100%; border:none; border-radius:8px; margin-top:10px;">
-                    Close
-                </button>
-            </div>
-            <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7); z-index:9999;"></div>
-        `;
-        document.body.appendChild(smsPanel);
-        
-    }, function() {
-        alert('📍 GPS access required for location-based SMS alerts');
-    });
-}
-
-// 3. CAMERA PHOTO CAPTURE FUNCTION
-function captureEmergencyPhoto() {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert('Camera not available on this device/browser');
-        return;
-    }
-    
-    // Request camera access
-    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-        .then(function(stream) {
-            // Create camera interface
-            const cameraUI = document.createElement('div');
-            cameraUI.innerHTML = `
-                <div style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#111; padding:20px; border-radius:15px; z-index:10000; max-width:500px; width:95%;">
-                    <h3 style="color:white; text-align:center; margin:0 0 15px 0;">📸 Emergency Photo Evidence</h3>
-                    <video id="liveCamera" autoplay style="width:100%; border-radius:10px;"></video>
-                    <div style="text-align:center; margin:20px 0;">
-                        <button onclick="takePhotoSnapshot()" style="background:#f44336; color:white; border:none; padding:15px 30px; border-radius:50px; font-size:16px; margin:5px;">
-                            📸 Capture Photo
-                        </button>
-                        <button onclick="closeCamera()" style="background:#666; color:white; border:none; padding:15px 25px; border-radius:8px; margin:5px;">
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-                <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.9); z-index:9999;"></div>
-            `;
-            document.body.appendChild(cameraUI);
-            
-            // Show camera feed
-            const video = document.getElementById('liveCamera');
-            video.srcObject = stream;
-            window.currentCameraStream = stream;
-            
-        })
-        .catch(function(error) {
-            alert('Camera permission denied. Enable camera access for emergency photos.');
-        });
-}
-
-// 4. TAKE PHOTO SNAPSHOT
-function takePhotoSnapshot() {
-    const video = document.getElementById('liveCamera');
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
-    // Convert to image
-    const photoData = canvas.toDataURL('image/jpeg');
-    
-    // Save locally
-    localStorage.setItem('sos_emergency_photo_' + Date.now(), photoData);
-    
-    // Show preview
-    const preview = document.createElement('div');
-    preview.innerHTML = `
-        <div style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:25px; border-radius:15px; z-index:10001; max-width:400px; width:90%; text-align:center;">
-            <h3 style="color:#4CAF50;">✅ Photo Captured</h3>
-            <img src="${photoData}" style="max-width:100%; border-radius:10px; margin:15px 0;">
-            <p style="color:#666;">Emergency evidence saved locally</p>
-            <button onclick="sharePhotoViaWhatsApp('${photoData}')" style="background:#25D366; color:white; padding:12px 25px; border:none; border-radius:8px; margin:5px;">
-                📤 Share via WhatsApp
-            </button>
-            <button onclick="this.parentElement.parentElement.remove(); closeCamera();" style="background:#666; color:white; padding:12px 25px; border:none; border-radius:8px; margin:5px;">
-                Done
-            </button>
-        </div>
-        <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); z-index:10000;"></div>
-    `;
-    document.body.appendChild(preview);
-}
-
-// 5. CLOSE CAMERA
-function closeCamera() {
-    if (window.currentCameraStream) {
-        window.currentCameraStream.getTracks().forEach(track => track.stop());
-    }
-    
-    // Remove camera UI
-    document.querySelectorAll('div').forEach(div => {
-        if (div.style.position === 'fixed' && div.style.zIndex === '10000') {
-            div.remove();
-        }
-    });
-}
-
-// 6. SHARE PHOTO VIA WHATSAPP
-function sharePhotoViaWhatsApp(photoData) {
-    alert('📤 WhatsApp Web limitation: Direct photo sharing requires server upload.\n\nFor now, photo is saved locally. In production, upload to server then share link.');
-    
-    // Alternative: Share as text with photo info
-    const message = `🚨 EMERGENCY PHOTO EVIDENCE\n\nTime: ${new Date().toLocaleString()}\nPhoto evidence captured. Saved to SOS Guardian Pro system.`;
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-    window.open(whatsappUrl, '_blank');
-}
-
-// 7. CONNECT TO YOUR SOS BUTTON (Modify your existing function)
-function activateFullEmergency() {
-    if (confirm('🚨 ACTIVATE FULL EMERGENCY PROTOCOL?\n\nThis will:\n1. Capture location\n2. Take photo evidence\n3. Send WhatsApp alert\n4. Send SMS to contacts\n\nProceed?')) {
-        // Step 1: Get location and capture photo
-        navigator.geolocation.getCurrentPosition(async function() {
-            // Capture photo first
-            await captureEmergencyPhoto();
-            
-            // Wait 3 seconds, then send alerts
-            setTimeout(() => {
-                shareViaWhatsApp();
-                setTimeout(() => {
-                    sendEmergencySMS();
-                }, 2000);
-            }, 3000);
-            
-        }, function() {
-            // If location fails, just send alerts
-            shareViaWhatsApp();
-            sendEmergencySMS();
-        });
-    }
-}
-
-// ========== SECURE NOTIFICATION FUNCTION ==========
-function showNotification(message, type = 'info') {
-    // Reuse your existing notification system
-    console.log(`Notification (${type}): ${message}`);
-    
-    // Create simple alert for now
-    const alertDiv = document.createElement('div');
-    alertDiv.style.cssText = `
-        position: fixed; bottom: 20px; right: 20px; 
-        background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
-        color: white; padding: 15px 25px; border-radius: 10px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 9999;
-    `;
-    alertDiv.textContent = message;
-    document.body.appendChild(alertDiv);
-    
-    setTimeout(() => alertDiv.remove(), 5000);
-}
-
-// ========== ADD BUTTONS TO YOUR PAGE ==========
-// Add this code after your existing buttons to create quick-access buttons
-document.addEventListener('DOMContentLoaded', function() {
-    // Add emergency buttons panel
-    const buttonPanel = document.createElement('div');
-    buttonPanel.style.cssText = `
-        position: fixed; bottom: 100px; right: 20px; 
-        background: rgba(0,0,0,0.8); padding: 15px; 
-        border-radius: 15px; z-index: 1000; 
-        backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
-    `;
-    
-    buttonPanel.innerHTML = `
-        <h4 style="color:#FFD700; margin:0 0 10px 0; font-size:14px;">🛡️ Quick Emergency Actions:</h4>
-        <button onclick="shareViaWhatsApp()" style="background:#25D366; color:white; border:none; padding:10px 15px; border-radius:8px; margin:5px; width:100%; font-size:14px;">
-            📱 WhatsApp Alert
-        </button>
-        <button onclick="sendEmergencySMS()" style="background:#2196F3; color:white; border:none; padding:10px 15px; border-radius:8px; margin:5px; width:100%; font-size:14px;">
-            📲 SMS Contacts
-        </button>
-        <button onclick="captureEmergencyPhoto()" style="background:#9C27B0; color:white; border:none; padding:10px 15px; border-radius:8px; margin:5px; width:100%; font-size:14px;">
-            📸 Photo Evidence
-        </button>
-    `;
-    
-    document.body.appendChild(buttonPanel);
-});
-</script>
+    </script>
 </body>
 </html>
