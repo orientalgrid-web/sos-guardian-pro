@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🛡️ SOS Guardian Pro - Emergency Safety</title>
-    <script src='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css' rel='stylesheet' />
+    <!-- We'll use OpenStreetMap instead of Mapbox -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: #0c0e2a; color: #fff; min-height: 100vh; }
@@ -51,6 +52,16 @@
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
         }
         
+        #map {
+            width: 100%; height: 100%; border-radius: 20px;
+        }
+        
+        .map-overlay {
+            position: absolute; top: 20px; left: 20px; background: rgba(0, 0, 0, 0.7);
+            padding: 15px; border-radius: 15px; z-index: 1000; max-width: 300px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
         .quick-actions {
             position: fixed; bottom: 20px; right: 20px; background: rgba(0, 0, 0, 0.9);
             padding: 15px; border-radius: 15px; z-index: 1000; min-width: 200px;
@@ -88,9 +99,25 @@
         @media (max-width: 768px) {
             .emergency-btn { width: 200px; height: 200px; font-size: 20px; }
             .quick-actions { bottom: 10px; right: 10px; left: 10px; width: auto; }
+            .map-container { height: 300px; }
         }
         
         .hidden { display: none; }
+        
+        /* Leaflet map fixes */
+        .leaflet-container { 
+            font-family: inherit !important;
+            background: #1a1f3a !important;
+        }
+        
+        .leaflet-control-attribution {
+            background: rgba(0, 0, 0, 0.7) !important;
+            color: white !important;
+        }
+        
+        .leaflet-control-attribution a {
+            color: #00ff88 !important;
+        }
     </style>
 </head>
 <body>
@@ -130,8 +157,13 @@
             <p style="color:#ffcc00;">Hold button or shake phone</p>
         </div>
         
-        <!-- MAP -->
+        <!-- MAP CONTAINER -->
         <div class="map-container">
+            <div class="map-overlay">
+                <h3><i class="fas fa-satellite"></i> LIVE TRACKING</h3>
+                <p>Your current location<br>
+                <span style="color:#00ff88;">• GPS ACTIVE</span> | <span style="color:#00ff88;">• DEMO MODE</span></p>
+            </div>
             <div id="map"></div>
         </div>
         
@@ -198,6 +230,9 @@
                 <button onclick="shareLocation()" style="background:#2196F3;color:white;border:none;padding:15px;border-radius:10px;margin:5px;width:100%;">
                     <i class="fas fa-map-marker-alt"></i> Share Location
                 </button>
+                <button onclick="capturePhoto()" style="background:#9C27B0;color:white;border:none;padding:15px;border-radius:10px;margin:5px;width:100%;">
+                    <i class="fas fa-camera"></i> Take Photo Evidence
+                </button>
             </div>
             <button onclick="closeModal()" style="background:#666;color:white;border:none;padding:15px;border-radius:10px;width:100%;">
                 Cancel (False Alarm)
@@ -206,78 +241,195 @@
     </div>
     
     <script>
-        // ========== SIMPLE CONFIG ==========
+        // ========== CONFIG ==========
         const CONFIG = {
-            mapboxToken: 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA',
             requiredShakes: 6
         };
         
         // ========== STATE ==========
         let emergencyActive = false;
         let shakeCount = 0;
-        let userLocation = { lat: 6.5244, lng: 3.3792 }; // Lagos
+        let userLocation = { lat: 6.5244, lng: 3.3792 }; // Lagos, Nigeria
+        let map = null;
+        let marker = null;
+        let circle = null;
         
-        // ========== MAP ==========
-        mapboxgl.accessToken = CONFIG.mapboxToken;
-        const map = new mapboxgl.Map({
-            container: 'map',
-            style: 'mapbox://styles/mapbox/streets-v11',
-            center: [userLocation.lng, userLocation.lat],
-            zoom: 14
-        });
+        // ========== INITIALIZE MAP ==========
+        function initializeMap() {
+            try {
+                // Create map centered on Lagos
+                map = L.map('map').setView([userLocation.lat, userLocation.lng], 14);
+                
+                // Add OpenStreetMap tiles (FREE, no API key needed)
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors',
+                    maxZoom: 19,
+                }).addTo(map);
+                
+                // Add marker for user location
+                marker = L.marker([userLocation.lat, userLocation.lng], {
+                    icon: L.divIcon({
+                        html: '<div style="background:#ff3b30;width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 0 10px red;"></div>',
+                        iconSize: [26, 26],
+                        className: 'emergency-marker'
+                    })
+                }).addTo(map);
+                
+                // Add tracking circle
+                circle = L.circle([userLocation.lat, userLocation.lng], {
+                    color: '#FFD700',
+                    fillColor: '#008751',
+                    fillOpacity: 0.15,
+                    radius: 500 // 500 meters radius
+                }).addTo(map);
+                
+                // Add map controls
+                L.control.scale().addTo(map);
+                
+                console.log('Map initialized successfully');
+                showNotification('🗺️ Map loaded successfully', 'success');
+                
+            } catch (error) {
+                console.error('Map initialization error:', error);
+                showNotification('🗺️ Map loading failed - Using simple display', 'error');
+                
+                // Fallback: Show simple text in map container
+                document.getElementById('map').innerHTML = `
+                    <div style="display:flex;align-items:center;justify-content:center;height:100%;background:#1a1f3a;color:#ffcc00;text-align:center;padding:20px;">
+                        <div>
+                            <i class="fas fa-map-marker-alt" style="font-size:50px;margin-bottom:20px;"></i>
+                            <h3>GPS Location Tracking</h3>
+                            <p>Latitude: ${userLocation.lat.toFixed(6)}</p>
+                            <p>Longitude: ${userLocation.lng.toFixed(6)}</p>
+                            <p style="margin-top:20px;color:#00ff88;">📍 Location tracking active</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
         
-        const marker = new mapboxgl.Marker({ color: '#ff3b30' })
-            .setLngLat([userLocation.lng, userLocation.lat])
-            .addTo(map);
+        // ========== UPDATE MAP LOCATION ==========
+        function updateMapLocation(lat, lng) {
+            userLocation = { lat, lng };
+            
+            if (map && marker) {
+                // Smoothly move map to new location
+                map.setView([lat, lng], 16, {
+                    animate: true,
+                    duration: 1
+                });
+                
+                // Update marker position
+                marker.setLatLng([lat, lng]);
+                
+                // Update circle position
+                if (circle) {
+                    circle.setLatLng([lat, lng]);
+                }
+                
+                // Add a pulsing effect for emergency
+                if (emergencyActive) {
+                    const pulseCircle = L.circle([lat, lng], {
+                        color: '#ff3b30',
+                        fillColor: '#ff3b30',
+                        fillOpacity: 0.2,
+                        radius: 100
+                    }).addTo(map);
+                    
+                    // Remove pulse circle after 3 seconds
+                    setTimeout(() => {
+                        map.removeLayer(pulseCircle);
+                    }, 3000);
+                }
+            }
+        }
         
-        // ========== GET LOCATION ==========
+        // ========== GET USER LOCATION ==========
         function getLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                        userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                        marker.setLngLat([userLocation.lng, userLocation.lat]);
-                        map.flyTo({ center: [userLocation.lng, userLocation.lat], zoom: 16 });
-                        showNotification('📍 Location acquired', 'success');
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        updateMapLocation(lat, lng);
+                        showNotification('📍 GPS location acquired', 'success');
                     },
-                    () => showNotification('📍 Using default location', 'info')
+                    (error) => {
+                        console.log('Geolocation error:', error.message);
+                        showNotification('📍 Using Lagos default location', 'info');
+                        
+                        // Use default location
+                        updateMapLocation(userLocation.lat, userLocation.lng);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 0
+                    }
                 );
+            } else {
+                showNotification('📍 Geolocation not supported', 'error');
+                updateMapLocation(userLocation.lat, userLocation.lng);
             }
         }
         
         // ========== SHAKE DETECTION ==========
         let lastAcceleration = { x: null, y: null, z: null };
+        const SHAKE_THRESHOLD = 15;
         
         function handleShake(event) {
-            const acc = event.accelerationIncludingGravity;
+            const acceleration = event.accelerationIncludingGravity;
+            
             if (!lastAcceleration.x) {
-                lastAcceleration = { x: acc.x, y: acc.y, z: acc.z };
+                lastAcceleration = {
+                    x: acceleration.x,
+                    y: acceleration.y,
+                    z: acceleration.z
+                };
                 return;
             }
             
-            const delta = Math.abs(acc.x - lastAcceleration.x) + 
-                         Math.abs(acc.y - lastAcceleration.y) + 
-                         Math.abs(acc.z - lastAcceleration.z);
+            const deltaX = Math.abs(acceleration.x - lastAcceleration.x);
+            const deltaY = Math.abs(acceleration.y - lastAcceleration.y);
+            const deltaZ = Math.abs(acceleration.z - lastAcceleration.z);
             
-            if (delta > 15) {
+            if (deltaX + deltaY + deltaZ > SHAKE_THRESHOLD) {
+                const now = Date.now();
+                if (now - lastShakeTime > 1000) {
+                    shakeCount = 0;
+                }
+                
                 shakeCount++;
+                lastShakeTime = now;
+                
                 updateShakeDisplay();
+                
                 if (shakeCount >= CONFIG.requiredShakes) {
-                    triggerEmergency();
+                    triggerEmergency('shake');
                 }
             }
             
-            lastAcceleration = { x: acc.x, y: acc.y, z: acc.z };
+            lastAcceleration = {
+                x: acceleration.x,
+                y: acceleration.y,
+                z: acceleration.z
+            };
         }
         
         function updateShakeDisplay() {
             const shakeElement = document.querySelector('.shake-count');
+            const shakeText = document.querySelector('.shake-warning');
+            
             if (shakeElement) {
                 shakeElement.textContent = `${shakeCount}/${CONFIG.requiredShakes}`;
+                
                 if (shakeCount >= CONFIG.requiredShakes) {
                     shakeElement.style.background = '#ff3b30';
+                    shakeText.textContent = 'EMERGENCY ACTIVATED!';
                 } else if (shakeCount >= 4) {
                     shakeElement.style.background = '#ff9500';
+                    shakeText.textContent = `SHAKE ${CONFIG.requiredShakes - shakeCount} MORE TIMES`;
                 }
             }
         }
@@ -287,94 +439,172 @@
         let holdTimer = null;
         let countdownValue = 3;
         
-        sosButton.addEventListener('mousedown', () => {
+        sosButton.addEventListener('mousedown', startHoldTimer);
+        sosButton.addEventListener('touchstart', startHoldTimer);
+        
+        sosButton.addEventListener('mouseup', cancelHoldTimer);
+        sosButton.addEventListener('touchend', cancelHoldTimer);
+        sosButton.addEventListener('mouseleave', cancelHoldTimer);
+        
+        function startHoldTimer() {
             if (emergencyActive) return;
             
             countdownValue = 3;
             document.getElementById('buttonText').classList.add('hidden');
             document.getElementById('countdown').classList.remove('hidden');
             document.getElementById('countdown').textContent = countdownValue;
+            sosButton.style.animation = 'none';
+            sosButton.style.transform = 'scale(0.98)';
             
             holdTimer = setInterval(() => {
                 countdownValue--;
                 document.getElementById('countdown').textContent = countdownValue;
+                
                 if (countdownValue <= 0) {
                     clearInterval(holdTimer);
-                    triggerEmergency();
+                    triggerEmergency('button');
                 }
             }, 1000);
-        });
+        }
         
-        sosButton.addEventListener('mouseup', cancelHold);
-        sosButton.addEventListener('mouseleave', cancelHold);
-        
-        function cancelHold() {
+        function cancelHoldTimer() {
             if (holdTimer && !emergencyActive) {
                 clearInterval(holdTimer);
                 document.getElementById('buttonText').classList.remove('hidden');
                 document.getElementById('countdown').classList.add('hidden');
+                sosButton.style.animation = 'heartbeat 2s infinite';
+                sosButton.style.transform = 'scale(1)';
             }
         }
         
         // ========== TRIGGER EMERGENCY ==========
-        function triggerEmergency() {
+        function triggerEmergency(source) {
             if (emergencyActive) return;
+            
             emergencyActive = true;
+            sosButton.style.background = 'linear-gradient(45deg, #4cd964, #34c759)';
+            sosButton.style.animation = 'none';
+            document.getElementById('buttonText').classList.add('hidden');
+            document.getElementById('countdown').classList.add('hidden');
+            
+            // Show emergency modal
             document.getElementById('emergencyModal').style.display = 'flex';
-            showNotification('🚨 Emergency activated', 'emergency');
+            
+            // Get current location for emergency
+            getLocation();
+            
+            // Visual emergency effect on map
+            if (map && marker) {
+                // Make marker pulse
+                const emergencyIcon = L.divIcon({
+                    html: '<div style="background:#ff3b30;width:30px;height:30px;border-radius:50%;border:5px solid white;box-shadow:0 0 20px red;animation:pulse 1s infinite;"></div>',
+                    iconSize: [40, 40],
+                    className: 'emergency-marker'
+                });
+                marker.setIcon(emergencyIcon);
+                
+                // Add emergency circle
+                L.circle([userLocation.lat, userLocation.lng], {
+                    color: '#ff3b30',
+                    fillColor: '#ff3b30',
+                    fillOpacity: 0.1,
+                    radius: 200
+                }).addTo(map);
+            }
+            
+            showNotification('🚨 EMERGENCY PROTOCOL ACTIVATED', 'emergency');
+            console.log(`Emergency activated via ${source}`);
         }
         
         // ========== EMERGENCY FEATURES ==========
         function shareViaWhatsApp() {
-            const message = `🚨 EMERGENCY ALERT from SOS Guardian Pro!\n\n📍 Time: ${new Date().toLocaleString()}\n👤 User needs emergency assistance!`;
-            const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
-            showNotification('📱 Opening WhatsApp', 'success');
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude.toFixed(6);
+                    const lng = position.coords.longitude.toFixed(6);
+                    const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
+                    
+                    const message = `🚨 EMERGENCY ALERT from SOS Guardian Pro!\n\n📍 Location: ${lat}, ${lng}\n🗺️ Map: ${mapsUrl}\n🕒 Time: ${new Date().toLocaleString()}\n👤 User: SOS Guardian User\n\nUser needs emergency assistance!`;
+                    
+                    const encodedMessage = encodeURIComponent(message);
+                    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+                    
+                    window.open(whatsappUrl, '_blank');
+                    showNotification('📱 Opening WhatsApp to share emergency alert', 'success');
+                },
+                () => {
+                    // Fallback without location
+                    const fallbackMessage = `🚨 EMERGENCY ALERT from SOS Guardian Pro!\n\n📍 Location: GPS access needed\n🕒 Time: ${new Date().toLocaleString()}\n👤 User: SOS Guardian User\n\nUser needs emergency assistance!`;
+                    const encodedMessage = encodeURIComponent(fallbackMessage);
+                    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+                    window.open(whatsappUrl, '_blank');
+                    showNotification('📱 Opening WhatsApp (no location)', 'warning');
+                }
+            );
         }
         
         function shareLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                        const lat = pos.coords.latitude.toFixed(6);
-                        const lng = pos.coords.longitude.toFixed(6);
+                    (position) => {
+                        const lat = position.coords.latitude.toFixed(6);
+                        const lng = position.coords.longitude.toFixed(6);
                         const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
                         
-                        if (navigator.clipboard) {
-                            navigator.clipboard.writeText(`${lat}, ${lng}`);
-                            showNotification('📍 Coordinates copied to clipboard', 'success');
-                        }
+                        // Create share interface
+                        const sharePanel = document.createElement('div');
+                        sharePanel.innerHTML = `
+                            <div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:25px;border-radius:15px;z-index:10001;max-width:400px;width:90%;color:#333;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+                                <h3 style="color:#f44336;margin-top:0;">📍 Share Your Location</h3>
+                                <p style="color:#666;margin:15px 0;">
+                                    <strong>Coordinates:</strong> ${lat}, ${lng}<br>
+                                    <strong>Time:</strong> ${new Date().toLocaleString()}
+                                </p>
+                                <div style="margin:20px 0;">
+                                    <button onclick="window.open('${mapsUrl}', '_blank')" style="background:#4285F4;color:white;border:none;padding:12px;width:100%;border-radius:8px;margin:5px 0;">
+                                        <i class="fas fa-map"></i> Open in Google Maps
+                                    </button>
+                                    <button onclick="navigator.clipboard.writeText('${lat}, ${lng}'); alert('Coordinates copied!');" style="background:#666;color:white;border:none;padding:12px;width:100%;border-radius:8px;margin:5px 0;">
+                                        <i class="fas fa-copy"></i> Copy Coordinates
+                                    </button>
+                                </div>
+                                <button onclick="this.parentElement.remove(); document.body.lastElementChild.remove();" style="background:#f44336;color:white;border:none;padding:12px;width:100%;border-radius:8px;">
+                                    Close
+                                </button>
+                            </div>
+                            <div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:10000;"></div>
+                        `;
                         
-                        window.open(mapsUrl, '_blank');
+                        document.body.appendChild(sharePanel);
                     },
-                    () => showNotification('📍 GPS access denied', 'error')
+                    () => {
+                        showNotification('📍 GPS access denied', 'error');
+                    }
                 );
+            } else {
+                showNotification('📍 Geolocation not supported', 'error');
             }
         }
         
         function capturePhoto() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                showNotification('📸 Camera not available', 'error');
+                showNotification('📸 Camera not available on this device', 'error');
                 return;
             }
             
             navigator.mediaDevices.getUserMedia({ video: true })
-                .then(stream => {
-                    const video = document.createElement('video');
-                    video.srcObject = stream;
-                    video.play();
-                    
+                .then((stream) => {
                     const cameraUI = document.createElement('div');
                     cameraUI.innerHTML = `
-                        <div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#111;padding:20px;border-radius:15px;z-index:10001;">
-                            <h3 style="color:white;margin:0 0 15px 0;">📸 Camera</h3>
-                            <video id="cameraFeed" style="width:300px;border-radius:10px;"></video>
+                        <div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#111;padding:20px;border-radius:15px;z-index:10001;max-width:500px;width:95%;">
+                            <h3 style="color:white;text-align:center;margin:0 0 15px 0;">📸 Emergency Photo</h3>
+                            <video id="liveCamera" autoplay style="width:100%;border-radius:10px;"></video>
                             <div style="text-align:center;margin:20px 0;">
-                                <button onclick="takeSnapshot()" style="background:#f44336;color:white;border:none;padding:12px;border-radius:8px;margin:5px;">
-                                    Capture
+                                <button onclick="takePhotoSnapshot()" style="background:#f44336;color:white;border:none;padding:15px 30px;border-radius:50px;font-size:16px;margin:5px;">
+                                    📸 Capture Photo
                                 </button>
-                                <button onclick="closeCamera()" style="background:#666;color:white;border:none;padding:12px;border-radius:8px;margin:5px;">
-                                    Close
+                                <button onclick="closeCamera()" style="background:#666;color:white;border:none;padding:15px 25px;border-radius:8px;margin:5px;">
+                                    Cancel
                                 </button>
                             </div>
                         </div>
@@ -382,25 +612,29 @@
                     `;
                     
                     document.body.appendChild(cameraUI);
-                    document.getElementById('cameraFeed').srcObject = stream;
+                    const video = document.getElementById('liveCamera');
+                    video.srcObject = stream;
                     window.currentCameraStream = stream;
                 })
-                .catch(() => showNotification('📸 Camera permission denied', 'error'));
+                .catch(() => {
+                    showNotification('📸 Camera permission denied', 'error');
+                });
         }
         
-        function takeSnapshot() {
-            const video = document.getElementById('cameraFeed');
+        function takePhotoSnapshot() {
+            const video = document.getElementById('liveCamera');
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             
             const photoData = canvas.toDataURL('image/jpeg');
             closeCamera();
             
             // Save photo
             const link = document.createElement('a');
-            link.download = `sos-photo-${Date.now()}.jpg`;
+            link.download = `sos-emergency-${Date.now()}.jpg`;
             link.href = photoData;
             link.click();
             
@@ -414,7 +648,14 @@
             
             // Remove camera UI
             document.querySelectorAll('div').forEach(div => {
-                if (div.style.position === 'fixed' && div.style.zIndex >= 10000) {
+                if (div.style.position === 'fixed' && div.style.zIndex === '10001') {
+                    div.remove();
+                }
+            });
+            
+            // Remove overlay
+            document.querySelectorAll('div').forEach(div => {
+                if (div.style.position === 'fixed' && div.style.zIndex === '10000') {
                     div.remove();
                 }
             });
@@ -422,44 +663,90 @@
         
         function closeModal() {
             document.getElementById('emergencyModal').style.display = 'none';
+            
+            // Reset emergency state
             emergencyActive = false;
             shakeCount = 0;
             updateShakeDisplay();
+            
+            // Reset button
+            sosButton.style.background = 'linear-gradient(45deg, #ff3b30, #ff2d55)';
+            sosButton.style.animation = 'heartbeat 2s infinite';
             document.getElementById('buttonText').classList.remove('hidden');
-            document.getElementById('countdown').classList.add('hidden');
-            showNotification('Emergency cancelled', 'info');
+            
+            // Reset map marker
+            if (marker) {
+                const normalIcon = L.divIcon({
+                    html: '<div style="background:#ff3b30;width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 0 10px red;"></div>',
+                    iconSize: [26, 26],
+                    className: 'emergency-marker'
+                });
+                marker.setIcon(normalIcon);
+            }
+            
+            showNotification('Emergency cancelled. Stay safe!', 'info');
         }
         
         // ========== NOTIFICATION ==========
         function showNotification(message, type = 'info') {
-            const container = document.createElement('div');
-            container.className = 'notification';
-            container.textContent = message;
+            const container = document.getElementById('notificationContainer') || (() => {
+                const div = document.createElement('div');
+                div.id = 'notificationContainer';
+                document.body.appendChild(div);
+                return div;
+            })();
             
-            if (type === 'error') container.style.borderLeftColor = '#ff3b30';
-            if (type === 'success') container.style.borderLeftColor = '#4CAF50';
-            if (type === 'emergency') container.style.borderLeftColor = '#ff9500';
+            const notification = document.createElement('div');
+            notification.className = 'notification';
             
-            document.body.appendChild(container);
+            let icon = 'ℹ️';
+            if (type === 'success') icon = '✅';
+            if (type === 'warning') icon = '⚠️';
+            if (type === 'emergency') icon = '🚨';
+            if (type === 'error') icon = '❌';
+            
+            notification.innerHTML = `${icon} ${message}`;
+            
+            if (type === 'error') notification.style.borderLeftColor = '#ff3b30';
+            if (type === 'success') notification.style.borderLeftColor = '#4CAF50';
+            if (type === 'emergency') notification.style.borderLeftColor = '#ff9500';
+            
+            container.appendChild(notification);
             
             setTimeout(() => {
-                container.style.animation = 'slideIn 0.5s ease-out reverse';
-                setTimeout(() => container.remove(), 500);
-            }, 3000);
+                notification.style.animation = 'slideIn 0.5s ease-out reverse';
+                setTimeout(() => notification.remove(), 500);
+            }, 4000);
         }
         
-        // ========== INITIALIZE ==========
+        // ========== INITIALIZE EVERYTHING ==========
         window.addEventListener('load', () => {
-            getLocation();
+            // Initialize map first
+            initializeMap();
+            
+            // Get user location
+            setTimeout(getLocation, 1000);
+            
+            // Initialize shake detection
             if (window.DeviceMotionEvent) {
                 window.addEventListener('devicemotion', handleShake);
-                showNotification('Shake detection active', 'success');
+                showNotification('📱 Shake detection activated', 'success');
+            } else {
+                showNotification('📱 Shake detection not supported', 'warning');
             }
-            showNotification('SOS Guardian Pro DEMO loaded', 'success');
+            
+            // Show welcome message
+            setTimeout(() => {
+                showNotification('🇳🇬 SOS Guardian Pro DEMO loaded', 'success');
+            }, 1500);
         });
         
-        // Auto location update
-        setInterval(getLocation, 30000);
+        // Periodic location updates
+        setInterval(() => {
+            if (!emergencyActive) {
+                getLocation();
+            }
+        }, 30000);
     </script>
 </body>
 </html>
