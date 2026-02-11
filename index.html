@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Calculator</title>
-    <!-- Mapbox GL JS -->
-    <script src='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css' rel='stylesheet' />
-    <!-- Mapbox Directions -->
-    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.js"></script>
-    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.css" type="text/css">
+    <!-- LEAFLET with high-res satellite (ESRI World Imagery) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Leaflet Routing Machine -->
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -51,20 +51,17 @@
             font-size: 2em;
             font-weight: 300;
         }
-        
         .calculator-display .equation {
             font-size: 0.8em;
             opacity: 0.7;
             margin-bottom: 5px;
         }
-        
         .calculator-buttons {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 1px;
             background: #34495e;
         }
-        
         .calculator-btn {
             background: #2c3e50;
             border: none;
@@ -74,41 +71,19 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        
-        .calculator-btn:hover {
-            background: #1a252f;
-        }
-        
-        .calculator-btn:active {
-            background: #16a085;
-        }
-        
-        .calculator-btn.operator {
-            background: #3498db;
-        }
-        
-        .calculator-btn.operator:hover {
-            background: #2980b9;
-        }
-        
+        .calculator-btn:hover { background: #1a252f; }
+        .calculator-btn:active { background: #16a085; }
+        .calculator-btn.operator { background: #3498db; }
+        .calculator-btn.operator:hover { background: #2980b9; }
         .calculator-btn.equals {
             background: #e74c3c;
             grid-column: span 2;
         }
+        .calculator-btn.equals:hover { background: #c0392b; }
+        .calculator-btn.clear { background: #e67e22; }
+        .calculator-btn.clear:hover { background: #d35400; }
         
-        .calculator-btn.equals:hover {
-            background: #c0392b;
-        }
-        
-        .calculator-btn.clear {
-            background: #e67e22;
-        }
-        
-        .calculator-btn.clear:hover {
-            background: #d35400;
-        }
-        
-        /* ========== SOS INTERFACE (Hidden) ========== */
+        /* ========== SOS INTERFACE – LIVE SATELLITE IMAGERY ========== */
         .sos-interface {
             display: none;
             position: fixed;
@@ -116,283 +91,184 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #0c0e2a;
+            background: #030711;
             z-index: 1000;
             overflow-y: auto;
             color: white;
         }
-        
         .sos-container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
-        
         .sos-header {
-            background: linear-gradient(90deg, #008751 0%, #00A859 100%);
+            background: linear-gradient(90deg, #002244 0%, #004488 100%);
             padding: 25px 30px;
             border-radius: 20px;
             margin-bottom: 20px;
             text-align: center;
-            box-shadow: 0 15px 35px rgba(0, 135, 81, 0.3);
+            box-shadow: 0 15px 35px rgba(0, 50, 100, 0.5);
+            border-bottom: 2px solid #00aaff;
         }
         
+        /* EMERGENCY BUTTON – ONLY FOR ACTIVATION */
         .emergency-section {
             text-align: center;
             margin: 30px 0;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            background: rgba(0, 40, 80, 0.5);
             border-radius: 25px;
         }
-        
         .emergency-btn {
-            background: linear-gradient(45deg, #ff3b30, #ff2d55);
+            background: radial-gradient(circle at 30% 30%, #ff3b30, #aa0000);
             color: white;
             border: none;
-            width: 250px;
-            height: 250px;
+            width: 200px;
+            height: 200px;
             border-radius: 50%;
             margin: 0 auto 20px;
             cursor: pointer;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 20px 40px rgba(255, 59, 48, 0.4);
-            animation: heartbeat 2s infinite;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+            border: 2px solid #ffcc00;
         }
         
-        @keyframes heartbeat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        /* ========== SATELLITE SURVEILLANCE SECTION ========== */
+        /* SURVEILLANCE CARD – ROUTE INPUT */
         .surveillance-section {
-            background: rgba(0, 135, 81, 0.1);
+            background: rgba(0, 30, 60, 0.8);
             border-radius: 20px;
             padding: 30px;
             margin: 30px 0;
-            border: 2px solid #008751;
+            border: 1px solid #00aaff;
+            backdrop-filter: blur(5px);
         }
-        
         .surveillance-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 20px;
             margin: 20px 0;
         }
-        
         .surveillance-card {
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 20, 40, 0.9);
             padding: 20px;
             border-radius: 15px;
-            border: 1px solid rgba(0, 255, 136, 0.2);
+            border: 1px solid #3388ff;
             text-align: center;
         }
-        
         .surveillance-icon {
             width: 60px;
             height: 60px;
-            background: rgba(0, 255, 136, 0.2);
+            background: rgba(0, 150, 255, 0.2);
             border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 15px;
             font-size: 24px;
-            color: #00ff88;
+            color: #88ddff;
         }
         
-        /* ========== MAPBOX SATELLITE MAP ========== */
+        /* ========== SATELLITE MAP – ESRI WORLD IMAGERY (LIVE) ========== */
         .map-container {
-            height: 500px;
+            height: 550px;
             border-radius: 20px;
             overflow: hidden;
             margin: 30px 0;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
             position: relative;
+            border: 3px solid #0066cc;
         }
-        
         #map {
             width: 100%;
             height: 100%;
-            border-radius: 20px;
+            background: #000;
+            z-index: 1;
         }
-        
+        /* Overlay controls – only satellite layer switch */
         .map-overlay {
             position: absolute;
             top: 20px;
             left: 20px;
             right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px;
-            border-radius: 15px;
-            z-index: 1;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .satellite-controls {
+            z-index: 10;
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
             justify-content: space-between;
-            align-items: center;
+            pointer-events: none;
         }
-        
         .satellite-btn {
-            background: #008751;
+            background: #004488;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
+            padding: 12px 24px;
+            border-radius: 40px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 15px;
+            font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 8px;
-            min-width: 140px;
-        }
-        
-        .satellite-btn:hover {
-            background: #00A859;
-        }
-        
-        .satellite-btn.view {
-            background: #3498db;
-        }
-        
-        .satellite-btn.view:hover {
-            background: #2980b9;
-        }
-        
-        .satellite-btn.zoom {
-            background: #9b59b6;
-        }
-        
-        .satellite-btn.zoom:hover {
-            background: #8e44ad;
-        }
-        
-        .satellite-btn.sos {
-            background: #ff3b30;
-        }
-        
-        .satellite-btn.sos:hover {
-            background: #ff2d55;
-        }
-        
-        /* ========== SURVEILLANCE ZONE DISPLAY ========== */
-        .zone-display {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.9);
-            padding: 15px;
-            border-radius: 15px;
-            z-index: 1;
-            max-width: 300px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-        }
-        
-        .zone-metrics {
-            display: flex;
-            gap: 15px;
-            margin: 10px 0;
-            flex-wrap: wrap;
-        }
-        
-        .zone-metric {
-            text-align: center;
-            flex: 1;
-            min-width: 100px;
-        }
-        
-        .metric-value {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #00ff88;
-        }
-        
-        .metric-label {
-            font-size: 0.8rem;
-            color: #ccc;
-        }
-        
-        /* ========== HIDDEN SATELLITE MODE ========== */
-        .hidden-satellite-mode {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0c0e2a;
-            z-index: 10000;
-        }
-        
-        .hidden-satellite-header {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.9);
-            padding: 15px;
-            border-radius: 15px;
-            z-index: 10001;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-        }
-        
-        .hidden-satellite-controls {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            display: flex;
             gap: 10px;
-            z-index: 10001;
+            box-shadow: 0 8px 20px black;
+            border: 1px solid #88ddff;
+            backdrop-filter: blur(10px);
+            background: rgba(0, 80, 120, 0.95);
+            pointer-events: auto;
         }
+        .satellite-btn:hover { background: #0066aa; }
         
-        .hidden-satellite-btn {
-            background: #008751;
-            color: white;
-            border: none;
+        /* ROUTE info */
+        .route-info {
+            background: rgba(0, 100, 200, 0.3);
             padding: 15px;
-            border-radius: 10px;
-            cursor: pointer;
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border-left: 6px solid #00aaff;
         }
         
-        #hiddenMap {
+        .form-group input {
             width: 100%;
-            height: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid #0088ff;
+            background: rgba(0, 30, 50, 0.9);
+            color: white;
+            font-size: 16px;
         }
-        
-        /* ========== SETTINGS PANEL ========== */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 40, 80, 0.95);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 15px;
+            z-index: 1002;
+            border-left: 5px solid #00aaff;
+            backdrop-filter: blur(10px);
+        }
+        .hidden { display: none; }
         .settings-panel {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.85);
             padding: 15px;
             border-radius: 15px;
             z-index: 999;
-            min-width: 200px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid #3388ff;
         }
-        
         .settings-btn {
-            background: #3498db;
+            background: #004488;
             color: white;
             border: none;
             padding: 10px 15px;
@@ -400,112 +276,24 @@
             margin: 5px 0;
             width: 100%;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
-        
-        /* ========== FORMS ========== */
-        .form-group {
-            margin: 15px 0;
-            text-align: left;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #00ff88;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid #008751;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 1rem;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin: 15px 0;
-        }
-        
         @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
+            .emergency-btn { width: 160px; height: 160px; }
+            .map-container { height: 450px; }
         }
-        
-        /* ========== NOTIFICATION ========== */
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 15px;
-            z-index: 1002;
-            max-width: 350px;
-            animation: slideIn 0.5s ease-out;
-            border-left: 5px solid #008751;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        @keyframes slideIn {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        .hidden { display: none; }
-        
-        /* ========== RESPONSIVE ========== */
-        @media (max-width: 768px) {
-            .emergency-btn { width: 200px; height: 200px; font-size: 20px; }
-            .map-container { height: 400px; }
-            .settings-panel { bottom: 10px; right: 10px; left: 10px; width: auto; }
-            .satellite-controls { flex-direction: column; align-items: stretch; }
-            .satellite-btn { width: 100%; justify-content: center; }
-        }
-        
-        /* Mapbox custom styles */
-        .mapboxgl-ctrl-attrib { 
-            background: rgba(0,0,0,0.7) !important;
-            color: white !important;
-        }
-        
-        .mapboxgl-ctrl-attrib a {
-            color: #00ff88 !important;
-        }
-        
-        .mapboxgl-popup {
-            max-width: 300px !important;
-        }
-        
-        .mapboxgl-popup-content {
-            background: rgba(0, 0, 0, 0.9) !important;
-            color: white !important;
-            border: 1px solid #00ff88 !important;
-            border-radius: 10px !important;
-            padding: 15px !important;
-        }
-        
-        .mapbox-directions-component {
-            background: rgba(0, 0, 0, 0.9) !important;
-            color: white !important;
+        /* Shake indicator */
+        .shake-indicator {
+            background: #003366;
+            padding: 12px 20px;
+            border-radius: 40px;
+            display: inline-block;
+            margin: 10px 0;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <!-- ========== CALCULATOR DISGUISE ========== -->
+    <!-- ========== CALCULATOR ========== -->
     <div class="calculator" id="calculator">
         <div class="calculator-display">
             <div class="equation" id="equation">0</div>
@@ -533,1179 +321,326 @@
         </div>
     </div>
     
-    <!-- ========== SOS INTERFACE (Hidden) ========== -->
+    <!-- ========== SATELLITE SURVEILLANCE INTERFACE ========== -->
     <div class="sos-interface" id="sosInterface">
         <div class="sos-container">
-            <!-- HEADER -->
+            <!-- HEADER: LIVE SATELLITE -->
             <div class="sos-header">
-                <h1><i class="fas fa-shield-alt"></i> SOS GUARDIAN PRO</h1>
-                <p>LIVE SATELLITE SURVEILLANCE SYSTEM</p>
-            </div>
-            
-            <!-- SHAKE DETECTION -->
-            <div style="background:rgba(0,0,0,0.3);padding:15px;border-radius:15px;margin:20px auto;max-width:500px;display:flex;align-items:center;justify-content:center;gap:15px;">
-                <div id="shakeCount" style="background:#007aff;color:white;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;">
-                    0/6
-                </div>
-                <div>
-                    <span style="color:#ff9500;font-weight:600;">SHAKE TO ACTIVATE:</span> Shake phone 6 times
+                <h1><i class="fas fa-satellite"></i> LIVE SATELLITE EYES</h1>
+                <p style="color:#aaddff;">🇳🇬 NIGERIA COVERAGE • HIGH-RES IMAGERY • ROUTE VIEW</p>
+                <div class="shake-indicator" id="shakeDisplay">
+                    <i class="fas fa-mobile-alt"></i> SHAKE 6x FOR SOS
                 </div>
             </div>
             
-            <!-- EMERGENCY SECTION -->
+            <!-- EMERGENCY BUTTON – only for activation, no threat scan -->
             <div class="emergency-section">
-                <h2>LIVE SATELLITE SURVEILLANCE SOS</h2>
-                <p>Press and hold for 3 seconds or shake phone 6 times</p>
-                
                 <button class="emergency-btn" id="sosButton" onmousedown="startHoldTimer()" onmouseup="cancelHoldTimer()" ontouchstart="startHoldTimer()" ontouchend="cancelHoldTimer()">
-                    <i class="fas fa-satellite"></i>
-                    <span id="buttonText">ACTIVATE<br>SURVEILLANCE</span>
-                    <div id="countdown" class="hidden" style="font-size:50px;font-weight:800;"></div>
+                    <i class="fas fa-exclamation-triangle" style="font-size:40px;"></i>
+                    <span id="buttonText">SATELLITE SOS<br>HOLD 3S</span>
+                    <span id="countdown" class="hidden" style="font-size:40px;">3</span>
                 </button>
-                
-                <p style="color:#ffcc00;">2000m ahead + 50m left/right satellite monitoring</p>
+                <p style="color:#ffcc00;"><i class="fas fa-eye"></i> YOU ARE THE ANALYST – OBSERVE SATELLITE TO DETECT THREATS</p>
             </div>
             
-            <!-- SURVEILLANCE SETUP -->
+            <!-- ===== ROUTE INPUT – TRIGGERS SATELLITE SWITCH ===== -->
             <div class="surveillance-section">
-                <h2 style="color:#00ff88;margin-bottom:20px;"><i class="fas fa-bullseye"></i> Surveillance Setup</h2>
-                
+                <h2 style="color:#88ddff;"><i class="fas fa-route"></i> PROGRAM SATELLITE ON YOUR ROUTE</h2>
                 <div class="surveillance-grid">
                     <div class="surveillance-card">
-                        <div class="surveillance-icon">
-                            <i class="fas fa-map-pin"></i>
-                        </div>
-                        <h4 style="color:#00ff88;">START LOCATION</h4>
+                        <div class="surveillance-icon"><i class="fas fa-map-pin"></i></div>
+                        <h4 style="color:#88ddff;">START POSITION</h4>
                         <div class="form-group">
-                            <input type="text" id="startLocation" placeholder="Use GPS or enter address">
-                            <button onclick="setStartLocation()" style="background:#3498db;color:white;border:none;padding:10px;border-radius:8px;margin-top:10px;width:100%;cursor:pointer;">
-                                <i class="fas fa-location-dot"></i> Set Start Point
+                            <input type="text" id="startLocation" placeholder="City or GPS" value="Lagos, Nigeria">
+                            <button onclick="setStartAndFly()" style="background:#0066aa; color:white; border:none; padding:12px; border-radius:10px; margin-top:12px; width:100%;">
+                                <i class="fas fa-satellite-dish"></i> POINT SATELLITE HERE
                             </button>
                         </div>
                     </div>
-                    
                     <div class="surveillance-card">
-                        <div class="surveillance-icon">
-                            <i class="fas fa-flag-checkered"></i>
-                        </div>
-                        <h4 style="color:#00ff88;">DESTINATION</h4>
+                        <div class="surveillance-icon"><i class="fas fa-flag-checkered"></i></div>
+                        <h4 style="color:#88ddff;">DESTINATION</h4>
                         <div class="form-group">
-                            <input type="text" id="destination" placeholder="Where are you going?">
-                            <button onclick="setDestination()" style="background:#9b59b6;color:white;border:none;padding:10px;border-radius:8px;margin-top:10px;width:100%;cursor:pointer;">
-                                <i class="fas fa-search"></i> Set Destination
+                            <input type="text" id="destination" placeholder="Destination" value="Abuja, Nigeria">
+                            <button onclick="setDestAndFly()" style="background:#6a0dad; color:white; border:none; padding:12px; border-radius:10px; margin-top:12px; width:100%;">
+                                <i class="fas fa-satellite"></i> VIEW DESTINATION
                             </button>
-                        </div>
-                    </div>
-                    
-                    <div class="surveillance-card">
-                        <div class="surveillance-icon">
-                            <i class="fas fa-user-shield"></i>
-                        </div>
-                        <h4 style="color:#00ff88;">SURVEILLANCE ZONE</h4>
-                        <div style="text-align:left;margin-top:10px;">
-                            <p><i class="fas fa-arrow-up" style="color:#3498db;"></i> 2000m forward</p>
-                            <p><i class="fas fa-arrows-alt-h" style="color:#9b59b6;"></i> 50m left/right</p>
-                            <p><i class="fas fa-eye" style="color:#00ff88;"></i> High-res satellite</p>
                         </div>
                     </div>
                 </div>
                 
-                <!-- EMERGENCY CONTACTS -->
-                <div style="margin-top:30px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.1);">
-                    <h3 style="color:#00ff88;margin-bottom:15px;"><i class="fas fa-user-friends"></i> Emergency Contacts</h3>
-                    
+                <!-- ROUTE OVERVIEW – SATELLITE IMAGERY -->
+                <div class="route-info">
+                    <i class="fas fa-globe-africa"></i> <strong>SATELLITE TASKED:</strong> 
+                    <span id="routeDisplay">Lagos → Abuja (route loaded)</span>
+                    <p style="font-size:0.9rem; margin-top:8px; color:#ccc;">🛰️ High-resolution satellite – Zoom to inspect vehicles, buildings, activity</p>
+                </div>
+                
+                <!-- Emergency contacts (optional) -->
+                <div style="margin-top:30px;">
+                    <h4 style="color:#88ddff;"><i class="fas fa-phone-alt"></i> Alert Contacts</h4>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label><i class="fas fa-phone"></i> Contact 1</label>
-                            <input type="tel" id="contact1" placeholder="+2348012345678" value="+2348103365359">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label><i class="fas fa-phone"></i> Contact 2</label>
-                            <input type="tel" id="contact2" placeholder="+2348023456789">
-                        </div>
+                        <input type="text" id="contact1" placeholder="+234..." value="+2348103365359">
+                        <input type="text" id="contact2" placeholder="+234...">
                     </div>
-                    
-                    <button onclick="saveSettings()" style="background:#008751;color:white;border:none;padding:15px 30px;border-radius:10px;width:100%;font-size:1.1rem;cursor:pointer;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:10px;">
-                        <i class="fas fa-save"></i> Save Surveillance Settings
-                    </button>
+                    <button onclick="saveContacts()" style="background:#008844; color:white; padding:12px; border-radius:10px; width:100%;">💾 SAVE</button>
                 </div>
             </div>
             
-            <!-- LIVE SATELLITE MAP -->
+            <!-- ========== LIVE SATELLITE MAP – ESRI WORLD IMAGERY ========== -->
             <div class="map-container">
                 <div class="map-overlay">
-                    <div class="satellite-controls">
-                        <div style="color:#00ff88;display:flex;align-items:center;gap:10px;">
-                            <i class="fas fa-satellite"></i>
-                            <div>
-                                <strong>LIVE SATELLITE SURVEILLANCE</strong>
-                                <div style="font-size:0.8rem;color:#ccc;">High-density imagery active</div>
-                            </div>
-                        </div>
-                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                            <button class="satellite-btn view" onclick="toggleSatelliteView()">
-                                <i class="fas fa-satellite-dish"></i> Satellite View
-                            </button>
-                            <button class="satellite-btn zoom" onclick="zoomToSurveillanceZone()">
-                                <i class="fas fa-search-plus"></i> Zoom Zone
-                            </button>
-                            <button class="satellite-btn" onclick="enterHiddenMode()">
-                                <i class="fas fa-eye-slash"></i> Hide App
-                            </button>
-                            <button class="satellite-btn sos" onclick="testEmergency()">
-                                <i class="fas fa-bell"></i> Test SOS
-                            </button>
-                        </div>
-                    </div>
+                    <button class="satellite-btn" onclick="toggleSatelliteSource()">
+                        <i class="fas fa-layer-group"></i> SATELLITE / HYBRID
+                    </button>
+                    <button class="satellite-btn" onclick="zoomToRoute()" style="background:#006688;">
+                        <i class="fas fa-route"></i> ROUTE VIEW
+                    </button>
                 </div>
-                
                 <div id="map"></div>
-                
-                <div class="zone-display">
-                    <h4 style="color:#00ff88;margin:0 0 10px 0;"><i class="fas fa-radar"></i> SURVEILLANCE ZONE</h4>
-                    <div class="zone-metrics">
-                        <div class="zone-metric">
-                            <div class="metric-value" id="frontDistance">2000m</div>
-                            <div class="metric-label">Forward Range</div>
-                        </div>
-                        <div class="zone-metric">
-                            <div class="metric-value" id="sideDistance">50m</div>
-                            <div class="metric-label">Side Coverage</div>
-                        </div>
-                        <div class="zone-metric">
-                            <div class="metric-value" id="threatLevel">LOW</div>
-                            <div class="metric-label">Threat Level</div>
-                        </div>
-                    </div>
-                    <div style="margin-top:10px;font-size:0.8rem;color:#ccc;">
-                        <i class="fas fa-circle" style="color:#00ff88;font-size:0.6rem;"></i> 
-                        <span id="detectionStatus">Monitoring for threats...</span>
-                    </div>
-                </div>
             </div>
             
-            <!-- FOOTER -->
-            <div style="text-align:center;padding:30px;margin-top:50px;background:rgba(0,0,0,0.3);border-radius:15px;">
-                <p><strong>SOS GUARDIAN PRO v2.0 - SATELLITE SURVEILLANCE</strong></p>
-                <p><i class="fas fa-phone"></i> Emergency: 112, 767 | Support: +234 8103365359</p>
-                <p>© 2024 SOS Guardian Technologies is a product of Proto Douglas Ltd.</p>
+            <!-- USER INSTRUCTIONS – PURE OBSERVATION -->
+            <div style="background:rgba(0,50,80,0.7); padding:25px; border-radius:20px; margin:20px 0; text-align:center;">
+                <h3 style="color:#aaddff;"><i class="fas fa-user-secret"></i> SATELLITE RECONNAISSANCE</h3>
+                <p style="color:white; font-size:1.1rem;">You are the analyst. Scan the satellite imagery ahead (2000m) and sides (50m). Identify threats visually.</p>
+                <p style="color:#ffcc88;"><i class="fas fa-shield"></i> FRONT 2000m • LEFT 50m • RIGHT 50m – VISUAL INSPECTION</p>
+                <p><i class="fas fa-arrows-up-down-left-right"></i> Pan, zoom, and analyze the route. Satellite follows your start/destination.</p>
             </div>
-        </div>
-    </div>
-    
-    <!-- ========== HIDDEN SATELLITE MODE ========== -->
-    <div class="hidden-satellite-mode" id="hiddenSatelliteMode">
-        <div class="hidden-satellite-header">
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-                <div style="color:#00ff88;">
-                    <i class="fas fa-satellite"></i> <strong>HIDDEN SURVEILLANCE</strong>
-                </div>
-                <div style="font-size:0.9rem;color:#ccc;">
-                    <span id="hiddenFront">2000m Front</span> | 
-                    <span id="hiddenSide">50m Sides</span>
-                </div>
+            
+            <div style="text-align:center; padding:20px; background:rgba(0,0,0,0.5); border-radius:15px;">
+                <p>🚨 SHAKE 6 TIMES FOR EMERGENCY ALERT • LONG PRESS RED BUTTON</p>
+                <p>© SATELLITE SURVEILLANCE – NIGERIA ROUTES</p>
             </div>
-        </div>
-        <div id="hiddenMap"></div>
-        <div class="hidden-satellite-controls">
-            <button class="hidden-satellite-btn" onclick="showFullApp()">
-                <i class="fas fa-eye"></i> Show App
-            </button>
-            <button class="hidden-satellite-btn" onclick="activateEmergencyFromHidden()" style="background:#ff3b30;">
-                <i class="fas fa-bell"></i> EMERGENCY SOS
-            </button>
-            <button class="hidden-satellite-btn" onclick="exitHiddenMode()" style="background:#666;">
-                <i class="fas fa-times"></i> Exit
-            </button>
         </div>
     </div>
     
     <!-- ========== SETTINGS PANEL ========== -->
     <div class="settings-panel" id="settingsPanel">
-        <button class="settings-btn" onclick="toggleSOSInterface()">
-            <i class="fas fa-eye"></i> Show/Hide SOS
-        </button>
-        <button class="settings-btn" onclick="resetCalculator()">
-            <i class="fas fa-calculator"></i> Reset to Calculator
-        </button>
-        <button class="settings-btn" onclick="testSurveillance()">
-            <i class="fas fa-satellite"></i> Test Surveillance
-        </button>
+        <button class="settings-btn" onclick="toggleSOSInterface()"><i class="fas fa-eye"></i> SHOW SATELLITE</button>
+        <button class="settings-btn" onclick="resetCalculator()"><i class="fas fa-calculator"></i> HIDE</button>
+        <button class="settings-btn" onclick="forceSatelliteView()"><i class="fas fa-satellite"></i> FOCUS ROUTE</button>
     </div>
 
     <script>
-        // ========== MAPBOX CONFIGURATION ==========
-        // Using your Mapbox token for live satellite imagery
-        mapboxgl.accessToken = 'pk.eyJ1IjoiZWtlaWRpbWF1Y2hlY2h1a3d1IiwiYSI6ImNtbDYxZ3NvazA2cDYza3NjOXlwNmx0aXcifQ.agDhj-euUG6sEyMTiDsQAA';
+        // ========== LEAFLET SATELLITE IMAGERY – ESRI WORLD IMAGERY (LIVE) ==========
+        let map = null;
+        let routingControl = null;
+        let userMarker = null;
+        
+        // NIGERIA default locations
+        let startLoc = { lat: 6.5244, lng: 3.3792 }; // Lagos
+        let destLoc = { lat: 9.0579, lng: 7.4951 };   // Abuja
+        
+        let isSatelliteHybrid = false; // false = pure imagery, true = hybrid
+        
+        // Emergency states
+        let shakeCount = 0;
+        let lastShakeTime = 0;
+        let holdTimer = null;
+        let calculatorHoldTimer = null;
+        let emergencyActive = false;
         
         // ========== CALCULATOR FUNCTIONS ==========
-        let currentInput = '0';
-        let previousInput = '';
-        let operation = null;
-        let resetScreen = false;
+        let currentInput = '0', previousInput = '', operation = null, resetScreen = false;
+        function appendNumber(n) { if (currentInput === '0' || resetScreen) { currentInput = n; resetScreen = false; } else currentInput += n; updateDisplay(); }
+        function appendOperator(op) { if (op === '=') { calculate(); return; } if (previousInput !== '' && operation !== null) calculate(); operation = op; previousInput = currentInput; currentInput = '0'; updateDisplay(); }
+        function calculate() { let prev = parseFloat(previousInput), curr = parseFloat(currentInput); if (isNaN(prev)||isNaN(curr)) return; switch(operation) { case '+': currentInput = prev+curr; break; case '-': currentInput = prev-curr; break; case '*': currentInput = prev*curr; break; case '/': currentInput = prev/curr; break; default: return; } operation=null; previousInput=''; resetScreen=true; updateDisplay(); }
+        function clearDisplay() { currentInput='0'; previousInput=''; operation=null; updateDisplay(); }
+        function toggleSign() { currentInput = (parseFloat(currentInput)*-1).toString(); updateDisplay(); }
+        function updateDisplay() { document.getElementById('result').textContent = currentInput; document.getElementById('equation').textContent = previousInput + (operation ? ' ' + operation : ''); }
         
-        function appendNumber(number) {
-            if (currentInput === '0' || resetScreen) {
-                currentInput = number;
-                resetScreen = false;
-            } else {
-                currentInput += number;
-            }
-            updateDisplay();
-        }
-        
-        function appendOperator(op) {
-            if (op === '=') {
-                calculate();
-                return;
-            }
-            
-            if (previousInput !== '' && operation !== null) {
-                calculate();
-            }
-            
-            operation = op;
-            previousInput = currentInput;
-            currentInput = '0';
-            updateDisplay();
-        }
-        
-        function calculate() {
-            let computation;
-            const prev = parseFloat(previousInput);
-            const current = parseFloat(currentInput);
-            
-            if (isNaN(prev) || isNaN(current)) return;
-            
-            switch (operation) {
-                case '+': computation = prev + current; break;
-                case '-': computation = prev - current; break;
-                case '*': computation = prev * current; break;
-                case '/': computation = prev / current; break;
-                default: return;
-            }
-            
-            currentInput = computation.toString();
-            operation = null;
-            previousInput = '';
-            resetScreen = true;
-            updateDisplay();
-        }
-        
-        function clearDisplay() {
-            currentInput = '0';
-            previousInput = '';
-            operation = null;
-            updateDisplay();
-        }
-        
-        function toggleSign() {
-            currentInput = (parseFloat(currentInput) * -1).toString();
-            updateDisplay();
-        }
-        
-        function updateDisplay() {
-            document.getElementById('result').textContent = currentInput;
-            document.getElementById('equation').textContent = 
-                previousInput + (operation ? ' ' + operation : '');
-        }
-        
-        // ========== SATELLITE SURVEILLANCE SYSTEM ==========
-        let map = null;
-        let hiddenMap = null;
-        let directions = null;
-        let startLocation = { lat: 6.5244, lng: 3.3792, address: 'Lagos, Nigeria' };
-        let destination = { lat: 6.6018, lng: 3.3515, address: 'Ikeja, Lagos' };
-        let userLocation = { lat: 6.5244, lng: 3.3792 };
-        let surveillanceZone = null;
-        let isSatelliteView = true;
-        let isMonitoring = false;
-        let monitoringInterval = null;
-        let emergencyActive = false;
-        let shakeCount = 0;
-        let holdTimer = null;
-        let countdownValue = 3;
-        let calculatorHoldTimer = null;
-        
-        // Surveillance parameters
-        const SURVEILLANCE_RANGE = {
-            FRONT: 2000, // meters ahead
-            SIDES: 50,   // meters left/right
-            HEIGHT: 500  // meters for 3D view
-        };
-        
-        // ========== DISGUISE FUNCTIONS ==========
+        // ========== DISGUISE TOGGLE ==========
         function toggleSOSInterface() {
-            const sosInterface = document.getElementById('sosInterface');
-            const calculator = document.getElementById('calculator');
-            const settingsPanel = document.getElementById('settingsPanel');
-            
-            if (sosInterface.style.display === 'block') {
-                sosInterface.style.display = 'none';
-                calculator.style.display = 'block';
-                settingsPanel.style.display = 'block';
-            } else {
-                sosInterface.style.display = 'block';
-                calculator.style.display = 'none';
-                settingsPanel.style.display = 'none';
-                initializeSOS();
+            const sos = document.getElementById('sosInterface');
+            const calc = document.getElementById('calculator');
+            const set = document.getElementById('settingsPanel');
+            if (sos.style.display === 'block') { 
+                sos.style.display = 'none'; calc.style.display = 'block'; set.style.display = 'block'; 
+            } else { 
+                sos.style.display = 'block'; calc.style.display = 'none'; set.style.display = 'none'; 
+                initSatelliteMap(); 
             }
         }
+        function resetCalculator() { document.getElementById('sosInterface').style.display = 'none'; document.getElementById('calculator').style.display = 'block'; document.getElementById('settingsPanel').style.display = 'block'; }
+        function holdForEmergency() { calculatorHoldTimer = setTimeout(() => { toggleSOSInterface(); showNotification('🛰️ SATELLITE ACTIVATED – Nigeria coverage', 'success'); }, 3000); }
+        function releaseHold() { clearTimeout(calculatorHoldTimer); }
         
-        function resetCalculator() {
-            document.getElementById('sosInterface').style.display = 'none';
-            document.getElementById('calculator').style.display = 'block';
-            document.getElementById('settingsPanel').style.display = 'block';
-        }
-        
-        function holdForEmergency() {
-            calculatorHoldTimer = setTimeout(() => {
-                toggleSOSInterface();
-                showNotification('🛡️ SOS Guardian Pro - Satellite Surveillance Activated', 'success');
-            }, 3000);
-        }
-        
-        function releaseHold() {
-            clearTimeout(calculatorHoldTimer);
-        }
-        
-        // ========== INITIALIZE MAPBOX SATELLITE ==========
-        function initializeSOS() {
+        // ========== INIT SATELLITE MAP ==========
+        function initSatelliteMap() {
             if (!map) {
-                initializeMap();
-                getCurrentLocation();
-            }
-            
-            loadSavedData();
-            
-            if (window.DeviceMotionEvent) {
-                window.addEventListener('devicemotion', handleShake);
-            }
-        }
-        
-        function initializeMap() {
-            try {
-                // Initialize main map with SATELLITE view
-                map = new mapboxgl.Map({
-                    container: 'map',
-                    style: 'mapbox://styles/mapbox/satellite-streets-v12',
-                    center: [userLocation.lng, userLocation.lat],
-                    zoom: 16,
-                    pitch: 60, // Tilted view
-                    bearing: 0,
-                    antialias: true,
-                    attributionControl: false
-                });
+                map = L.map('map').setView([startLoc.lat, startLoc.lng], 13);
                 
-                // Add navigation controls
-                map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-                map.addControl(new mapboxgl.FullscreenControl());
+                // DEFAULT: ESRI World Imagery (pure satellite, live)
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: '© Esri, Maxar, Earthstar, Nigeria',
+                    maxZoom: 20,
+                    minZoom: 2
+                }).addTo(map);
                 
-                // Add geolocate control for user tracking
-                const geolocate = new mapboxgl.GeolocateControl({
-                    positionOptions: {
-                        enableHighAccuracy: true
-                    },
-                    trackUserLocation: true,
-                    showUserHeading: true,
-                    showAccuracyCircle: true
-                });
-                map.addControl(geolocate, 'top-right');
+                // Add user marker (YOU) – but user is the observer
+                userMarker = L.marker([startLoc.lat, startLoc.lng], {
+                    icon: L.divIcon({ html: '<i class="fas fa-circle-user" style="color:#00ffff; font-size:32px; text-shadow:0 0 10px black;"></i>', iconSize: [32,32] })
+                }).addTo(map).bindPopup('📍 YOUR START (OBSERVER)');
                 
-                // Add attribution
-                map.addControl(new mapboxgl.AttributionControl({
-                    compact: true
-                }));
+                // Draw initial route
+                updateSatelliteRoute(startLoc, destLoc);
                 
-                // Add 3D terrain for realistic satellite view
-                map.on('style.load', () => {
-                    // Add terrain source
-                    map.addSource('mapbox-dem', {
-                        'type': 'raster-dem',
-                        'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
-                        'tileSize': 512,
-                        'maxzoom': 14
-                    });
-                    
-                    // Set terrain with exaggeration for better visibility
-                    map.setTerrain({
-                        'source': 'mapbox-dem',
-                        'exaggeration': 1.5
-                    });
-                    
-                    // Add sky layer for realistic atmosphere
-                    map.addLayer({
-                        'id': 'sky',
-                        'type': 'sky',
-                        'paint': {
-                            'sky-type': 'atmosphere',
-                            'sky-atmosphere-sun': [0.0, 0.0],
-                            'sky-atmosphere-sun-intensity': 15
-                        }
-                    });
-                    
-                    // Start surveillance
-                    startSurveillance();
-                });
+                // Add shake listener
+                if (window.DeviceMotionEvent) window.addEventListener('devicemotion', handleShake);
                 
-                // Initialize hidden map
-                hiddenMap = new mapboxgl.Map({
-                    container: 'hiddenMap',
-                    style: 'mapbox://styles/mapbox/satellite-streets-v12',
-                    center: [userLocation.lng, userLocation.lat],
-                    zoom: 16,
-                    pitch: 60
-                });
-                
-                hiddenMap.addControl(new mapboxgl.NavigationControl());
-                hiddenMap.addControl(new mapboxgl.FullscreenControl());
-                
-                showNotification('🛰️ LIVE SATELLITE SURVEILLANCE ACTIVATED', 'success');
-                
-            } catch (error) {
-                console.error('Mapbox initialization error:', error);
-                showNotification('⚠️ Satellite system loading failed', 'error');
+                showNotification('🛰️ LIVE SATELLITE IMAGERY – ESRI World Imagery', 'success');
             }
         }
         
-        // ========== LOCATION FUNCTIONS ==========
-        function getCurrentLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        userLocation = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        };
-                        
-                        // Set as start location
-                        startLocation = { ...userLocation, address: 'Current Location' };
-                        document.getElementById('startLocation').value = 'Current GPS Location';
-                        
-                        if (map) {
-                            map.flyTo({
-                                center: [userLocation.lng, userLocation.lat],
-                                zoom: 18, // High zoom for satellite detail
-                                pitch: 70, // High tilt for 3D view
-                                bearing: 0,
-                                duration: 3000
-                            });
-                            
-                            // Add user marker
-                            new mapboxgl.Marker({
-                                color: '#ff3b30',
-                                scale: 1.5
-                            })
-                            .setLngLat([userLocation.lng, userLocation.lat])
-                            .setPopup(new mapboxgl.Popup().setHTML(`
-                                <div style="color: white;">
-                                    <h3 style="color:#00ff88;">YOU ARE HERE</h3>
-                                    <p>📍 ${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}</p>
-                                    <p>🛰️ Satellite surveillance active</p>
-                                </div>
-                            `))
-                            .addTo(map);
-                        }
-                        
-                        showNotification('📍 GPS location acquired - Satellite tracking active', 'success');
-                        
-                        // Start continuous tracking
-                        startContinuousTracking();
-                        
-                    },
-                    (error) => {
-                        console.error('Geolocation error:', error);
-                        showNotification('📍 Using default Lagos location', 'info');
-                        document.getElementById('startLocation').value = 'Lagos, Nigeria';
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
-                    }
-                );
-            }
+        // ========== ROUTE ON SATELLITE ==========
+        function updateSatelliteRoute(start, dest) {
+            if (routingControl) map.removeControl(routingControl);
+            routingControl = L.Routing.control({
+                waypoints: [L.latLng(start.lat, start.lng), L.latLng(dest.lat, dest.lng)],
+                routeWhileDragging: false,
+                lineOptions: { styles: [{ color: '#ffaa00', opacity: 0.9, weight: 5 }] },
+                showAlternatives: false,
+                geocoder: L.Control.Geocoder.nominatim(),
+                router: L.Routing.osrmv1({ profile: 'driving' })
+            }).addTo(map);
+            
+            document.getElementById('routeDisplay').innerHTML = `${start.lat.toFixed(4)},${start.lng.toFixed(4)} → ${dest.lat.toFixed(4)},${dest.lng.toFixed(4)} (satellite tasked)`;
         }
         
-        function setStartLocation() {
-            getCurrentLocation();
+        // ========== SATELLITE SWITCH ON ROUTE INPUT ==========
+        function setStartAndFly() {
+            let input = document.getElementById('startLocation').value.toLowerCase();
+            if (input.includes('lagos')) startLoc = { lat: 6.5244, lng: 3.3792 };
+            else if (input.includes('abuja')) startLoc = { lat: 9.0579, lng: 7.4951 };
+            else if (input.includes('kano')) startLoc = { lat: 12.0022, lng: 8.5920 };
+            else if (input.includes('portharcourt')) startLoc = { lat: 4.8156, lng: 7.0498 };
+            else startLoc = { lat: 6.5244, lng: 3.3792 };
+            
+            if (userMarker) userMarker.setLatLng([startLoc.lat, startLoc.lng]);
+            map.flyTo([startLoc.lat, startLoc.lng], 17, { duration: 3 });
+            updateSatelliteRoute(startLoc, destLoc);
+            showNotification(`🛰️ Satellite repositioned to START: ${document.getElementById('startLocation').value}`, 'info');
         }
         
-        function setDestination() {
-            const destInput = document.getElementById('destination').value;
-            if (!destInput) {
-                showNotification('Please enter a destination address', 'error');
-                return;
-            }
+        function setDestAndFly() {
+            let input = document.getElementById('destination').value.toLowerCase();
+            if (input.includes('abuja')) destLoc = { lat: 9.0579, lng: 7.4951 };
+            else if (input.includes('lagos')) destLoc = { lat: 6.5244, lng: 3.3792 };
+            else if (input.includes('kano')) destLoc = { lat: 12.0022, lng: 8.5920 };
+            else if (input.includes('ibadan')) destLoc = { lat: 7.3776, lng: 3.9470 };
+            else destLoc = { lat: 9.0579, lng: 7.4951 };
             
-            showNotification('🔍 Searching destination on satellite...', 'info');
-            
-            geocodeAddress(destInput, 'destination');
+            map.flyTo([destLoc.lat, destLoc.lng], 17, { duration: 3 });
+            updateSatelliteRoute(startLoc, destLoc);
+            showNotification(`🛰️ Satellite repositioned to DESTINATION: ${document.getElementById('destination').value}`, 'info');
         }
         
-        function geocodeAddress(address, type) {
-            const geocodingUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${mapboxgl.accessToken}&limit=1&country=NG`;
-            
-            fetch(geocodingUrl)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.features && data.features.length > 0) {
-                        const feature = data.features[0];
-                        const coords = feature.center;
-                        const placeName = feature.place_name;
-                        
-                        if (type === 'destination') {
-                            destination = {
-                                lat: coords[1],
-                                lng: coords[0],
-                                address: placeName
-                            };
-                            
-                            // Add destination marker
-                            new mapboxgl.Marker({
-                                color: '#e74c3c',
-                                scale: 1.5
-                            })
-                            .setLngLat([coords[0], coords[1]])
-                            .setPopup(new mapboxgl.Popup().setHTML(`
-                                <div style="color: white;">
-                                    <h3 style="color:#ff9500;">DESTINATION</h3>
-                                    <p>📍 ${placeName}</p>
-                                    <p>🎯 Surveillance route endpoint</p>
-                                </div>
-                            `))
-                            .addTo(map);
-                            
-                            showNotification(`📍 Destination set: ${placeName}`, 'success');
-                            
-                            // Fly to destination
-                            map.flyTo({
-                                center: coords,
-                                zoom: 16,
-                                pitch: 60,
-                                duration: 3000
-                            });
-                        }
-                    } else {
-                        showNotification('Location not found. Try a different address.', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Geocoding error:', error);
-                    showNotification('Search failed. Check internet connection.', 'error');
-                });
-        }
-        
-        // ========== SURVEILLANCE FUNCTIONS ==========
-        function startSurveillance() {
-            if (isMonitoring) return;
-            
-            isMonitoring = true;
-            
-            // Create surveillance zone
-            createSurveillanceZone();
-            
-            // Start monitoring interval
-            monitoringInterval = setInterval(() => {
-                updateSurveillance();
-            }, 3000); // Update every 3 seconds
-            
-            showNotification('🔭 Surveillance zone monitoring activated', 'success');
-        }
-        
-        function createSurveillanceZone() {
-            if (!map || !userLocation) return;
-            
-            // Convert meters to degrees
-            const metersToDegrees = (meters) => meters / 111320;
-            
-            const frontDist = metersToDegrees(SURVEILLANCE_RANGE.FRONT);
-            const sideDist = metersToDegrees(SURVEILLANCE_RANGE.SIDES);
-            
-            // Create surveillance zone polygon (2000m front, 50m sides)
-            const zoneCoordinates = [
-                [
-                    [userLocation.lng - sideDist, userLocation.lat],
-                    [userLocation.lng + sideDist, userLocation.lat],
-                    [userLocation.lng + sideDist, userLocation.lat + frontDist],
-                    [userLocation.lng - sideDist, userLocation.lat + frontDist],
-                    [userLocation.lng - sideDist, userLocation.lat]
-                ]
-            ];
-            
-            // Remove existing zone if any
-            if (map.getSource('surveillance-zone')) {
-                map.removeLayer('surveillance-zone-fill');
-                map.removeLayer('surveillance-zone-line');
-                map.removeSource('surveillance-zone');
-            }
-            
-            // Add surveillance zone source
-            map.addSource('surveillance-zone', {
-                'type': 'geojson',
-                'data': {
-                    'type': 'Feature',
-                    'geometry': {
-                        'type': 'Polygon',
-                        'coordinates': zoneCoordinates
-                    }
-                }
-            });
-            
-            // Add filled zone
-            map.addLayer({
-                'id': 'surveillance-zone-fill',
-                'type': 'fill',
-                'source': 'surveillance-zone',
-                'paint': {
-                    'fill-color': '#008751',
-                    'fill-opacity': 0.2,
-                    'fill-outline-color': '#00ff88'
-                }
-            });
-            
-            // Add zone outline
-            map.addLayer({
-                'id': 'surveillance-zone-line',
-                'type': 'line',
-                'source': 'surveillance-zone',
-                'paint': {
-                    'line-color': '#00ff88',
-                    'line-width': 3,
-                    'line-dasharray': [2, 2]
-                }
-            });
-            
-            // Add zone to hidden map
-            if (hiddenMap) {
-                if (hiddenMap.getSource('surveillance-zone')) {
-                    hiddenMap.removeLayer('surveillance-zone-fill');
-                    hiddenMap.removeLayer('surveillance-zone-line');
-                    hiddenMap.removeSource('surveillance-zone');
-                }
-                
-                hiddenMap.addSource('surveillance-zone', {
-                    'type': 'geojson',
-                    'data': {
-                        'type': 'Feature',
-                        'geometry': {
-                            'type': 'Polygon',
-                            'coordinates': zoneCoordinates
-                        }
-                    }
-                });
-                
-                hiddenMap.addLayer({
-                    'id': 'surveillance-zone-fill',
-                    'type': 'fill',
-                    'source': 'surveillance-zone',
-                    'paint': {
-                        'fill-color': '#008751',
-                        'fill-opacity': 0.2
-                    }
-                });
-            }
-        }
-        
-        function updateSurveillance() {
-            if (!map || !userLocation) return;
-            
-            // Simulate threat detection
-            simulateThreatDetection();
-            
-            // Update surveillance zone position based on user location
-            createSurveillanceZone();
-            
-            // Update zone display info
-            updateZoneDisplay();
-        }
-        
-        function simulateThreatDetection() {
-            const threats = [
-                { type: 'SUSPICIOUS VEHICLE', level: 'MEDIUM', color: '#ff9500' },
-                { type: 'UNUSUAL GATHERING', level: 'LOW', color: '#FFD700' },
-                { type: 'FAST MOVING OBJECT', level: 'HIGH', color: '#ff3b30' },
-                { type: 'STATIONARY THREAT', level: 'MEDIUM', color: '#ff9500' }
-            ];
-            
-            // 20% chance of detecting a threat
-            if (Math.random() < 0.2) {
-                const randomThreat = threats[Math.floor(Math.random() * threats.length)];
-                
-                document.getElementById('threatLevel').textContent = randomThreat.level;
-                document.getElementById('threatLevel').style.color = randomThreat.color;
-                document.getElementById('detectionStatus').textContent = `Detected: ${randomThreat.type}`;
-                document.getElementById('detectionStatus').style.color = randomThreat.color;
-                
-                // Show threat on map
-                addThreatMarker(randomThreat);
-                
-                showNotification(`⚠️ ${randomThreat.level} THREAT: ${randomThreat.type}`, 'warning');
-            } else {
-                document.getElementById('detectionStatus').textContent = 'Monitoring for threats...';
-                document.getElementById('detectionStatus').style.color = '#ccc';
-            }
-        }
-        
-        function addThreatMarker(threat) {
-            // Add random position within surveillance zone
-            const threatLng = userLocation.lng + (Math.random() - 0.5) * 0.01;
-            const threatLat = userLocation.lat + Math.random() * 0.02;
-            
-            const threatMarker = new mapboxgl.Marker({
-                color: threat.color,
-                scale: 1.2
-            })
-            .setLngLat([threatLng, threatLat])
-            .setPopup(new mapboxgl.Popup().setHTML(`
-                <div style="color: white;">
-                    <h3 style="color:${threat.color};">${threat.level} THREAT</h3>
-                    <p>${threat.type}</p>
-                    <p>📍 ${threatLat.toFixed(6)}, ${threatLng.toFixed(6)}</p>
-                    <p>🕒 ${new Date().toLocaleTimeString()}</p>
-                </div>
-            `))
-            .addTo(map);
-            
-            // Remove marker after 10 seconds
-            setTimeout(() => {
-                threatMarker.remove();
-            }, 10000);
-        }
-        
-        function updateZoneDisplay() {
-            document.getElementById('frontDistance').textContent = `${SURVEILLANCE_RANGE.FRONT}m`;
-            document.getElementById('sideDistance').textContent = `${SURVEILLANCE_RANGE.SIDES}m`;
-            
-            document.getElementById('hiddenFront').textContent = `${SURVEILLANCE_RANGE.FRONT}m Front`;
-            document.getElementById('hiddenSide').textContent = `${SURVEILLANCE_RANGE.SIDES}m Sides`;
-        }
-        
-        function startContinuousTracking() {
-            if (navigator.geolocation) {
-                navigator.geolocation.watchPosition(
-                    (position) => {
-                        userLocation = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        };
-                        
-                        // Update map view
-                        map.flyTo({
-                            center: [userLocation.lng, userLocation.lat],
-                            zoom: 18,
-                            pitch: 70,
-                            bearing: position.coords.heading || 0,
-                            duration: 1000,
-                            essential: true
-                        });
-                        
-                        // Update user marker
-                        updateUserMarker();
-                        
-                        // Update hidden map
-                        if (hiddenMap) {
-                            hiddenMap.flyTo({
-                                center: [userLocation.lng, userLocation.lat],
-                                zoom: 18,
-                                duration: 1000
-                            });
-                        }
-                    },
-                    (error) => {
-                        console.error('Continuous tracking error:', error);
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        maximumAge: 3000,
-                        timeout: 10000
-                    }
-                );
-            }
-        }
-        
-        function updateUserMarker() {
-            // Remove existing user marker
-            const markers = document.getElementsByClassName('mapboxgl-marker');
-            for (let marker of markers) {
-                if (marker.style.zIndex === '1000') {
-                    marker.remove();
-                }
-            }
-            
-            // Add new user marker
-            new mapboxgl.Marker({
-                color: '#ff3b30',
-                scale: 1.5
-            })
-            .setLngLat([userLocation.lng, userLocation.lat])
-            .addTo(map);
-        }
-        
-        // ========== MAP CONTROLS ==========
-        function toggleSatelliteView() {
+        // ========== TOGGLE SATELLITE / HYBRID ==========
+        function toggleSatelliteSource() {
             if (!map) return;
+            map.eachLayer((layer) => { if (layer instanceof L.TileLayer) map.removeLayer(layer); });
             
-            isSatelliteView = !isSatelliteView;
-            
-            if (isSatelliteView) {
-                map.setStyle('mapbox://styles/mapbox/satellite-streets-v12');
-                if (hiddenMap) {
-                    hiddenMap.setStyle('mapbox://styles/mapbox/satellite-streets-v12');
-                }
-                showNotification('🛰️ Switched to high-res satellite view', 'success');
+            if (!isSatelliteHybrid) {
+                // Hybrid: satellite + labels
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: 'Esri, Maxar',
+                    maxZoom: 20
+                }).addTo(map);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OSM',
+                    maxZoom: 20,
+                    opacity: 0.3
+                }).addTo(map);
+                isSatelliteHybrid = true;
+                showNotification('🛰️🌍 HYBRID (labels over satellite)', 'success');
             } else {
-                map.setStyle('mapbox://styles/mapbox/streets-v12');
-                if (hiddenMap) {
-                    hiddenMap.setStyle('mapbox://styles/mapbox/streets-v12');
-                }
-                showNotification('🗺️ Switched to street view', 'success');
+                // Pure satellite
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: 'Esri, Maxar, Nigeria',
+                    maxZoom: 20
+                }).addTo(map);
+                isSatelliteHybrid = false;
+                showNotification('🛰️ PURE SATELLITE IMAGERY', 'success');
             }
+            // restore route and markers
+            updateSatelliteRoute(startLoc, destLoc);
+            if (userMarker) userMarker.addTo(map);
         }
         
-        function zoomToSurveillanceZone() {
-            if (!map || !userLocation) return;
-            
-            // Calculate bounds for surveillance zone
-            const metersToDegrees = (meters) => meters / 111320;
-            const frontDist = metersToDegrees(SURVEILLANCE_RANGE.FRONT);
-            const sideDist = metersToDegrees(SURVEILLANCE_RANGE.SIDES);
-            
-            const bounds = new mapboxgl.LngLatBounds();
-            bounds.extend([userLocation.lng - sideDist, userLocation.lat]);
-            bounds.extend([userLocation.lng + sideDist, userLocation.lat + frontDist]);
-            
-            map.fitBounds(bounds, {
-                padding: { top: 50, bottom: 50, left: 50, right: 50 },
-                duration: 2000,
-                pitch: 60
-            });
-            
-            showNotification('🔭 Zoomed to surveillance zone', 'success');
+        function zoomToRoute() {
+            if (!map) return;
+            let center = { lat: (startLoc.lat + destLoc.lat)/2, lng: (startLoc.lng + destLoc.lng)/2 };
+            map.flyTo([center.lat, center.lng], 10, { duration: 2 });
         }
         
-        // ========== HIDDEN MODE ==========
-        function enterHiddenMode() {
-            if (!isMonitoring) {
-                showNotification('Please activate surveillance first', 'error');
-                return;
-            }
-            
-            document.getElementById('sosInterface').style.display = 'none';
-            document.getElementById('calculator').style.display = 'none';
-            document.getElementById('settingsPanel').style.display = 'none';
-            document.getElementById('hiddenSatelliteMode').style.display = 'block';
-            
-            // Update hidden map with current view
-            if (hiddenMap) {
-                hiddenMap.flyTo({
-                    center: [userLocation.lng, userLocation.lat],
-                    zoom: 18,
-                    pitch: 60,
-                    duration: 1000
-                });
-                
-                createSurveillanceZone();
-            }
-            
-            showNotification('🕵️ App hidden - Satellite surveillance active', 'success');
+        function forceSatelliteView() {
+            if (map) zoomToRoute(); else { initSatelliteMap(); }
         }
         
-        function showFullApp() {
-            document.getElementById('hiddenSatelliteMode').style.display = 'none';
-            document.getElementById('sosInterface').style.display = 'block';
-        }
-        
-        function exitHiddenMode() {
-            document.getElementById('hiddenSatelliteMode').style.display = 'none';
-            document.getElementById('calculator').style.display = 'block';
-            document.getElementById('settingsPanel').style.display = 'block';
-        }
-        
-        function activateEmergencyFromHidden() {
-            showFullApp();
-            triggerEmergency('hidden_mode');
-        }
-        
-        // ========== SHAKE DETECTION ==========
-        let lastAcceleration = { x: null, y: null, z: null };
-        let lastShakeTime = 0;
-        
-        function handleShake(event) {
-            const acceleration = event.accelerationIncludingGravity;
-            
-            if (!lastAcceleration.x) {
-                lastAcceleration = { x: acceleration.x, y: acceleration.y, z: acceleration.z };
-                return;
-            }
-            
-            const delta = Math.abs(acceleration.x - lastAcceleration.x) + 
-                         Math.abs(acceleration.y - lastAcceleration.y) + 
-                         Math.abs(acceleration.z - lastAcceleration.z);
-            
-            if (delta > 15) {
-                const now = Date.now();
-                if (now - lastShakeTime > 1000) {
-                    shakeCount = 0;
-                }
-                
+        // ========== SHAKE DETECTION – 6 SHAKES FOR SOS ==========
+        function handleShake(e) {
+            let acc = e.accelerationIncludingGravity;
+            if (!acc) return;
+            if (!window.lastAccel) { window.lastAccel = {x: acc.x, y: acc.y, z: acc.z}; return; }
+            let delta = Math.abs(acc.x - window.lastAccel.x) + Math.abs(acc.y - window.lastAccel.y) + Math.abs(acc.z - window.lastAccel.z);
+            if (delta > 18) {
+                let now = Date.now();
+                if (now - lastShakeTime > 800) shakeCount = 0;
                 shakeCount++;
                 lastShakeTime = now;
-                
-                updateShakeDisplay();
-                
-                if (shakeCount >= 6) {
-                    triggerEmergency('shake');
-                }
+                document.getElementById('shakeDisplay').innerHTML = `<i class="fas fa-mobile-alt"></i> SHAKE ${shakeCount}/6 FOR SOS`;
+                if (shakeCount >= 6) { triggerEmergency('shake'); shakeCount = 0; }
             }
-            
-            lastAcceleration = { x: acceleration.x, y: acceleration.y, z: acceleration.z };
+            window.lastAccel = {x: acc.x, y: acc.y, z: acc.z};
         }
         
-        function updateShakeDisplay() {
-            const shakeElement = document.getElementById('shakeCount');
-            if (shakeElement) {
-                shakeElement.textContent = `${shakeCount}/6`;
-                if (shakeCount >= 6) {
-                    shakeElement.style.background = '#ff3b30';
-                } else if (shakeCount >= 4) {
-                    shakeElement.style.background = '#ff9500';
-                }
-            }
-        }
-        
-        // ========== EMERGENCY FUNCTIONS ==========
+        // ========== EMERGENCY SOS ==========
         function startHoldTimer() {
             if (emergencyActive) return;
-            
-            countdownValue = 3;
+            let count = 3;
             document.getElementById('buttonText').classList.add('hidden');
             document.getElementById('countdown').classList.remove('hidden');
-            document.getElementById('countdown').textContent = countdownValue;
-            
-            holdTimer = setInterval(() => {
-                countdownValue--;
-                document.getElementById('countdown').textContent = countdownValue;
-                
-                if (countdownValue <= 0) {
-                    clearInterval(holdTimer);
-                    triggerEmergency('button');
-                }
+            document.getElementById('countdown').innerText = count;
+            holdTimer = setInterval(() => { 
+                count--; 
+                document.getElementById('countdown').innerText = count;
+                if (count <= 0) { clearInterval(holdTimer); triggerEmergency('button'); }
             }, 1000);
         }
-        
-        function cancelHoldTimer() {
-            if (holdTimer && !emergencyActive) {
-                clearInterval(holdTimer);
-                document.getElementById('buttonText').classList.remove('hidden');
-                document.getElementById('countdown').classList.add('hidden');
-            }
-        }
+        function cancelHoldTimer() { clearInterval(holdTimer); document.getElementById('buttonText').classList.remove('hidden'); document.getElementById('countdown').classList.add('hidden'); }
         
         function triggerEmergency(source) {
             if (emergencyActive) return;
-            
             emergencyActive = true;
-            
-            const emergencyModal = document.createElement('div');
-            emergencyModal.style.cssText = `
-                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                background: rgba(0,0,0,0.97); z-index: 10003;
-                display: flex; flex-direction: column; align-items: center;
-                justify-content: center; color: white; text-align: center;
-                backdrop-filter: blur(20px);
-            `;
-            
-            let surveillanceInfo = '';
-            if (isMonitoring) {
-                surveillanceInfo = `
-                    <div style="background: rgba(0,135,81,0.3); padding: 15px; border-radius: 10px; margin: 10px 0; border: 1px solid #00ff88;">
-                        <p><i class="fas fa-satellite"></i> <strong>ACTIVE SURVEILLANCE:</strong></p>
-                        <p>📡 2000m forward monitoring</p>
-                        <p>👁️ 50m left/right coverage</p>
-                        <p>📍 Current threat level: <span style="color:#${document.getElementById('threatLevel').style.color}">${document.getElementById('threatLevel').textContent}</span></p>
-                    </div>
-                `;
-            }
-            
-            emergencyModal.innerHTML = `
-                <div style="font-size: 100px; color: #ff3b30; margin-bottom: 20px; animation: pulse 1s infinite;">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <h1 style="color: #ffcc00; font-size: 2.5rem; margin-bottom: 20px;">
-                    🚨 SATELLITE SURVEILLANCE SOS
-                </h1>
-                <p style="font-size: 1.2rem; margin-bottom: 15px; max-width: 500px;">
-                    Sending live satellite data to emergency contacts...
-                </p>
-                <div style="background: rgba(255,59,48,0.3); padding: 20px; border-radius: 15px; margin: 20px; width: 90%; max-width: 400px; border: 1px solid #ff3b30;">
-                    <p style="color: #00ff88; margin: 10px 0;">
-                        <i class="fas fa-location-dot"></i> <strong>LIVE SATELLITE POSITION:</strong><br>
-                        ${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}
-                    </p>
-                    <p style="color: #00ff88; margin: 10px 0;">
-                        <i class="fas fa-clock"></i> <strong>TIME:</strong> ${new Date().toLocaleString()}
-                    </p>
-                    <p style="color: #00ff88; margin: 10px 0;">
-                        <i class="fas fa-map"></i> <strong>GOOGLE MAPS:</strong><br>
-                        https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}
-                    </p>
-                    ${surveillanceInfo}
-                </div>
-                <div style="display: flex; gap: 15px; margin-top: 30px; flex-wrap: wrap; justify-content: center;">
-                    <button onclick="sendEmergencyAlerts()" style="background: #25D366; color: white; border: none; padding: 15px 30px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; gap: 10px;">
-                        <i class="fab fa-whatsapp"></i> Send WhatsApp Alert
-                    </button>
-                    <button onclick="cancelEmergency()" style="background: #666; color: white; border: none; padding: 15px 30px; border-radius: 10px; font-size: 1.1rem; cursor: pointer;">
-                        Cancel (False Alarm)
-                    </button>
-                </div>
-                <style>
-                    @keyframes pulse {
-                        0%, 100% { transform: scale(1); }
-                        50% { transform: scale(1.1); }
-                    }
-                </style>
-            `;
-            
-            document.body.appendChild(emergencyModal);
-            window.currentEmergencyModal = emergencyModal;
-            
-            document.getElementById('buttonText').classList.add('hidden');
-            document.getElementById('countdown').classList.add('hidden');
-            
-            showNotification('🚨 SATELLITE EMERGENCY ACTIVATED - Sending live data', 'emergency');
+            let contact = document.getElementById('contact1').value || '+2348103365359';
+            let pos = `Start: ${startLoc.lat.toFixed(4)},${startLoc.lng.toFixed(4)} | Dest: ${destLoc.lat.toFixed(4)},${destLoc.lng.toFixed(4)}`;
+            let msg = `🚨 SATELLITE SOS - Nigeria Route. ${pos}. I need assistance. Live satellite imagery active.`;
+            showNotification(`🚨 EMERGENCY – SENT TO ${contact}`, 'emergency');
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+            setTimeout(() => { emergencyActive = false; }, 5000);
         }
         
-        function sendEmergencyAlerts() {
-            const contact1 = document.getElementById('contact1').value;
-            const contact2 = document.getElementById('contact2').value;
-            
-            if (!contact1) {
-                showNotification('Please set emergency contacts first', 'error');
-                return;
-            }
-            
-            let message = `🚨🚨🚨 SATELLITE SURVEILLANCE SOS 🚨🚨🚨\n\n`;
-            message += `🛡️ FROM: SOS Guardian Pro - Live Satellite System\n\n`;
-            message += `🛰️ LIVE SATELLITE POSITION:\n`;
-            message += `Latitude: ${userLocation.lat.toFixed(6)}\n`;
-            message += `Longitude: ${userLocation.lng.toFixed(6)}\n`;
-            message += `🗺️ Google Maps: https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}\n\n`;
-            
-            message += `🔭 ACTIVE SURVEILLANCE:\n`;
-            message += `• 2000m forward satellite monitoring\n`;
-            message += `• 50m left/right threat detection\n`;
-            message += `• High-resolution imagery: ACTIVE\n`;
-            message += `• Threat level: ${document.getElementById('threatLevel').textContent}\n\n`;
-            
-            if (startLocation.address && destination.address) {
-                message += `🗺️ NAVIGATION ROUTE:\n`;
-                message += `• START: ${startLocation.address}\n`;
-                message += `• DESTINATION: ${destination.address}\n\n`;
-            }
-            
-            message += `🕒 TIME: ${new Date().toLocaleString()}\n\n`;
-            message += `🚨 USER NEEDS IMMEDIATE EMERGENCY ASSISTANCE!\n`;
-            message += `⚠️ LIVE SATELLITE TRACKING ACTIVE - MONITORING 2000m AHEAD\n\n`;
-            message += `📞 EMERGENCY CONTACTS NOTIFIED\n`;
-            message += `📱 Forward this satellite data to authorities`;
-            
-            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
-            
-            showNotification('📡 Satellite emergency data sent via WhatsApp', 'success');
-            
-            setTimeout(() => {
-                cancelEmergency();
-            }, 5000);
+        // ========== MISC ==========
+        function saveContacts() { 
+            localStorage.setItem('contact1', document.getElementById('contact1').value); 
+            localStorage.setItem('contact2', document.getElementById('contact2').value); 
+            showNotification('✅ Contacts saved', 'success'); 
         }
         
-        function cancelEmergency() {
-            if (window.currentEmergencyModal) {
-                window.currentEmergencyModal.remove();
-            }
-            
-            emergencyActive = false;
-            shakeCount = 0;
-            updateShakeDisplay();
-            document.getElementById('buttonText').classList.remove('hidden');
-            showNotification('Emergency cancelled', 'info');
+        function showNotification(m, t) { 
+            let n = document.createElement('div'); 
+            n.className = 'notification'; 
+            n.innerHTML = m; 
+            document.body.appendChild(n); 
+            setTimeout(() => n.remove(), 4000); 
         }
         
-        function testEmergency() {
-            triggerEmergency('test');
-        }
-        
-        function testSurveillance() {
-            getCurrentLocation();
-            showNotification('🧪 Testing satellite surveillance system...', 'info');
-            setTimeout(() => {
-                showNotification('✅ Satellite system working - High-res imagery active', 'success');
-            }, 2000);
-        }
-        
-        // ========== DATA SAVING ==========
-        function saveSettings() {
-            const contact1 = document.getElementById('contact1').value;
-            const contact2 = document.getElementById('contact2').value;
-            const startAddr = document.getElementById('startLocation').value;
-            const dest = document.getElementById('destination').value;
-            
-            localStorage.setItem('sos_contact1', contact1);
-            localStorage.setItem('sos_contact2', contact2);
-            localStorage.setItem('sos_start', startAddr);
-            localStorage.setItem('sos_destination', dest);
-            
-            showNotification('✅ Surveillance settings saved', 'success');
-        }
-        
-        function loadSavedData() {
-            const contact1 = localStorage.getItem('sos_contact1');
-            const contact2 = localStorage.getItem('sos_contact2');
-            const startAddr = localStorage.getItem('sos_start');
-            const dest = localStorage.getItem('sos_destination');
-            
-            if (contact1) document.getElementById('contact1').value = contact1;
-            if (contact2) document.getElementById('contact2').value = contact2;
-            if (startAddr) document.getElementById('startLocation').value = startAddr;
-            if (dest) document.getElementById('destination').value = dest;
-        }
-        
-        // ========== NOTIFICATION ==========
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = 'notification';
-            
-            let icon = 'ℹ️';
-            if (type === 'success') icon = '✅';
-            if (type === 'warning') icon = '⚠️';
-            if (type === 'emergency') icon = '🚨';
-            if (type === 'error') icon = '❌';
-            
-            notification.innerHTML = `${icon} ${message}`;
-            
-            if (type === 'error') notification.style.borderLeftColor = '#ff3b30';
-            if (type === 'success') notification.style.borderLeftColor = '#4CAF50';
-            if (type === 'emergency') notification.style.borderLeftColor = '#ff9500';
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideIn 0.5s ease-out reverse';
-                setTimeout(() => notification.remove(), 500);
-            }, 4000);
-        }
-        
-        // ========== INITIALIZATION ==========
-        window.addEventListener('load', () => {
+        // Preload
+        window.onload = function() {
             updateDisplay();
-            
-            setTimeout(() => {
-                document.getElementById('settingsPanel').style.display = 'none';
-            }, 10000);
-        });
+            setTimeout(() => { document.getElementById('settingsPanel').style.display = 'block'; }, 2000);
+        };
     </script>
 </body>
 </html>
