@@ -182,6 +182,7 @@
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
             position: relative;
             border: 3px solid #0066cc;
+            transition: all 0.3s ease;
         }
         #map {
             width: 100%;
@@ -220,6 +221,51 @@
         }
         .satellite-btn:hover { background: #0066aa; }
         
+        /* ===== ONLY ONE BUTTON: ENLARGE SATELLITE VIEW ===== */
+        .enlarge-btn-container {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+        }
+        .enlarge-btn {
+            background: #004c99;
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 2px solid #88ddff;
+            box-shadow: 0 0 30px #00aaff;
+            pointer-events: auto;
+            background: linear-gradient(145deg, #0055aa, #003366);
+        }
+        .enlarge-btn:hover {
+            background: #0066cc;
+            transform: scale(1.05);
+            box-shadow: 0 0 40px #00aaff;
+        }
+        .enlarge-btn i {
+            font-size: 1.5rem;
+        }
+        .map-container.enlarged {
+            height: 90vh;
+            margin: 0;
+            border-radius: 0;
+            position: relative;
+            z-index: 1001;
+        }
+        
         /* ROUTE info */
         .route-info {
             background: rgba(0, 100, 200, 0.3);
@@ -257,29 +303,15 @@
             backdrop-filter: blur(10px);
         }
         .hidden { display: none; }
-        .settings-panel {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.85);
-            padding: 15px;
-            border-radius: 15px;
-            z-index: 999;
-            border: 1px solid #3388ff;
-        }
-        .settings-btn {
-            background: #004488;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin: 5px 0;
-            width: 100%;
-            cursor: pointer;
-        }
+        
+        /* SETTINGS PANEL - COMPLETELY REMOVED FROM CALCULATOR FACE */
+        /* No settings panel visible on calculator */
+        
         @media (max-width: 768px) {
             .emergency-btn { width: 160px; height: 160px; }
             .map-container { height: 450px; }
+            .map-container.enlarged { height: 85vh; }
+            .enlarge-btn { padding: 14px 30px; font-size: 1.1rem; }
         }
         /* Shake indicator */
         .shake-indicator {
@@ -388,7 +420,7 @@
             </div>
             
             <!-- ========== LIVE SATELLITE MAP – ESRI WORLD IMAGERY ========== -->
-            <div class="map-container">
+            <div class="map-container" id="mapContainer">
                 <div class="map-overlay">
                     <button class="satellite-btn" onclick="toggleSatelliteSource()">
                         <i class="fas fa-layer-group"></i> SATELLITE / HYBRID
@@ -398,6 +430,12 @@
                     </button>
                 </div>
                 <div id="map"></div>
+                <!-- ===== ONLY ONE BUTTON: ENLARGE SATELLITE VIEW ===== -->
+                <div class="enlarge-btn-container">
+                    <button class="enlarge-btn" id="enlargeMapBtn" onclick="toggleMapEnlarge()">
+                        <i class="fas fa-expand-alt" id="enlargeIcon"></i> <span id="enlargeText">ENLARGE SATELLITE</span>
+                    </button>
+                </div>
             </div>
             
             <!-- USER INSTRUCTIONS – PURE OBSERVATION -->
@@ -415,12 +453,7 @@
         </div>
     </div>
     
-    <!-- ========== SETTINGS PANEL ========== -->
-    <div class="settings-panel" id="settingsPanel">
-        <button class="settings-btn" onclick="toggleSOSInterface()"><i class="fas fa-eye"></i> SHOW SATELLITE</button>
-        <button class="settings-btn" onclick="resetCalculator()"><i class="fas fa-calculator"></i> HIDE</button>
-        <button class="settings-btn" onclick="forceSatelliteView()"><i class="fas fa-satellite"></i> FOCUS ROUTE</button>
-    </div>
+    <!-- NO SETTINGS PANEL – COMPLETELY REMOVED FROM CALCULATOR FACE -->
 
     <script>
         // ========== LEAFLET SATELLITE IMAGERY – ESRI WORLD IMAGERY (LIVE) ==========
@@ -441,6 +474,9 @@
         let calculatorHoldTimer = null;
         let emergencyActive = false;
         
+        // ===== Map enlarge state =====
+        let isMapEnlarged = false;
+        
         // ========== CALCULATOR FUNCTIONS ==========
         let currentInput = '0', previousInput = '', operation = null, resetScreen = false;
         function appendNumber(n) { if (currentInput === '0' || resetScreen) { currentInput = n; resetScreen = false; } else currentInput += n; updateDisplay(); }
@@ -454,16 +490,23 @@
         function toggleSOSInterface() {
             const sos = document.getElementById('sosInterface');
             const calc = document.getElementById('calculator');
-            const set = document.getElementById('settingsPanel');
             if (sos.style.display === 'block') { 
-                sos.style.display = 'none'; calc.style.display = 'block'; set.style.display = 'block'; 
+                sos.style.display = 'none'; calc.style.display = 'block';
             } else { 
-                sos.style.display = 'block'; calc.style.display = 'none'; set.style.display = 'none'; 
+                sos.style.display = 'block'; calc.style.display = 'none';
                 initSatelliteMap(); 
             }
         }
-        function resetCalculator() { document.getElementById('sosInterface').style.display = 'none'; document.getElementById('calculator').style.display = 'block'; document.getElementById('settingsPanel').style.display = 'block'; }
-        function holdForEmergency() { calculatorHoldTimer = setTimeout(() => { toggleSOSInterface(); showNotification('🛰️ SATELLITE ACTIVATED – Nigeria coverage', 'success'); }, 3000); }
+        function resetCalculator() { 
+            document.getElementById('sosInterface').style.display = 'none'; 
+            document.getElementById('calculator').style.display = 'block';
+        }
+        function holdForEmergency() { 
+            calculatorHoldTimer = setTimeout(() => { 
+                toggleSOSInterface(); 
+                showNotification('🛰️ SATELLITE ACTIVATED – Nigeria coverage', 'success'); 
+            }, 3000); 
+        }
         function releaseHold() { clearTimeout(calculatorHoldTimer); }
         
         // ========== INIT SATELLITE MAP ==========
@@ -574,8 +617,24 @@
             map.flyTo([center.lat, center.lng], 10, { duration: 2 });
         }
         
-        function forceSatelliteView() {
-            if (map) zoomToRoute(); else { initSatelliteMap(); }
+        // ========== TOGGLE MAP ENLARGE ==========
+        function toggleMapEnlarge() {
+            let mapContainer = document.getElementById('mapContainer');
+            let btnIcon = document.getElementById('enlargeIcon');
+            let btnText = document.getElementById('enlargeText');
+            
+            if (!isMapEnlarged) {
+                mapContainer.classList.add('enlarged');
+                btnIcon.className = 'fas fa-compress-alt';
+                btnText.innerText = 'REDUCE SATELLITE';
+                isMapEnlarged = true;
+            } else {
+                mapContainer.classList.remove('enlarged');
+                btnIcon.className = 'fas fa-expand-alt';
+                btnText.innerText = 'ENLARGE SATELLITE';
+                isMapEnlarged = false;
+            }
+            setTimeout(() => { if (map) map.invalidateSize(); }, 200);
         }
         
         // ========== SHAKE DETECTION – 6 SHAKES FOR SOS ==========
@@ -639,7 +698,6 @@
         // Preload
         window.onload = function() {
             updateDisplay();
-            setTimeout(() => { document.getElementById('settingsPanel').style.display = 'block'; }, 2000);
         };
     </script>
 </body>
